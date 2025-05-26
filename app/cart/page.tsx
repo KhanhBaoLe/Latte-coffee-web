@@ -1,14 +1,21 @@
 'use client';
 import { useCart } from '@/app/components/CartContext';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export default function CartPage() {
     const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
     const [selectedAll, setSelectedAll] = useState(false);
+    const router = useRouter(); // Khởi tạo router
 
     const toggleSelectAll = () => {
         setSelectedAll(!selectedAll);
+    };
+
+    const handleOrder = () => {
+        clearCart(); // (Tùy chọn) Xóa giỏ hàng sau khi đặt
+        router.push('/confirm'); // Chuyển hướng đến trang xác nhận
     };
 
     const totalAmount = cartItems.reduce(
@@ -96,7 +103,10 @@ export default function CartPage() {
                     <div className="text-xl font-bold text-[#f58220]">
                         Total: ${totalAmount.toFixed(2)}
                     </div>
-                    <button className="px-6 py-3 bg-[#f58220] text-white rounded-md hover:bg-[#e46b00] transition-colors font-semibold">
+                    <button
+                        onClick={handleOrder} // Gắn sự kiện chuyển trang
+                        className="px-6 py-3 bg-[#f58220] text-white rounded-md hover:bg-[#e46b00] transition-colors font-semibold"
+                    >
                         Order
                     </button>
                 </div>

@@ -1,4 +1,5 @@
 'use client'
+import { useCart } from '@/app/components/CartContext'
 import { products } from '@/app/data/products'
 import Image from 'next/image'
 import { notFound, useRouter, useParams } from 'next/navigation'
@@ -9,6 +10,7 @@ export default function ProductPage() {
   const params = useParams()
   const id = params?.id as string
 
+  const { addToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState<'S' | 'M' | 'L'>('M')
   const [selectedMilk, setSelectedMilk] = useState<string>('Whole Milk')
   const [selectedDrink, setSelectedDrink] = useState<string>('Hot')
@@ -28,16 +30,19 @@ export default function ProductPage() {
     : 0
 
   const handleAddToCart = () => {
-    console.log('Added to cart:', {
-      productId: product.id,
-      size: selectedSize,
-      milk: selectedMilk,
-      drink: selectedDrink, 
-      toppings: selectedToppings,
-      price: totalPrice
-    })
-    router.push('/cart')
-  }
+  addToCart({
+    id: Number(product.id),
+    name: product.title,
+    price: totalPrice, // Sử dụng totalPrice đã tính toán
+    quantity: 1,
+    size: selectedSize,
+    milk: selectedMilk,
+    drink: selectedDrink,
+    toppings: selectedToppings,
+    image: product.image 
+  });
+  router.push('/cart'); // Chuyển thẳng đến giỏ hàng
+};
 
   const handleToppingChange = (topping: string) => {
     setSelectedToppings(prev =>

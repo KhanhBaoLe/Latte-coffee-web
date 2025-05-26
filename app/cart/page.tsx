@@ -43,7 +43,7 @@ export default function CartPage() {
                             <tr key={item.id} className="border-b border-gray-300">
                                 <td className="py-4 px-6 text-[#f58220] flex items-center space-x-4">
                                     <Image
-                                        src="/images/matcha.png"
+                                        src="/images/matchalate.webp"
                                         alt={item.name}
                                         width={40}
                                         height={40}

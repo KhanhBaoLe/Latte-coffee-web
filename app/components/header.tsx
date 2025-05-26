@@ -3,13 +3,75 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCart } from './CartContext';
+import { useState, useRef, useEffect } from 'react';
 
 export default function Header() {
   const { cartItems } = useCart();
   const router = useRouter();
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const cartButtonRef = useRef<HTMLDivElement>(null);
 
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
+
+  const clearTimeout = () => {
+    if (timeoutId.current) {
+      window.clearTimeout(timeoutId.current);
+      timeoutId.current = null;
+    }
+  };
+
+  const handleCartEnter = () => {
+    clearTimeout();
+    setIsCartOpen(true);
+  };
+
+  const handleCartLeave = () => {
+    clearTimeout();
+    timeoutId.current = setTimeout(() => {
+      if (!dropdownRef.current?.matches(':hover')) {
+        setIsCartOpen(false);
+      }
+    }, 300);
+  };
+
+  const handleDropdownEnter = () => {
+    clearTimeout();
+    setIsCartOpen(true);
+  };
+
+  const handleDropdownLeave = () => {
+    clearTimeout();
+    timeoutId.current = setTimeout(() => {
+      if (!cartButtonRef.current?.matches(':hover')) {
+        setIsCartOpen(false);
+      }
+    }, 300);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node) &&
+        cartButtonRef.current &&
+        !cartButtonRef.current.contains(event.target as Node)
+      ) {
+        setIsCartOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearTimeout();
+    };
+  }, []);
 
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
@@ -58,7 +120,12 @@ export default function Header() {
 
           {/* Cart */}
           <div className="flex-1 flex justify-end">
-            <div className="relative group">
+            <div 
+              className="relative"
+              ref={cartButtonRef}
+              onMouseEnter={handleCartEnter}
+              onMouseLeave={handleCartLeave}
+            >
               <button className="p-2 relative text-gray-600 hover:text-amber-700 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -69,15 +136,27 @@ export default function Header() {
               </button>
 
               {/* Cart Dropdown */}
-              <div className="absolute opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 translate-y-2 transition-all duration-200 top-full right-0 w-80 mt-2 z-50">
+              <div
+                ref={dropdownRef}
+                className={`absolute top-full right-0 w-80 mt-2 z-50 transition-all duration-200 ${
+                  isCartOpen ? 'opacity-100 pointer-events-auto translate-y-0' : 'opacity-0 pointer-events-none translate-y-2'
+                }`}
+                onMouseEnter={handleDropdownEnter}
+                onMouseLeave={handleDropdownLeave}
+              >
                 <div className="bg-white rounded-lg shadow-lg border border-gray-100">
                   <div className="p-4 space-y-4">
                     {/* Cart Items */}
                     {cartItems.length > 0 ? (
                       cartItems.map((item, i) => (
                         <div key={i} className="flex justify-between items-center">
-                          <span className="text-gray-600">{item.name}</span>
-                          <span className="text-amber-900 font-medium">{item.quantity}x đ {item.price.toLocaleString()}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-gray-600">{item.name}</span>
+                            {/* <span className="text-xs text-gray-400">({item.size})</span> */}
+                          </div>
+                          <span className="text-amber-900 font-medium">
+                            {item.quantity}x ₫{item.price.toLocaleString()}
+                          </span>
                         </div>
                       ))
                     ) : (
@@ -89,7 +168,7 @@ export default function Header() {
                       <div className="pt-4 mt-4 border-t border-gray-100">
                         <div className="flex justify-between items-center font-medium">
                           <span className="text-gray-800">Tổng:</span>
-                          <span className="text-amber-900">đ {totalPrice.toLocaleString()}</span>
+                          <span className="text-amber-900">₫{totalPrice.toLocaleString()}</span>
                         </div>
                       </div>
                     )}
@@ -99,13 +178,19 @@ export default function Header() {
                       <div className="space-y-2">
                         <button
                           className="w-full py-2 px-4 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors"
-                          onClick={() => router.push('/cart')}
+                          onClick={() => {
+                            setIsCartOpen(false);
+                            router.push('/cart');
+                          }}
                         >
                           XEM GIỎ HÀNG
                         </button>
                         <button
                           className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors"
-                          onClick={() => router.push('/checkout')}
+                          onClick={() => {
+                            setIsCartOpen(false);
+                            router.push('/checkout');
+                          }}
                         >
                           THANH TOÁN
                         </button>

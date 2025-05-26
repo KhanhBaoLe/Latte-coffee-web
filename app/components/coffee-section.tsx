@@ -1,86 +1,48 @@
 'use client';
 import { useState } from 'react';
-import { CartItem, getCartFromLocalStorage, saveCartToLocalStorage } from "../utils/cartStorage";
 import { useCart } from './CartContext';
+import { products } from '@/app/data/products';
+import { useRouter } from 'next/navigation';
 const CoffeeSection = () => {
     const { addToCart } = useCart();
-
-    type CoffeeItem = {
-        title: string;
-        cta: string;
-    };
-
+    const router = useRouter();
     const [selectedOptions, setSelectedOptions] = useState<Record<string, Record<string, string>>>({});
-
-    const coffeeItems: CoffeeItem[] = [
-        {
-            title: "Midnight Mint Mocha Frappuccino",
-            cta: "ADD TO BASKET"
-        },
-        {
-            title: "Midnight Mint Mocha Frappuccino",
-            cta: "ADD TO BASKET"
-        },
-        {
-            title: "Midnight Mint Mocha Frappuccino",
-            cta: "ADD TO BASKET"
-        },
-        {
-            title: "Midnight Mint Mocha Frappuccino",
-            cta: "ADD TO BASKET"
-        }
-    ];
-
-    const sizeOptions = ["Small", "Medium", "Large"];
-    const milkOptions = ["Whole Milk", "Skim Milk", "Almond Milk", "Soy Milk"];
-    const drinkOptions = ["Hot", "Iced", "Blended"];
-
-    const handleOptionChange = (itemIndex: number, optionType: string, value: string) => {
+    
+    const handleOptionChange = (itemId: string, optionType: string, value: string) => {
         setSelectedOptions(prev => ({
             ...prev,
-            [`item-${itemIndex}`]: {
-                ...prev[`item-${itemIndex}`],
+            [itemId]: {
+                ...prev[itemId],
                 [optionType]: value
             }
         }));
-    };
-
-    const handleAddToCart = (product: CartItem) => {
-        const currentCart = getCartFromLocalStorage();
-        const exists = currentCart.find(item => item.id === product.id);
-
-        let updatedCart;
-        if (exists) {
-            updatedCart = currentCart.map(item =>
-                item.id === product.id
-                    ? { ...item, quantity: item.quantity + 1 }
-                    : item
-            );
-        } else {
-            updatedCart = [...currentCart, { ...product, quantity: 1 }];
-        }
-
-        saveCartToLocalStorage(updatedCart);
     };
     return (
         <section className="bg-[#f8dcc5] py-16 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-4xl font-extrabold text-left text-orange-600 mb-12">
-                    Fruit Juice
+                    Our Special Coffees
                 </h1>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {coffeeItems.map((item, index) => (
+                    {products.map((product) => (
                         <div
-                            key={index}
+                            key={product.id}
                             className="group rounded-2xl shadow-md transition-transform duration-300 transform hover:scale-105 p-6 flex flex-col justify-between bg-[#fd8e3d] text-white"
                         >
-                            <div className="flex justify-center mb-4">
-                                <img src="/images/cup.png" alt="Coffee Cup" className="h-24" />
+                            <div 
+                                className="flex justify-center mb-4 cursor-pointer"
+                                onClick={() => router.push(`/detail/${product.id}`)}
+                            >
+                                <img 
+                                    src={product.image} 
+                                    alt={product.title} 
+                                    className="h-24 object-contain"
+                                />
                             </div>
 
                             <h2 className="text-lg font-bold mb-4 leading-snug text-white">
-                                {item.title}
+                                {product.title}
                             </h2>
 
                             <div className="mb-4 space-y-3 text-sm">
@@ -89,11 +51,11 @@ const CoffeeSection = () => {
                                     <span className="font-bold w-16">Size</span>
                                     <select
                                         className="flex-1 p-2 rounded text-black text-sm"
-                                        value={selectedOptions[`item-${index}`]?.size || ""}
-                                        onChange={(e) => handleOptionChange(index, "size", e.target.value)}
+                                        value={selectedOptions[product.id]?.size || ""}
+                                        onChange={(e) => handleOptionChange(product.id, "size", e.target.value)}
                                     >
                                         <option value="">Select</option>
-                                        {sizeOptions.map((size, i) => (
+                                        {product.sizes.map((size, i) => (
                                             <option key={i} value={size}>{size}</option>
                                         ))}
                                     </select>
@@ -104,11 +66,11 @@ const CoffeeSection = () => {
                                     <span className="font-bold w-16">Milk</span>
                                     <select
                                         className="flex-1 p-2 rounded text-black text-sm"
-                                        value={selectedOptions[`item-${index}`]?.milk || ""}
-                                        onChange={(e) => handleOptionChange(index, "milk", e.target.value)}
+                                        value={selectedOptions[product.id]?.milk || ""}
+                                        onChange={(e) => handleOptionChange(product.id, "milk", e.target.value)}
                                     >
                                         <option value="">Select</option>
-                                        {milkOptions.map((milk, i) => (
+                                        {product.milkOptions.map((milk, i) => (
                                             <option key={i} value={milk}>{milk}</option>
                                         ))}
                                     </select>
@@ -119,11 +81,11 @@ const CoffeeSection = () => {
                                     <span className="font-bold w-16">Drink</span>
                                     <select
                                         className="flex-1 p-2 rounded text-black text-sm"
-                                        value={selectedOptions[`item-${index}`]?.drink || ""}
-                                        onChange={(e) => handleOptionChange(index, "drink", e.target.value)}
+                                        value={selectedOptions[product.id]?.drink || ""}
+                                        onChange={(e) => handleOptionChange(product.id, "drink", e.target.value)}
                                     >
                                         <option value="">Select</option>
-                                        {drinkOptions.map((drink, i) => (
+                                        {product.drinkOptions.map((drink, i) => (
                                             <option key={i} value={drink}>{drink}</option>
                                         ))}
                                     </select>
@@ -132,16 +94,16 @@ const CoffeeSection = () => {
 
                             <button
                                 onClick={() => {
-                                    const options = selectedOptions[`item-${index}`];
+                                    const options = selectedOptions[product.id];
                                     if (!options?.size || !options?.milk || !options?.drink) {
                                         alert("Please select Size, Milk, and Drink");
                                         return;
                                     }
 
                                     addToCart({
-                                        id: index + 1,
-                                        name: item.title,
-                                        price: 4.3,
+                                        id: Number(product.id),
+                                        name: product.title,
+                                        price: product.basePrices[options.size as keyof typeof product.basePrices],
                                         quantity: 1,
                                         size: options.size,
                                         milk: options.milk,
@@ -150,9 +112,8 @@ const CoffeeSection = () => {
                                 }}
                                 className="w-full mt-auto bg-white text-black rounded-full py-2 px-4 font-bold tracking-wide hover:bg-gray-100 transition-colors"
                             >
-                                {item.cta}
+                                ADD TO BASKET
                             </button>
-
                         </div>
                     ))}
                 </div>

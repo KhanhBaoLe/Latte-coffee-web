@@ -1,31 +1,35 @@
-// components/Header.tsx
-import Image from 'next/image'
-import Link from 'next/link'
+'use client';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useCart } from './CartContext';
 
 export default function Header() {
+  const { cartItems } = useCart();
+  const router = useRouter();
+
+  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const totalPrice = cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
-          {/* Logo and Brand */}
+          {/* Logo and Navigation */}
           <div className="flex items-center gap-3 flex-1">
             <div className="flex items-center gap-2">
-              <Image 
-                src="/images/cup.png" 
+              <Image
+                src="/images/cup.png"
                 alt="logo-coffee"
                 width={40}
                 height={40}
                 className="w-10 h-10 object-contain hover:scale-105 transition-transform"
               />
-              <Link 
-                href="/" 
-                className="text-xl font-bold text-amber-900 hover:text-amber-700 transition-colors"
-              >
+              <Link href="/" className="text-xl font-bold text-amber-900 hover:text-amber-700 transition-colors">
                 latteCoffee
               </Link>
             </div>
-            
-            {/* Navigation */}
+
             <nav className="hidden md:flex items-center gap-4 ml-4 border-l pl-4 border-gray-200">
               <Link href="/" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
                 Home
@@ -43,7 +47,6 @@ export default function Header() {
                 type="text"
                 placeholder="Search drinks..."
                 className="w-full px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                
               />
               <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-amber-600 transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,42 +64,53 @@ export default function Header() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
-                  1
+                  {totalItems}
                 </span>
               </button>
 
               {/* Cart Dropdown */}
-              <div className="absolute hidden group-hover:block top-full right-0 w-80 mt-2 z-50">
+              <div className="absolute opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-hover:translate-y-0 translate-y-2 transition-all duration-200 top-full right-0 w-80 mt-2 z-50">
                 <div className="bg-white rounded-lg shadow-lg border border-gray-100">
-                  {/* Cart Content */}
-                  <div className="p-4">
+                  <div className="p-4 space-y-4">
                     {/* Cart Items */}
-                    <div className="space-y-4">
-                      {[...Array(4)].map((_, i) => (
+                    {cartItems.length > 0 ? (
+                      cartItems.map((item, i) => (
                         <div key={i} className="flex justify-between items-center">
-                          <span className="text-gray-600"># Garamel</span>
-                          <span className="text-amber-900 font-medium">1x đ 45,000</span>
+                          <span className="text-gray-600">{item.name}</span>
+                          <span className="text-amber-900 font-medium">{item.quantity}x đ {item.price.toLocaleString()}</span>
                         </div>
-                      ))}
-                    </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center">Giỏ hàng đang trống</p>
+                    )}
 
                     {/* Total */}
-                    <div className="pt-4 mt-4 border-t border-gray-100">
-                      <div className="flex justify-between items-center font-medium">
-                        <span className="text-gray-800">Tổng:</span>
-                        <span className="text-amber-900">đ 45,000</span>
+                    {cartItems.length > 0 && (
+                      <div className="pt-4 mt-4 border-t border-gray-100">
+                        <div className="flex justify-between items-center font-medium">
+                          <span className="text-gray-800">Tổng:</span>
+                          <span className="text-amber-900">đ {totalPrice.toLocaleString()}</span>
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Buttons */}
-                    <div className="mt-4 space-y-2">
-                      <button className="w-full py-2 px-4 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors">
-                        XEM GIỎ HÀNG
-                      </button>
-                      <button className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors">
-                        XEM GIỎ HÀNG
-                      </button>
-                    </div>
+                    {cartItems.length > 0 && (
+                      <div className="space-y-2">
+                        <button
+                          className="w-full py-2 px-4 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors"
+                          onClick={() => router.push('/cart')}
+                        >
+                          XEM GIỎ HÀNG
+                        </button>
+                        <button
+                          className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors"
+                          onClick={() => router.push('/checkout')}
+                        >
+                          THANH TOÁN
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -105,5 +119,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }

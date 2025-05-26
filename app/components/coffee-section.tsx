@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
+import { CartItem, getCartFromLocalStorage, saveCartToLocalStorage } from "../utils/cartStorage";
 import { useCart } from './CartContext';
-
 const CoffeeSection = () => {
     const { addToCart } = useCart();
 
@@ -45,6 +45,23 @@ const CoffeeSection = () => {
         }));
     };
 
+    const handleAddToCart = (product: CartItem) => {
+        const currentCart = getCartFromLocalStorage();
+        const exists = currentCart.find(item => item.id === product.id);
+
+        let updatedCart;
+        if (exists) {
+            updatedCart = currentCart.map(item =>
+                item.id === product.id
+                    ? { ...item, quantity: item.quantity + 1 }
+                    : item
+            );
+        } else {
+            updatedCart = [...currentCart, { ...product, quantity: 1 }];
+        }
+
+        saveCartToLocalStorage(updatedCart);
+    };
     return (
         <section className="bg-[#f8dcc5] py-16 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">

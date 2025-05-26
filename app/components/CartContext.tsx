@@ -17,6 +17,7 @@ type CartContextType = {
     decreaseQuantity: (id: number) => void;
     removeFromCart: (id: number) => void;
     clearCart: () => void;
+    updateQuantity: (id: number, quantity: number) => void; // ✅ Thêm ở đây
     totalItems: number;
     totalPrice: number;
 };
@@ -62,6 +63,14 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         );
     };
 
+    const updateQuantity = (id: number, quantity: number) => {
+        setCartItems((prevItems) =>
+            prevItems.map((item) =>
+                item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
+            )
+        );
+    };
+
     const removeFromCart = (id: number) => {
         setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
     };
@@ -75,7 +84,16 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <CartContext.Provider
-            value={{ cartItems, addToCart, decreaseQuantity, removeFromCart, clearCart, totalItems, totalPrice }}
+            value={{
+                cartItems,
+                addToCart,
+                decreaseQuantity,
+                updateQuantity, // ✅ Thêm vào provider
+                removeFromCart,
+                clearCart,
+                totalItems,
+                totalPrice
+            }}
         >
             {children}
         </CartContext.Provider>

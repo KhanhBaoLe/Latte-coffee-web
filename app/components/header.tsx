@@ -1,0 +1,109 @@
+// components/Header.tsx
+import Image from 'next/image'
+import Link from 'next/link'
+
+export default function Header() {
+  return (
+    <header className="bg-white shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between gap-4">
+          {/* Logo and Brand */}
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-2">
+              <Image 
+                src="/images/cup.png" 
+                alt="logo-coffee"
+                width={40}
+                height={40}
+                className="w-10 h-10 object-contain hover:scale-105 transition-transform"
+              />
+              <Link 
+                href="/" 
+                className="text-xl font-bold text-amber-900 hover:text-amber-700 transition-colors"
+              >
+                latteCoffee
+              </Link>
+            </div>
+            
+            {/* Navigation */}
+            <nav className="hidden md:flex items-center gap-4 ml-4 border-l pl-4 border-gray-200">
+              <Link href="/" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
+                Home
+              </Link>
+              <Link href="/menu" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
+                Menu
+              </Link>
+            </nav>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex-1 max-w-xl mx-4">
+            <div className="relative group">
+              <input
+                type="text"
+                placeholder="Search drinks..."
+                className="w-full px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                
+              />
+              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-amber-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Cart */}
+          <div className="flex-1 flex justify-end">
+            <div className="relative group">
+              <button className="p-2 relative text-gray-600 hover:text-amber-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                  1
+                </span>
+              </button>
+
+              {/* Cart Dropdown */}
+              <div className="absolute hidden group-hover:block top-full right-0 w-80 mt-2 z-50">
+                <div className="bg-white rounded-lg shadow-lg border border-gray-100">
+                  {/* Cart Content */}
+                  <div className="p-4">
+                    {/* Cart Items */}
+                    <div className="space-y-4">
+                      {[...Array(4)].map((_, i) => (
+                        <div key={i} className="flex justify-between items-center">
+                          <span className="text-gray-600"># Garamel</span>
+                          <span className="text-amber-900 font-medium">1x đ 45,000</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Total */}
+                    <div className="pt-4 mt-4 border-t border-gray-100">
+                      <div className="flex justify-between items-center font-medium">
+                        <span className="text-gray-800">Tổng:</span>
+                        <span className="text-amber-900">đ 45,000</span>
+                      </div>
+                    </div>
+
+                    {/* Buttons */}
+                    <div className="mt-4 space-y-2">
+                      <button className="w-full py-2 px-4 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors">
+                        XEM GIỎ HÀNG
+                      </button>
+                      <button className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors">
+                        XEM GIỎ HÀNG
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+}

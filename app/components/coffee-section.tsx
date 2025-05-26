@@ -114,18 +114,28 @@ const CoffeeSection = () => {
                             </div>
 
                             <button
-                                onClick={() =>
+                                onClick={() => {
+                                    const options = selectedOptions[`item-${index}`];
+                                    if (!options?.size || !options?.milk || !options?.drink) {
+                                        alert("Please select Size, Milk, and Drink");
+                                        return;
+                                    }
+
                                     addToCart({
                                         id: index + 1,
                                         name: item.title,
                                         price: 4.3,
                                         quantity: 1,
-                                    })
-                                }
+                                        size: options.size,
+                                        milk: options.milk,
+                                        drink: options.drink,
+                                    });
+                                }}
                                 className="w-full mt-auto bg-white text-black rounded-full py-2 px-4 font-bold tracking-wide hover:bg-gray-100 transition-colors"
                             >
                                 {item.cta}
                             </button>
+
                         </div>
                     ))}
                 </div>

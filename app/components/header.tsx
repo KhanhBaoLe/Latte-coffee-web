@@ -2,11 +2,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { useCart } from './CartContext';
-import { useState, useRef, useEffect } from 'react';
 
 export default function Header() {
-  const { cartItems } = useCart();
+  const { cartItems, removeFromCart } = useCart();
   const router = useRouter();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
@@ -120,7 +120,7 @@ export default function Header() {
 
           {/* Cart */}
           <div className="flex-1 flex justify-end">
-            <div 
+            <div
               className="relative"
               ref={cartButtonRef}
               onMouseEnter={handleCartEnter}
@@ -138,67 +138,80 @@ export default function Header() {
               {/* Cart Dropdown */}
               <div
                 ref={dropdownRef}
-                className={`absolute top-full right-0 w-80 mt-2 z-50 transition-all duration-200 ${
-                  isCartOpen ? 'opacity-100 pointer-events-auto translate-y-0' : 'opacity-0 pointer-events-none translate-y-2'
-                }`}
+                className={`absolute top-full right-0 w-80 mt-2 z-50 transition-all duration-200 ${isCartOpen ? 'opacity-100 pointer-events-auto translate-y-0' : 'opacity-0 pointer-events-none translate-y-2'}`}
                 onMouseEnter={handleDropdownEnter}
                 onMouseLeave={handleDropdownLeave}
               >
-                <div className="bg-white rounded-lg shadow-lg border border-gray-100">
-                  <div className="p-4 space-y-4">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+                  <div className="p-4 max-h-[300px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-amber-400 scrollbar-track-gray-100">
                     {/* Cart Items */}
                     {cartItems.length > 0 ? (
                       cartItems.map((item, i) => (
-                        <div key={i} className="flex justify-between items-center">
-                          <div className="flex items-center gap-3">
-                            <span className="text-gray-600">{item.name}</span>
-                            {/* <span className="text-xs text-gray-400">({item.size})</span> */}
+                        <div
+                          key={i}
+                          className="flex justify-between items-start gap-3 text-sm border-b pb-2 last:border-none last:pb-0"
+                        >
+                          <div className="flex-1">
+                            <p className="font-semibold text-gray-800">{item.name}</p>
+                            <p className="text-gray-500 text-xs">
+                              {item.size} · {item.milk} · {item.drink}
+                            </p>
                           </div>
-                          <span className="text-amber-900 font-medium">
-                            {item.quantity}x ₫{item.price.toLocaleString()}
-                          </span>
+                          <div className="flex flex-col items-end text-right whitespace-nowrap">
+                            <p className="text-amber-900 font-semibold">{item.quantity}x</p>
+                            <p className="text-amber-900">₫{item.price.toLocaleString()}</p>
+                          </div>
+                          <button
+                            className="text-gray-400 hover:text-red-500 transition-colors text-sm"
+                            onClick={() => removeFromCart(item.id)}
+                            title="Xoá món"
+                          >
+                            🗑️
+                          </button>
                         </div>
                       ))
                     ) : (
                       <p className="text-sm text-gray-500 text-center">Giỏ hàng đang trống</p>
                     )}
 
-                    {/* Total */}
-                    {cartItems.length > 0 && (
-                      <div className="pt-4 mt-4 border-t border-gray-100">
-                        <div className="flex justify-between items-center font-medium">
-                          <span className="text-gray-800">Tổng:</span>
-                          <span className="text-amber-900">₫{totalPrice.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Buttons */}
-                    {cartItems.length > 0 && (
-                      <div className="space-y-2">
-                        <button
-                          className="w-full py-2 px-4 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors"
-                          onClick={() => {
-                            setIsCartOpen(false);
-                            router.push('/cart');
-                          }}
-                        >
-                          XEM GIỎ HÀNG
-                        </button>
-                        <button
-                          className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors"
-                          onClick={() => {
-                            setIsCartOpen(false);
-                            router.push('/checkout');
-                          }}
-                        >
-                          THANH TOÁN
-                        </button>
-                      </div>
-                    )}
                   </div>
+
+                  {/* Total */}
+                  {cartItems.length > 0 && (
+                    <div className="pt-4 px-4 border-t border-gray-100">
+                      <div className="flex justify-between items-center font-medium text-sm">
+                        <span className="text-gray-800">Tổng:</span>
+                        <span className="text-amber-900 text-base font-semibold">₫{totalPrice.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Buttons */}
+                  {cartItems.length > 0 && (
+                    <div className="p-4 space-y-2">
+                      <button
+                        className="w-full py-2 px-4 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors text-sm font-medium"
+                        onClick={() => {
+                          setIsCartOpen(false);
+                          router.push('/cart');
+                        }}
+                      >
+                        XEM GIỎ HÀNG
+                      </button>
+                      <button
+                        className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors text-sm font-medium"
+                        onClick={() => {
+                          setIsCartOpen(false);
+                          router.push('/checkout');
+                        }}
+                      >
+                        THANH TOÁN
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
+
             </div>
           </div>
         </div>

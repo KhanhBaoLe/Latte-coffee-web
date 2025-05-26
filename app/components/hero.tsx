@@ -1,10 +1,28 @@
+'use client';
 // components/Hero.tsx
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Hero() {
+  const router = useRouter()
+  const productId = "midnight-matchalotte" // Unique product identifier
+
+  // Handle main content click
+  const handleMainClick = () => {
+    router.push(`/detail/${productId}`);
+  }
+
+  // Prevent button click from bubbling to main content
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+  }
+
   return (
-    <section className="bg-gradient-to-br from-emerald-50/80 to-stone-50 min-h-screen py-15 px-30 ">
+    <section 
+      className="bg-gradient-to-br from-emerald-50/80 to-stone-50 min-h-screen py-15 px-30 cursor-pointer"
+      onClick={handleMainClick}
+    >
       <div className="max-w-8xl mx-auto flex flex-col lg:flex-row items-center gap-16">
         {/* Left Content */}
         <div className="lg:w-4/5 space-y-8 space-x-20">
@@ -51,8 +69,9 @@ export default function Hero() {
 
           <div className="flex gap-4">
             <Link 
-              href="/shop/matchalatte" 
+              href={`/detail/${productId}`} // Đã sửa đường dẫn
               className="inline-flex items-center bg-gradient-to-r from-emerald-700 to-teal-600 hover:from-emerald-800 hover:to-teal-700 text-white font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-emerald-300/40 gap-2"
+              onClick={handleButtonClick}
             >
               <span>Order Now</span>
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,68 +93,6 @@ export default function Hero() {
             sizes="(max-width: 1024px) 100vw, 50vw"
           />
         </div>
-
-        {/* Right Content */}
-        {/* <div className="lg:w-3/4 space-y-8">
-          <div className="bg-white p-8 rounded-3xl shadow-xl border border-stone-100">
-            <h3 className="text-2xl font-bold text-stone-900 mb-6">Customization</h3>
-            
-            <div className="space-y-8"> */}
-              {/* Size Selection */}
-              {/* <div>
-                <h4 className="text-sm font-semibold text-stone-500 mb-4">SELECT SIZE</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  {['S (12oz)', 'M (16oz)', 'L (20oz)', 'XL (24oz)'].map((size) => (
-                    <button
-                      key={size}
-                      className={`p-4 text-center rounded-xl border-2 transition-all ${
-                        size.includes('M') 
-                        ? 'border-emerald-600 bg-emerald-50 text-emerald-700 font-semibold shadow-md' 
-                        : 'border-stone-200 hover:border-emerald-400 bg-white'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div> */}
-
-              {/* Toppings Selection */}
-              {/* <div>
-                <h4 className="text-sm font-semibold text-stone-500 mb-4">ADD TOPPINGS (+$0.75)</h4>
-                <div className="grid grid-cols-1 gap-3">
-                  {['Whipped Cream', 'Caramel Drizzle', 'Vanilla Foam', 'Chocolate Shavings'].map((topping) => (
-                    <label 
-                      key={topping}
-                      className="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:border-emerald-400 transition-colors cursor-pointer"
-                    >
-                      <input 
-                        type="checkbox" 
-                        className="w-5 h-5 text-emerald-600 border-stone-300 rounded focus:ring-emerald-500" 
-                      />
-                      <span className="text-stone-700">{topping}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div> */}
-
-          {/* Special Offer */}
-          {/* <div className="bg-gradient-to-br from-emerald-700 to-teal-600 p-6 rounded-2xl shadow-lg">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/10 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <h4 className="font-bold text-white">Limited Offer!</h4>
-                <p className="text-sm text-white/90">Free premium topping with XL size orders</p>
-              </div>
-            </div>
-          </div>
-        </div> */}
       </div>
     </section>
   )

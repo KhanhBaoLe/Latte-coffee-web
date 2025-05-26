@@ -9,6 +9,8 @@ type CartItem = {
     size?: string;
     milk?: string;
     drink?: string;
+    toppings?: string[];
+    image?: string
 };
 
 type CartContextType = {

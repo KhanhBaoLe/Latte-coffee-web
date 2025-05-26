@@ -107,7 +107,7 @@ const CoffeeSection = () => {
                                         quantity: 1,
                                         size: options.size,
                                         milk: options.milk,
-                                        drink: options.drink,
+                                        drink: options.drink
                                     });
                                 }}
                                 className="w-full mt-auto bg-white text-black rounded-full py-2 px-4 font-bold tracking-wide hover:bg-gray-100 transition-colors"

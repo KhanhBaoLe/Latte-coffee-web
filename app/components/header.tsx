@@ -198,7 +198,7 @@ export default function Header() {
                       >
                         XEM GIỎ HÀNG
                       </button>
-                      <button
+                      {/* <button
                         className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors text-sm font-medium"
                         onClick={() => {
                           setIsCartOpen(false);
@@ -206,7 +206,7 @@ export default function Header() {
                         }}
                       >
                         THANH TOÁN
-                      </button>
+                      </button> */}
                     </div>
                   )}
                 </div>

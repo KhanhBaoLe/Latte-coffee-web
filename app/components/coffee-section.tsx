@@ -1,13 +1,13 @@
 'use client';
-import { useState } from 'react';
-import { useCart } from './CartContext';
 import { products } from '@/app/data/products';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useCart } from './CartContext';
 const CoffeeSection = () => {
     const { addToCart } = useCart();
     const router = useRouter();
     const [selectedOptions, setSelectedOptions] = useState<Record<string, Record<string, string>>>({});
-    
+
     const handleOptionChange = (itemId: string, optionType: string, value: string) => {
         setSelectedOptions(prev => ({
             ...prev,
@@ -17,6 +17,22 @@ const CoffeeSection = () => {
             }
         }));
     };
+    const calculatePrice = (productId: string) => {
+        const product = products.find(p => p.id === productId);
+        const options = selectedOptions[productId];
+
+        if (!product || !options?.size) return 0;
+
+        // Lấy giá base theo size
+        const basePrice = product.basePrices[options.size as keyof typeof product.basePrices] || 0;
+
+        // Nếu bạn có thêm giá phụ theo loại sữa hoặc đồ uống, có thể cộng thêm tại đây
+        // const milkExtra = (options.milk === 'Soy') ? 5000 : 0; (ví dụ)
+        // const drinkExtra = (options.drink === 'Extra Shot') ? 10000 : 0;
+
+        return basePrice; // + milkExtra + drinkExtra nếu có
+    };
+
     return (
         <section className="bg-[#f8dcc5] py-16 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
@@ -30,13 +46,13 @@ const CoffeeSection = () => {
                             key={product.id}
                             className="group rounded-2xl shadow-md transition-transform duration-300 transform hover:scale-105 p-6 flex flex-col justify-between bg-[#fd8e3d] text-white"
                         >
-                            <div 
+                            <div
                                 className="flex justify-center mb-4 cursor-pointer"
                                 onClick={() => router.push(`/detail/${product.id}`)}
                             >
-                                <img 
-                                    src={product.image} 
-                                    alt={product.title} 
+                                <img
+                                    src={product.image}
+                                    alt={product.title}
                                     className="h-24 object-contain"
                                 />
                             </div>
@@ -90,6 +106,10 @@ const CoffeeSection = () => {
                                         ))}
                                     </select>
                                 </div>
+                            </div>
+                            {/* Price */}
+                            <div className="text-center text-xl font-bold text-white py-2">
+                                {calculatePrice(product.id).toLocaleString()}₫
                             </div>
 
                             <button

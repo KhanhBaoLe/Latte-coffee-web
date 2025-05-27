@@ -32,14 +32,14 @@ export const products = [
   },
   {
     id: "2",
-    title: "Midnight Mint Mocha Frappuccino",
+    title: "Midnight Matchalotte",
     description: "Rich coffee blended with cool mint and chocolatey chips.",
     price: 4.3,
     sizes: ['S', 'M', 'L'],
     milkOptions: ["Whole Milk", "Skim Milk", "Almond Milk", "Soy Milk"],
     drinkOptions: ["Hot", "Iced", "Blended"],
     toppings: ["Whipped Cream", "Chocolate Drizzle", "Mint Syrup"],
-    basePrices:{ S: 3.8, M: 4.3, L: 4.8 },
+    basePrices: { S: 3.8, M: 4.3, L: 4.8 },
     rating: 4.7,
     reviews: 95,
     image: "/images/matchalate.webp"
@@ -74,7 +74,7 @@ export const products = [
     reviews: 128,
     image: "/images/matchalate.webp"
   },
-  
+
 ];
 
 // Sản phẩm chính cho Hero section

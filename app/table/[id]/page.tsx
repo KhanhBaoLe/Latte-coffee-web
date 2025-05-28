@@ -1,13 +1,20 @@
 'use client';
 
 import CoffeeSection from '@/app/components/coffee-section';
-import { useRouter, useSearchParams } from 'next/navigation';
+// import { /*useRouter*/ useSearchParams } from 'next/navigation';
 import { useCart } from '../../components/CartContext';
+import { table as tableList } from '@/app/data/id_table';
+import { useParams } from 'next/navigation';
 
 export default function TablePage() {
-    const searchParams = useSearchParams();
-    const tableId = searchParams.get('id');
-    const router = useRouter();
+    // const searchParams = useSearchParams();
+    const params = useParams();
+    const tableId = params.id ? `table${params.id}` : null;
+     // Tìm table theo id
+    const foundTable = tableList.find(t => t.id_table === tableId);
+    // Lấy số bàn từ id_table (ví dụ: "table1" => "1")
+    const tableNumber = foundTable ? foundTable.id_table.replace('table', '') : 'Unknown';
+    // const router = useRouter();
     const { cartItems, totalPrice } = useCart();
 
     return (
@@ -18,7 +25,7 @@ export default function TablePage() {
                 <section className="text-center">
                     <h1 className="text-5xl font-black text-orange-600 mb-4">Welcome to Your Table</h1>
                     <p className="text-xl text-gray-700">
-                        You are viewing <span className="font-semibold text-orange-500">Table #{tableId}</span>
+                        You are viewing <span className="font-semibold text-orange-500">Table #{tableNumber}</span>
                     </p>
                 </section>
 

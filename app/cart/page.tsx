@@ -37,10 +37,12 @@ export default function CartPage() {
                             <th className="py-4 px-6 text-left font-semibold">Amount</th>
                             <th className="py-4 px-6 text-left font-semibold">Operation</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                    </thead><tbody>
                         {cartItems.map((item) => (
-                            <tr key={item.id} className="border-b border-gray-300">
+                            <tr
+                                key={`${item.id}-${item.size}-${item.milk}-${item.drink}`}
+                                className="border-b border-gray-300"
+                            >
                                 <td className="py-4 px-6 text-[#f58220] flex items-center space-x-4">
                                     <Image
                                         src="/images/matchalate.webp"

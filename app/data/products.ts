@@ -28,7 +28,8 @@ export const products = [
     basePrices: { S: 6.50, M: 7.50, L: 8.50 },
     rating: 4.8,
     reviews: 128,
-    image: "/images/matchalate.webp"
+    image: "/images/matchalate.webp",
+
   },
   {
     id: "2",

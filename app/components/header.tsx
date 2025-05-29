@@ -9,6 +9,7 @@ export default function Header() {
   const { cartItems, removeFromCart } = useCart();
   const router = useRouter();
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartButtonRef = useRef<HTMLDivElement>(null);
@@ -73,6 +74,14 @@ export default function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setMobileMenuOpen(false);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
@@ -92,12 +101,11 @@ export default function Header() {
               </Link>
             </div>
 
+            {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-4 ml-4 border-l pl-4 border-gray-200 relative">
-              {/* Home */}
               <Link href="/" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
                 Home
               </Link>
-              {/* Menu with flyout */}
               <div className="relative group">
                 <button
                   className="text-gray-600 hover:text-amber-800 transition-colors font-medium px-2 py-1"
@@ -108,37 +116,26 @@ export default function Header() {
                 <div className="absolute left-0 top-full min-w-[200px] bg-white shadow-lg rounded-lg border border-gray-100 opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto pointer-events-none transition-all z-40">
                   <ul className="py-2">
                     <li>
+                      <Link href="/menu" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
+                        All
+                      </Link>
+                    </li>
+                    <li>
                       <Link href="/menu/coffee" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
                         Coffee
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/menu/tea" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
-                        Tea
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/menu/frappe" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
-                        Frappe
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/menu/snack" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
-                        Snack
                       </Link>
                     </li>
                   </ul>
                 </div>
               </div>
-              {/* Table */}
               <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded">
                 Table
               </Link>
             </nav>
           </div>
 
-          {/* Search Bar */}
-          <div className="flex-1 max-w-xl mx-4">
+          {/* Search Bar (desktop only) */}
+          <div className="flex-1 max-w-xl mx-4 hidden md:block">
             <div className="relative group">
               <input
                 type="text"
@@ -152,6 +149,17 @@ export default function Header() {
               </button>
             </div>
           </div>
+
+          {/* Hamburger for mobile */}
+          <button
+            className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Open menu"
+          >
+            <svg className="w-7 h-7 text-amber-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 8h16M4 16h16"} />
+            </svg>
+          </button>
 
           {/* Cart */}
           <div className="flex-1 flex justify-end">
@@ -251,6 +259,52 @@ export default function Header() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 bg-black bg-opacity-30 z-50" onClick={() => setMobileMenuOpen(false)}>
+          <div
+            className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-white shadow-lg p-6 flex flex-col gap-4"
+            onClick={e => e.stopPropagation()}
+          >
+            <Link href="/" className="text-gray-700 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+              Home
+            </Link>
+            <div>
+              <div className="text-gray-700 font-medium py-2">Menu</div>
+              <ul className="pl-2">
+                <li>
+                  <Link href="/menu" className="block py-2 text-gray-600" onClick={() => setMobileMenuOpen(false)}>
+                    All
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/menu/coffee" className="block py-2 text-gray-600" onClick={() => setMobileMenuOpen(false)}>
+                    Coffee
+                  </Link>
+                </li>
+              </ul>
+            </div>
+            <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded text-center" onClick={() => setMobileMenuOpen(false)}>
+              Table
+            </Link>
+            <div className="block md:hidden mt-4">
+              <div className="relative group">
+                <input
+                  type="text"
+                  placeholder="Search drinks..."
+                  className="w-full px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
+                />
+                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-amber-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

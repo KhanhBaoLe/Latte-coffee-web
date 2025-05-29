@@ -22,15 +22,24 @@ export default function ProductPage() {
   useEffect(() => {
     setShowImage(true)
   }, [])
-
   const product = products.find(p => p.id === id)
   if (!product) return notFound()
 
+  // Giá cơ bản dựa trên kích thước
   const basePrice = product.basePrices[selectedSize] ?? 0
-  const milkPrice = 0.5
-  const drinkPrice = 0.5
-  const totalPrice =
-    basePrice + milkPrice + drinkPrice + selectedToppings.length * 0.75
+
+  // Phụ thu cho loại sữa (miễn phí cho Whole Milk, +1 cho các loại khác)
+  const milkPrice = selectedMilk === 'Whole Milk' ? 0 : 1
+
+  // Phụ thu cho đồ uống lạnh/nóng (miễn phí cho Hot, +1 cho Cold)
+  const drinkPrice = selectedDrink === 'Hot' ? 0 : 1
+
+  // Phụ thu cho mỗi topping ($1 mỗi topping)
+  const toppingPrice = selectedToppings.length * 1
+
+  // Tính tổng tiền
+  const totalPrice = basePrice + milkPrice + drinkPrice + toppingPrice
+
   const discountPercent = product.originalPrice
     ? Math.round(((product.originalPrice - basePrice) / product.originalPrice) * 100)
     : 0

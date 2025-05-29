@@ -99,55 +99,18 @@ export default function Header() {
               <Link href="/" className="text-xl font-bold text-amber-900 hover:text-amber-700 transition-colors">
                 latteCoffee
               </Link>
-            </div>
-
-            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-4 ml-4 border-l pl-4 border-gray-200 relative">
+            </div>            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-6 ml-4 border-l pl-4 border-gray-200 relative">
               <Link href="/" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
                 Home
               </Link>
-              <div className="relative group">
-                <button
-                  className="text-gray-600 hover:text-amber-800 transition-colors font-medium px-2 py-1"
-                  type="button"
-                >
-                  Menu
-                </button>
-                <div className="absolute left-0 top-full min-w-[200px] bg-white shadow-lg rounded-lg border border-gray-100 opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto pointer-events-none transition-all z-40">
-                  <ul className="py-2">
-                    <li>
-                      <Link href="/menu" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
-                        All
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/menu/coffee" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
-                        Coffee
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-              <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded">
+              <Link href="/menu" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
+                Menu
+              </Link>
+              <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors">
                 Table
               </Link>
             </nav>
-          </div>
-
-          {/* Search Bar (desktop only) */}
-          <div className="flex-1 max-w-xl mx-4 hidden md:block">
-            <div className="relative group">
-              <input
-                type="text"
-                placeholder="Search drinks..."
-                className="w-full px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-              />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-amber-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </div>
           </div>
 
           {/* Hamburger for mobile */}
@@ -258,50 +221,21 @@ export default function Header() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Mobile Menu */}
+      </div>      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 bg-black bg-opacity-30 z-50" onClick={() => setMobileMenuOpen(false)}>
           <div
             className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-white shadow-lg p-6 flex flex-col gap-4"
             onClick={e => e.stopPropagation()}
-          >
-            <Link href="/" className="text-gray-700 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+          >            <Link href="/" className="text-gray-700 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
               Home
             </Link>
-            <div>
-              <div className="text-gray-700 font-medium py-2">Menu</div>
-              <ul className="pl-2">
-                <li>
-                  <Link href="/menu" className="block py-2 text-gray-600" onClick={() => setMobileMenuOpen(false)}>
-                    All
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/menu/coffee" className="block py-2 text-gray-600" onClick={() => setMobileMenuOpen(false)}>
-                    Coffee
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            <Link href="/menu" className="text-gray-700 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+              Menu
+            </Link>
             <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded text-center" onClick={() => setMobileMenuOpen(false)}>
               Table
             </Link>
-            <div className="block md:hidden mt-4">
-              <div className="relative group">
-                <input
-                  type="text"
-                  placeholder="Search drinks..."
-                  className="w-full px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all"
-                />
-                <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 group-hover:text-amber-600 transition-colors">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}

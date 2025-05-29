@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from './CartContext';
+import { products } from '@/app/data/products';
 
 export default function Header() {
   const { cartItems, removeFromCart } = useCart();
-  const router = useRouter();
-  const [isCartOpen, setIsCartOpen] = useState(false);
+  const router = useRouter();  const [isCartOpen, setIsCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartButtonRef = useRef<HTMLDivElement>(null);
@@ -87,8 +88,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Logo and Navigation */}
-          <div className="flex items-center gap-3 flex-1">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 flex-1">            <div className="flex items-center gap-2">
               <Image
                 src="/images/cup.png"
                 alt="logo-coffee"
@@ -99,8 +99,10 @@ export default function Header() {
               <Link href="/" className="text-xl font-bold text-amber-900 hover:text-amber-700 transition-colors">
                 latteCoffee
               </Link>
-            </div>            {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-6 ml-4 border-l pl-4 border-gray-200 relative">
+            </div>
+            
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-6 ml-4 border-l pl-4 border-gray-200">
               <Link href="/" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
                 Home
               </Link>
@@ -111,6 +113,58 @@ export default function Header() {
                 Table
               </Link>
             </nav>
+          </div>          
+          {/* Search Bar */}
+          <div className="hidden md:flex items-center justify-center flex-1 max-w-xl">
+            <div className="relative w-full group">              <input
+                type="text"
+                placeholder="Tìm kiếm đồ uống yêu thích..."
+                className="w-full pl-12 pr-4 py-2.5 rounded-full border text-gray-500 placeholder:text-gray-400 border-gray-200 hover:border-amber-300 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <svg className="w-5 h-5 text-gray-500 group-hover:text-amber-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>  
+              
+              {/* Search Results Dropdown */}
+              {searchQuery && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+                  <div className="max-h-[300px] overflow-y-auto py-2">                    {products.filter(product => 
+                      product.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).map(product => (
+                      <Link
+                        key={product.id}
+                        href={`/detail/${product.id}`}
+                        className="flex items-center gap-3 px-4 py-2 hover:bg-amber-50 transition-colors"
+                      >
+                        <div className="relative w-10 h-10">
+                          <Image
+                            src={product.image}
+                            alt={product.title}
+                            fill
+                            className="object-cover rounded-lg"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-gray-900">{product.title}</h4>
+                          <p className="text-xs text-gray-500">${product.price.toFixed(2)}</p>
+                        </div>
+                      </Link>
+                    ))}
+                    {products.filter(product => 
+                      product.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).length === 0 && (
+                      <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                        Không tìm thấy sản phẩm phù hợp
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Hamburger for mobile */}

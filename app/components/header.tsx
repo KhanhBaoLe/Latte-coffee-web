@@ -92,12 +92,47 @@ export default function Header() {
               </Link>
             </div>
 
-            <nav className="hidden md:flex items-center gap-4 ml-4 border-l pl-4 border-gray-200">
+            <nav className="hidden md:flex items-center gap-4 ml-4 border-l pl-4 border-gray-200 relative">
+              {/* Home */}
               <Link href="/" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
                 Home
               </Link>
-              <Link href="/menu" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
-                Menu
+              {/* Menu with flyout */}
+              <div className="relative group">
+                <button
+                  className="text-gray-600 hover:text-amber-800 transition-colors font-medium px-2 py-1"
+                  type="button"
+                >
+                  Menu
+                </button>
+                <div className="absolute left-0 top-full min-w-[200px] bg-white shadow-lg rounded-lg border border-gray-100 opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto pointer-events-none transition-all z-40">
+                  <ul className="py-2">
+                    <li>
+                      <Link href="/menu/coffee" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
+                        Coffee
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/menu/tea" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
+                        Tea
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/menu/frappe" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
+                        Frappe
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/menu/snack" className="block px-4 py-2 hover:bg-orange-50 text-gray-700">
+                        Snack
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              {/* Table */}
+              <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded">
+                Table
               </Link>
             </nav>
           </div>
@@ -198,7 +233,7 @@ export default function Header() {
                       >
                         XEM GIỎ HÀNG
                       </button>
-                      <button
+                      {/* <button
                         className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors text-sm font-medium"
                         onClick={() => {
                           setIsCartOpen(false);
@@ -206,7 +241,7 @@ export default function Header() {
                         }}
                       >
                         THANH TOÁN
-                      </button>
+                      </button> */}
                     </div>
                   )}
                 </div>

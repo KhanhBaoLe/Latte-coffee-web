@@ -1,259 +1,98 @@
 'use client';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/navigation';
 
-import { Navigation } from 'swiper/modules';
 import { products } from '@/app/data/products';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { useCart } from './CartContext';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import { Navigation } from 'swiper/modules';
+import { Swiper, SwiperSlide } from 'swiper/react';
+
 const CoffeeSection = () => {
-    const { addToCart } = useCart();
     const router = useRouter();
-    const [selectedOptions, setSelectedOptions] = useState<Record<string, Record<string, string>>>({});
-
-    const handleOptionChange = (itemId: string, optionType: string, value: string) => {
-        setSelectedOptions(prev => ({
-            ...prev,
-            [itemId]: {
-                ...prev[itemId],
-                [optionType]: value
-            }
-        }));
-    };
-    const calculatePrice = (productId: string) => {
-        const product = products.find(p => p.id === productId);
-        const options = selectedOptions[productId];
-
-
-        if (!product || !options?.size) return 0;
-
-        // Lấy giá base theo size
-        const basePrice = product.basePrices[options.size as keyof typeof product.basePrices] || 0;
-
-        // Nếu bạn có thêm giá phụ theo loại sữa hoặc đồ uống, có thể cộng thêm tại đây
-        // const milkExtra = (options.milk === 'Soy') ? 5000 : 0; (ví dụ)
-        // const drinkExtra = (options.drink === 'Extra Shot') ? 10000 : 0;
-
-        return basePrice; // + milkExtra + drinkExtra nếu có
-    };
 
     return (
-        <section className="bg-[#f8dcc5] py-16 px-4 sm:px-6 lg:px-8">
+        <section className="bg-gradient-to-b from-white to-orange-50/40 py-16 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-                <h1 className="text-4xl font-extrabold text-left text-orange-600 mb-12">
-                    Our Special Coffees
-                </h1>
+                <div className="mb-12 text-center">
+                    <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
+                        Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Special Coffees</span>
+                    </h1>
+                    <div className="w-24 h-1 bg-gradient-to-r from-orange-400 to-amber-400 mx-auto mb-5 rounded-full"></div>
+                    <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                        Discover our handcrafted selection of premium coffees, expertly prepared to delight your senses
+                    </p>
+                </div>
 
-                {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                    {products.map((product) => (
-                        <div
-                            key={product.id}
-                            className="group rounded-2xl shadow-md transition-transform duration-300 transform hover:scale-105 p-6 flex flex-col justify-between bg-[#fd8e3d] text-white"
-                        >
-                            <div
-                                className="flex justify-center mb-4 cursor-pointer"
-                                onClick={() => router.push(`/detail/${product.id}`)}
-                            >
-                                <img
-                                    src={product.image}
-                                    alt={product.title}
-                                    className="h-24 object-contain"
-                                />
-                            </div>
-
-                            <h2 className="text-lg font-bold mb-4 leading-snug text-white">
-                                {product.title}
-                            </h2>
-
-                            <div className="mb-4 space-y-3 text-sm">
-                                
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold w-16">Size</span>
-                                    <select
-                                        className="flex-1 p-2 rounded text-black text-sm"
-                                        value={selectedOptions[product.id]?.size || ""}
-                                        onChange={(e) => handleOptionChange(product.id, "size", e.target.value)}
-                                    >
-                                        <option value="">Select</option>
-                                        {product.sizes.map((size, i) => (
-                                            <option key={i} value={size}>{size}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold w-16">Milk</span>
-                                    <select
-                                        className="flex-1 p-2 rounded text-black text-sm"
-                                        value={selectedOptions[product.id]?.milk || ""}
-                                        onChange={(e) => handleOptionChange(product.id, "milk", e.target.value)}
-                                    >
-                                        <option value="">Select</option>
-                                        {product.milkOptions.map((milk, i) => (
-                                            <option key={i} value={milk}>{milk}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                               
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold w-16">Drink</span>
-                                    <select
-                                        className="flex-1 p-2 rounded text-black text-sm"
-                                        value={selectedOptions[product.id]?.drink || ""}
-                                        onChange={(e) => handleOptionChange(product.id, "drink", e.target.value)}
-                                    >
-                                        <option value="">Select</option>
-                                        {product.drinkOptions.map((drink, i) => (
-                                            <option key={i} value={drink}>{drink}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                          
-                            <div className="text-center text-xl font-bold text-white py-2">
-                                {calculatePrice(product.id).toLocaleString()}₫
-                            </div>
-
-                            <button
-                                onClick={() => {
-                                    const options = selectedOptions[product.id];
-                                    if (!options?.size || !options?.milk || !options?.drink) {
-                                        alert("Please select Size, Milk, and Drink");
-                                        return;
-                                    }
-
-                                    addToCart({
-                                        id: Number(product.id),
-                                        name: product.title,
-                                        price: product.basePrices[options.size as keyof typeof product.basePrices] ?? 0,
-                                        quantity: 1,
-                                        size: options.size,
-                                        milk: options.milk,
-                                        drink: options.drink
-                                    });
-                                }}
-                                className="w-full mt-auto bg-white text-black rounded-full py-2 px-4 font-bold tracking-wide hover:bg-gray-100 transition-colors"
-                            >
-                                ADD TO BASKET
-                            </button>
-                        </div>
-                    ))}
-                </div> */}
                 <Swiper
-                modules={[Navigation]}
-                navigation
-                spaceBetween={20}
-                slidesPerView={1}
-                speed={600}
-                grabCursor={true}
-                className="relative"
-                breakpoints={{
-                    640: { slidesPerView: 1 },
-                    768: { slidesPerView: 2 },
-                    1024: { slidesPerView: 3 },
-                    1280: { slidesPerView: 4 },
-                }}
+                    modules={[Navigation]}
+                    navigation
+                    spaceBetween={24}
+                    slidesPerView={1}
+                    speed={600}
+                    grabCursor={true}
+                    breakpoints={{
+                        640: { slidesPerView: 2 },
+                        1024: { slidesPerView: 3 },
+                        1280: { slidesPerView: 4 }
+                    }}
+                    className="coffee-swiper"
                 >
-                {products.map((product) => (
-                    <SwiperSlide key={product.id}>
-                    <div className="group rounded-2xl shadow-md transition-transform duration-300 transform hover:scale-105 p-6 flex flex-col justify-between bg-[#fd8e3d] text-white">
-                            <div
-                                className="flex justify-center mb-4 cursor-pointer"
-                                onClick={() => router.push(`/detail/${product.id}`)}
-                            >
-                                <img
-                                    src={product.image}
-                                    alt={product.title}
-                                    className="h-24 object-contain"
-                                />
-                            </div>
+                    {products.map((product) => (
+                        <SwiperSlide key={product.id} className="h-auto">
+                            <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col">
+                                <div className="relative p-6">
+                                    {product.originalPrice && (
+                                        <span className="absolute top-4 right-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold px-3 py-1 rounded-full z-10 shadow-md">
+                                            SALE
+                                        </span>
+                                    )}
 
-                            <h2 className="text-lg font-bold mb-4 leading-snug text-white">
-                                {product.title}
-                            </h2>
+                                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 aspect-square flex items-center justify-center">
+                                        <div className="relative w-full h-full group">
+                                            <img
+                                                src={product.image}
+                                                alt={product.title}
+                                                className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-110"
+                                            />
+                                        </div>
+                                    </div>
 
-                            <div className="mb-4 space-y-3 text-sm">
-                                {/* Size */}
-                                <div className="flex items-center gap-2">
-                                    <span className="font-bold w-16">Size</span>
-                                    <select
-                                        className="flex-1 p-2 rounded text-black text-sm"
-                                        value={selectedOptions[product.id]?.size || ""}
-                                        onChange={(e) => handleOptionChange(product.id, "size", e.target.value)}
-                                    >
-                                        <option value="">Select</option>
-                                        {product.sizes && product.sizes.map((size, i) => (
-                                            <option key={i} value={size}>{size}</option>
-                                        ))}
-                                    </select>
+                                    <div className="mt-6 flex-1 flex flex-col">
+                                        <h2 className="text-xl font-bold mb-2 text-gray-800 hover:text-orange-600 transition-colors cursor-pointer line-clamp-1">
+                                            {product.title}
+                                        </h2>
+
+                                        <p className="text-gray-600 text-sm mb-4 flex-1 line-clamp-2">
+                                            {product.description}
+                                        </p>
+
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between">
+                                                <div className="text-2xl font-bold text-gray-900 flex items-center">
+                                                    {product.price.toLocaleString()}đ
+                                                    {product.originalPrice && (
+                                                        <span className="text-sm text-rose-500 font-semibold ml-2 bg-rose-50 px-2 py-1 rounded-full">
+                                                            -{Math.round(100 - (product.price / product.originalPrice * 100))}%
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <button
+                                                onClick={() => router.push(`/detail/${product.id}`)}
+                                                className="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl font-bold hover:from-orange-600 hover:to-amber-600 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                                </svg>
+                                                View Details
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
-
-                                {/* Milk */}
-                                {product.milkOptions && (
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-bold w-16">Milk</span>
-                                        <select
-                                            className="flex-1 p-2 rounded text-black text-sm"
-                                            value={selectedOptions[product.id]?.milk || ""}
-                                            onChange={(e) => handleOptionChange(product.id, "milk", e.target.value)}
-                                        >
-                                            <option value="">Select</option>
-                                            {product.milkOptions.map((milk, i) => (
-                                                <option key={i} value={milk}>{milk}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
-                                {/* Drink */}
-                                {product.drinkOptions && (
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-bold w-16">Drink</span>
-                                        <select
-                                            className="flex-1 p-2 rounded text-black text-sm"
-                                            value={selectedOptions[product.id]?.drink || ""}
-                                            onChange={(e) => handleOptionChange(product.id, "drink", e.target.value)}
-                                        >
-                                            <option value="">Select</option>
-                                            {product.drinkOptions.map((drink, i) => (
-                                                <option key={i} value={drink}>{drink}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )}
                             </div>
-                            {/* Price */}
-                            <div className="text-center text-xl font-bold text-white py-2">
-                                {calculatePrice(product.id).toLocaleString()}₫
-                            </div>
-
-                            <button
-                                onClick={() => {
-                                    const options = selectedOptions[product.id];
-                                    if (!options?.size || (product.milkOptions && !options?.milk) || (product.drinkOptions && !options?.drink)) {
-                                        alert("Please select Size" + (product.milkOptions ? ", Milk" : "") + (product.drinkOptions ? ", and Drink" : ""));
-                                        return;
-                                    }
-                                    addToCart({
-                                        id: Number(product.id),
-                                        name: product.title,
-                                        price: product.basePrices[options.size as keyof typeof product.basePrices] ?? 0,
-                                        quantity: 1,
-                                        size: options.size,
-                                        milk: options.milk,
-                                        drink: options.drink
-                                    });
-                                }}
-                                className="w-full mt-auto bg-white text-black rounded-full py-2 px-4 font-bold tracking-wide hover:bg-gray-100 transition-colors"
-                            >
-                                ADD TO BASKET
-                            </button>
-                        </div>
-                    </SwiperSlide>
-                ))}
+                        </SwiperSlide>
+                    ))}
                 </Swiper>
             </div>
         </section>

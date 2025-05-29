@@ -8,7 +8,8 @@ import { products } from '@/app/data/products';
 
 export default function Header() {
   const { cartItems, removeFromCart } = useCart();
-  const router = useRouter();  const [isCartOpen, setIsCartOpen] = useState(false);
+  const router = useRouter();
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
@@ -84,11 +85,12 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-[#F9F6F1] shadow-sm sticky top-0 z-50 border-b border-[#E8D5B5]">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Logo and Navigation */}
-          <div className="flex items-center gap-3 flex-1">            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-2">
               <Image
                 src="/images/cup.png"
                 alt="logo-coffee"
@@ -96,49 +98,55 @@ export default function Header() {
                 height={40}
                 className="w-10 h-10 object-contain hover:scale-105 transition-transform"
               />
-              <Link href="/" className="text-xl font-bold text-amber-900 hover:text-amber-700 transition-colors">
+              <Link href="/" className="text-xl font-bold text-[#3E2723] hover:text-[#4E342E] transition-colors">
                 latteCoffee
               </Link>
             </div>
             
             {/* Desktop Nav */}
-            <nav className="hidden md:flex items-center gap-6 ml-4 border-l pl-4 border-gray-200">
-              <Link href="/" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
+            <nav className="hidden md:flex items-center gap-6 ml-4 border-l pl-4 border-[#D7CCC8]">
+              <Link href="/" className="text-[#5D4037] hover:text-[#3E2723] transition-colors font-medium">
                 Home
               </Link>
-              <Link href="/menu" className="text-gray-600 hover:text-amber-800 transition-colors font-medium">
+              <Link href="/menu" className="text-[#5D4037] hover:text-[#3E2723] transition-colors font-medium">
                 Menu
               </Link>
-              <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors">
+              <Link 
+                href={`/table/1`} 
+                className="bg-[#5D4037] text-white px-4 py-2 rounded hover:bg-[#4E342E] transition-colors"
+              >
                 Table
               </Link>
             </nav>
           </div>          
+          
           {/* Search Bar */}
           <div className="hidden md:flex items-center justify-center flex-1 max-w-xl">
-            <div className="relative w-full group">              <input
+            <div className="relative w-full group">
+              <input
                 type="text"
                 placeholder="Tìm kiếm đồ uống yêu thích..."
-                className="w-full pl-12 pr-4 py-2.5 rounded-full border text-gray-500 placeholder:text-gray-400 border-gray-200 hover:border-amber-300 focus:outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/30 transition-all"
+                className="w-full pl-12 pr-4 py-2.5 rounded-full border text-[#5D4037] placeholder:text-[#A1887F] border-[#D7CCC8] hover:border-[#8D6E63] focus:outline-none focus:border-[#5D4037] focus:ring-2 focus:ring-[#5D4037]/30 transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <svg className="w-5 h-5 text-gray-500 group-hover:text-amber-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-[#A1887F] group-hover:text-[#5D4037] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>  
               
               {/* Search Results Dropdown */}
               {searchQuery && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-                  <div className="max-h-[300px] overflow-y-auto py-2">                    {products.filter(product => 
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-[#E8D5B5] overflow-hidden">
+                  <div className="max-h-[300px] overflow-y-auto py-2">
+                    {products.filter(product => 
                       product.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).map(product => (
                       <Link
                         key={product.id}
                         href={`/detail/${product.id}`}
-                        className="flex items-center gap-3 px-4 py-2 hover:bg-amber-50 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2 hover:bg-[#F5F0E9] transition-colors"
                       >
                         <div className="relative w-10 h-10">
                           <Image
@@ -149,15 +157,15 @@ export default function Header() {
                           />
                         </div>
                         <div className="flex-1">
-                          <h4 className="text-sm font-medium text-gray-900">{product.title}</h4>
-                          <p className="text-xs text-gray-500">${product.price.toFixed(2)}</p>
+                          <h4 className="text-sm font-medium text-[#3E2723]">{product.title}</h4>
+                          <p className="text-xs text-[#5D4037]">${product.price.toFixed(2)}</p>
                         </div>
                       </Link>
                     ))}
                     {products.filter(product => 
                       product.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).length === 0 && (
-                      <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                      <div className="px-4 py-3 text-sm text-[#5D4037] text-center">
                         Không tìm thấy sản phẩm phù hợp
                       </div>
                     )}
@@ -169,11 +177,11 @@ export default function Header() {
 
           {/* Hamburger for mobile */}
           <button
-            className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-[#5D4037]"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Open menu"
           >
-            <svg className="w-7 h-7 text-amber-900" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <svg className="w-7 h-7 text-[#3E2723]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 8h16M4 16h16"} />
             </svg>
           </button>
@@ -186,11 +194,11 @@ export default function Header() {
               onMouseEnter={handleCartEnter}
               onMouseLeave={handleCartLeave}
             >
-              <button className="p-2 relative text-gray-600 hover:text-amber-700 transition-colors">
+              <button className="p-2 relative text-[#5D4037] hover:text-[#3E2723] transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
-                <span className="absolute -top-1 -right-1 bg-amber-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-[#5D4037] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">
                   {totalItems}
                 </span>
               </button>
@@ -202,27 +210,27 @@ export default function Header() {
                 onMouseEnter={handleDropdownEnter}
                 onMouseLeave={handleDropdownLeave}
               >
-                <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
-                  <div className="p-4 max-h-[300px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-amber-400 scrollbar-track-gray-100">
+                <div className="bg-white rounded-xl shadow-lg border border-[#E8D5B5] overflow-hidden">
+                  <div className="p-4 max-h-[300px] overflow-y-auto space-y-4 scrollbar-thin scrollbar-thumb-[#D7CCC8] scrollbar-track-[#F5F0E9]">
                     {/* Cart Items */}
                     {cartItems.length > 0 ? (
                       cartItems.map((item, i) => (
                         <div
                           key={i}
-                          className="flex justify-between items-start gap-3 text-sm border-b pb-2 last:border-none last:pb-0"
+                          className="flex justify-between items-start gap-3 text-sm border-b pb-2 last:border-none last:pb-0 border-[#E8D5B5]"
                         >
                           <div className="flex-1">
-                            <p className="font-semibold text-gray-800">{item.name}</p>
-                            <p className="text-gray-500 text-xs">
+                            <p className="font-semibold text-[#3E2723]">{item.name}</p>
+                            <p className="text-[#8D6E63] text-xs">
                               {item.size} · {item.milk} · {item.drink}
                             </p>
                           </div>
                           <div className="flex flex-col items-end text-right whitespace-nowrap">
-                            <p className="text-amber-900 font-semibold">{item.quantity}x</p>
-                            <p className="text-amber-900">₫{item.price.toLocaleString()}</p>
+                            <p className="text-[#5D4037] font-semibold">{item.quantity}x</p>
+                            <p className="text-[#5D4037]">₫{item.price.toLocaleString()}</p>
                           </div>
                           <button
-                            className="text-gray-400 hover:text-red-500 transition-colors text-sm"
+                            className="text-[#8D6E63] hover:text-[#D84315] transition-colors text-sm"
                             onClick={() => removeFromCart(item.id)}
                             title="Xoá món"
                           >
@@ -231,17 +239,17 @@ export default function Header() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-gray-500 text-center">Giỏ hàng đang trống</p>
+                      <p className="text-sm text-[#8D6E63] text-center">Giỏ hàng đang trống</p>
                     )}
 
                   </div>
 
                   {/* Total */}
                   {cartItems.length > 0 && (
-                    <div className="pt-4 px-4 border-t border-gray-100">
+                    <div className="pt-4 px-4 border-t border-[#E8D5B5]">
                       <div className="flex justify-between items-center font-medium text-sm">
-                        <span className="text-gray-800">Tổng:</span>
-                        <span className="text-amber-900 text-base font-semibold">₫{totalPrice.toLocaleString()}</span>
+                        <span className="text-[#3E2723]">Tổng:</span>
+                        <span className="text-[#5D4037] text-base font-semibold">₫{totalPrice.toLocaleString()}</span>
                       </div>
                     </div>
                   )}
@@ -250,7 +258,7 @@ export default function Header() {
                   {cartItems.length > 0 && (
                     <div className="p-4 space-y-2">
                       <button
-                        className="w-full py-2 px-4 bg-amber-600 text-white rounded-full hover:bg-amber-700 transition-colors text-sm font-medium"
+                        className="w-full py-2 px-4 bg-[#5D4037] text-white rounded-full hover:bg-[#4E342E] transition-colors text-sm font-medium"
                         onClick={() => {
                           setIsCartOpen(false);
                           router.push('/cart');
@@ -258,15 +266,6 @@ export default function Header() {
                       >
                         XEM GIỎ HÀNG
                       </button>
-                      {/* <button
-                        className="w-full py-2 px-4 border border-amber-600 text-amber-600 rounded-full hover:bg-amber-50 transition-colors text-sm font-medium"
-                        onClick={() => {
-                          setIsCartOpen(false);
-                          router.push('/checkout');
-                        }}
-                      >
-                        THANH TOÁN
-                      </button> */}
                     </div>
                   )}
                 </div>
@@ -275,19 +274,34 @@ export default function Header() {
             </div>
           </div>
         </div>
-      </div>      {/* Mobile Menu */}
+      </div>
+      
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 bg-black bg-opacity-30 z-50" onClick={() => setMobileMenuOpen(false)}>
           <div
-            className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-white shadow-lg p-6 flex flex-col gap-4"
+            className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-[#F5F0E9] shadow-lg p-6 flex flex-col gap-4 border-r border-[#E8D5B5]"
             onClick={e => e.stopPropagation()}
-          >            <Link href="/" className="text-gray-700 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+          >
+            <Link 
+              href="/" 
+              className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors" 
+              onClick={() => setMobileMenuOpen(false)}
+            >
               Home
             </Link>
-            <Link href="/menu" className="text-gray-700 font-medium py-2" onClick={() => setMobileMenuOpen(false)}>
+            <Link 
+              href="/menu" 
+              className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors" 
+              onClick={() => setMobileMenuOpen(false)}
+            >
               Menu
             </Link>
-            <Link href={`/table/1`} className="bg-orange-500 text-white px-4 py-2 rounded text-center" onClick={() => setMobileMenuOpen(false)}>
+            <Link 
+              href={`/table/1`} 
+              className="bg-[#5D4037] text-white px-4 py-2 rounded text-center hover:bg-[#4E342E] transition-colors" 
+              onClick={() => setMobileMenuOpen(false)}
+            >
               Table
             </Link>
           </div>

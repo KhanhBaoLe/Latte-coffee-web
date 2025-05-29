@@ -1,20 +1,18 @@
-
 const Footer = () => {
     return (
-        <footer className="bg-gradient-to-b from-coffee to-coffee-dark text-white pt-16 pb-8">
+        <footer className="bg-gradient-to-b from-[#F5F0E9] to-[#E8D5B5] text-[#3E2723] pt-16 pb-8">
             <div className="container mx-auto px-6">
                 <div className="grid md:grid-cols-4 gap-12">
                     {/* Company Info */}
                     <div className="space-y-6">
                         <div className="flex items-center">
                             <span className="text-3xl mr-2">☕</span>
-                            <h3 className="text-2xl font-bold font-playfair bg-clip-text text-transparent bg-gradient-to-r from-white to-neutral-100">
-                                Midnight Matchalotte
+                            <h3 className="text-2xl font-bold font-playfair">
+                                latteCoffee
                             </h3>
-
                         </div>
-                        <p className="text-gray-300 leading-relaxed">
-                            Premium coffee and tea experiences crafted with passion since 2015.
+                        <p className="text-[#5D4037] leading-relaxed">
+                            Trải nghiệm cà phê và trà cao cấp được pha chế với niềm đam mê từ năm 2015.
                         </p>
                         <div className="flex space-x-5">
                             {[
@@ -25,9 +23,9 @@ const Footer = () => {
                                 <a
                                     key={index}
                                     href="#"
-                                    className="h-10 w-10 rounded-full bg-coffee-light flex items-center justify-center hover:bg-matcha transition-all duration-300 hover:scale-110"
+                                    className="h-10 w-10 rounded-full bg-[#D7CCC8] flex items-center justify-center hover:bg-[#5D4037] transition-all duration-300 hover:scale-110"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-[#5D4037]" fill="currentColor" viewBox="0 0 24 24">
                                         <path d={social.icon} />
                                     </svg>
                                 </a>
@@ -37,12 +35,12 @@ const Footer = () => {
 
                     {/* Menu Links */}
                     <div>
-                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-coffee-light inline-block">Our Menu</h4>
+                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-[#A1887F] inline-block">Thực đơn</h4>
                         <ul className="space-y-3">
-                            {['Coffee', 'Tea', 'Pastries', 'Seasonal Specials'].map((item) => (
+                            {['Cà phê', 'Trà sữa', 'Bánh ngọt', 'Đặc sản mùa'].map((item) => (
                                 <li key={item}>
-                                    <a href="#" className="flex items-center text-gray-300 hover:text-matcha transition group">
-                                        <span className="w-2 h-2 bg-matcha rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
+                                    <a href="#" className="flex items-center text-[#5D4037] hover:text-[#3E2723] transition group">
+                                        <span className="w-2 h-2 bg-[#5D4037] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
                                         {item}
                                     </a>
                                 </li>
@@ -52,12 +50,12 @@ const Footer = () => {
 
                     {/* Locations */}
                     <div>
-                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-coffee-light inline-block">Our Locations</h4>
+                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-[#A1887F] inline-block">Chi nhánh</h4>
                         <ul className="space-y-3">
-                            {['Downtown', 'Midtown', 'Uptown', 'Westside'].map((location) => (
+                            {['Quận 1', 'Quận 3', 'Quận 7', 'Thảo Điền'].map((location) => (
                                 <li key={location}>
-                                    <a href="#" className="flex items-center text-gray-300 hover:text-matcha transition group">
-                                        <span className="w-2 h-2 bg-matcha rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
+                                    <a href="#" className="flex items-center text-[#5D4037] hover:text-[#3E2723] transition group">
+                                        <span className="w-2 h-2 bg-[#5D4037] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
                                         {location}
                                     </a>
                                 </li>
@@ -67,37 +65,37 @@ const Footer = () => {
 
                     {/* Newsletter */}
                     <div>
-                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-coffee-light inline-block">Stay Updated</h4>
-                        <p className="text-gray-300 mb-6">
-                            Subscribe to get exclusive updates on new drinks, promotions, and special events.
+                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-[#A1887F] inline-block">Nhận thông báo</h4>
+                        <p className="text-[#5D4037] mb-6">
+                            Đăng ký để nhận thông tin mới nhất về đồ uống, khuyến mãi và sự kiện đặc biệt.
                         </p>
                         <div className="flex flex-col space-y-4">
                             <div className="relative">
                                 <input
                                     type="email"
-                                    placeholder="Your email address"
-                                    className="w-full px-5 py-3 rounded-lg bg-coffee-light border border-coffee-lighter focus:border-matcha focus:ring-2 focus:ring-matcha/30 text-white placeholder-gray-400 transition-all"
+                                    placeholder="Địa chỉ email của bạn"
+                                    className="w-full px-5 py-3 rounded-lg bg-white border border-[#D7CCC8] focus:border-[#5D4037] focus:ring-2 focus:ring-[#5D4037]/30 text-[#3E2723] placeholder-[#A1887F] transition-all"
                                 />
-                                <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-matcha text-coffee px-4 py-1.5 rounded-md font-medium hover:bg-matcha-light transition">
-                                    Join
+                                <button className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-[#5D4037] text-white px-4 py-1.5 rounded-md font-medium hover:bg-[#4E342E] transition">
+                                    Đăng ký
                                 </button>
                             </div>
-                            <p className="text-xs text-gray-400">
-                                We respect your privacy. Unsubscribe at any time.
+                            <p className="text-xs text-[#8D6E63]">
+                                Chúng tôi tôn trọng sự riêng tư của bạn. Bạn có thể hủy đăng ký bất cứ lúc nào.
                             </p>
                         </div>
                     </div>
                 </div>
 
                 {/* Copyright */}
-                <div className="border-t border-coffee-light mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-                    <p className="text-gray-400 mb-4 md:mb-0">
-                        &copy; {new Date().getFullYear()} Midnight Matchalotte. All rights reserved.
+                <div className="border-t border-[#A1887F] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                    <p className="text-[#8D6E63] mb-4 md:mb-0">
+                        &copy; {new Date().getFullYear()} latteCoffee. Tất cả quyền được bảo lưu.
                     </p>
                     <div className="flex space-x-6">
-                        <a href="#" className="text-gray-400 hover:text-matcha transition">Privacy Policy</a>
-                        <a href="#" className="text-gray-400 hover:text-matcha transition">Terms of Service</a>
-                        <a href="#" className="text-gray-400 hover:text-matcha transition">Contact Us</a>
+                        <a href="#" className="text-[#8D6E63] hover:text-[#5D4037] transition">Chính sách bảo mật</a>
+                        <a href="#" className="text-[#8D6E63] hover:text-[#5D4037] transition">Điều khoản dịch vụ</a>
+                        <a href="#" className="text-[#8D6E63] hover:text-[#5D4037] transition">Liên hệ chúng tôi</a>
                     </div>
                 </div>
             </div>

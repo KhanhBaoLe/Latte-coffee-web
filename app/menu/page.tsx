@@ -39,16 +39,17 @@ export default function MenuPage() {
     };
 
     return (
-        <div className="flex">
+        <div className="flex min-h-screen">
             {/* Sidebar */}
-            <aside className="w-64 min-h-screen bg-[#f8dcc5] p-6 space-y-4">
+            <aside className="w-64 min-h-screen bg-[#E8D5B5] p-6 space-y-4">
+                <h2 className="text-xl font-bold text-[#3E2723] mb-4">Danh mục</h2>
                 {categories.map((category) => (
                     <button
                         key={category.id}
                         onClick={() => setActiveCategory(category.id)}
-                        className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${activeCategory === category.id
-                                ? 'bg-orange-500 text-white'
-                                : 'text-gray-700 hover:bg-orange-100'
+                        className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${activeCategory === category.id
+                                ? 'bg-[#5D4037] text-white shadow-md'
+                                : 'text-[#5D4037] hover:bg-[#D7CCC8] hover:text-[#3E2723]'
                             }`}
                     >
                         {category.name}
@@ -57,87 +58,95 @@ export default function MenuPage() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 bg-[#fff4e6] p-8">
+            <main className="flex-1 bg-[#F5F0E9] p-8">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-4xl font-bold text-orange-600 mb-8">Our Menu</h1>
+                    <div className="text-center mb-10">
+                        <h1 className="text-4xl font-bold text-[#3E2723] mb-3">
+                            Thực đơn <span className="text-[#5D4037]">của chúng tôi</span>
+                        </h1>
+                        <div className="w-32 h-1 bg-gradient-to-r from-[#A1887F] to-[#5D4037] mx-auto mb-5 rounded-full"></div>
+                        <p className="text-[#5D4037] text-lg max-w-2xl mx-auto">
+                            Khám phá các loại đồ uống thơm ngon được pha chế tỉ mỉ từ những nguyên liệu cao cấp
+                        </p>
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {products.map((product) => (
                             <div
                                 key={product.id}
-                                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                                className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E8D5B5]"
                             >
                                 <div
-                                    className="relative h-48 cursor-pointer"
+                                    className="relative h-48 cursor-pointer group"
                                     onClick={() => router.push(`/detail/${product.id}`)}
                                 >
                                     <Image
                                         src={product.image}
                                         alt={product.title}
                                         fill
-                                        className="object-cover"
+                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
                                 </div>
 
                                 <div className="p-6 space-y-4">
-                                    <h3 className="text-xl font-bold text-gray-800">{product.title}</h3>
-                                    <p className="text-gray-600 text-sm line-clamp-2">{product.description}</p>
+                                    <h3 className="text-xl font-bold text-[#3E2723]">{product.title}</h3>
+                                    <p className="text-[#5D4037] text-sm line-clamp-2">{product.description}</p>
 
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium w-16 text-gray-700">Size</span>
+                                            <span className="font-medium w-16 text-[#5D4037]">Size</span>
                                             <select
-                                                className="flex-1 p-2 rounded border border-gray-200 text-gray-700"
+                                                className="flex-1 p-2 rounded border border-[#D7CCC8] text-[#3E2723] bg-[#F5F0E9]"
                                                 value={selectedOptions[product.id]?.size || ""}
                                                 onChange={(e) => handleOptionChange(product.id, "size", e.target.value)}
                                             >
-                                                <option value="">Select Size</option>
+                                                <option value="" className="text-[#A1887F]">Chọn size</option>
                                                 {product.sizes.map((size) => (
-                                                    <option key={size} value={size}>{size}</option>
+                                                    <option key={size} value={size} className="text-[#3E2723]">{size}</option>
                                                 ))}
                                             </select>
                                         </div>
 
                                         {product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && (
                                             <div className="flex items-center gap-2">
-                                                <span className="font-medium w-16 text-gray-700">Milk</span>
+                                                <span className="font-medium w-16 text-[#5D4037]">Milk</span>
                                                 <select
-                                                    className="flex-1 p-2 rounded border border-gray-200 text-gray-700"
+                                                    className="flex-1 p-2 rounded border border-[#D7CCC8] text-[#3E2723] bg-[#F5F0E9]"
                                                     value={selectedOptions[product.id]?.milk || ""}
                                                     onChange={(e) => handleOptionChange(product.id, "milk", e.target.value)}
                                                 >
-                                                    <option value="">Select Milk</option>
+                                                    <option value="" className="text-[#A1887F]">Chọn sữa</option>
                                                     {product.milkOptions.map((milk) => (
-                                                        <option key={milk} value={milk}>{milk}</option>
+                                                        <option key={milk} value={milk} className="text-[#3E2723]">{milk}</option>
                                                     ))}
                                                 </select>
                                             </div>
                                         )}
 
                                         <div className="flex items-center gap-2">
-                                            <span className="font-medium w-16 text-gray-700">Drink</span>
+                                            <span className="font-medium w-16 text-[#5D4037]">Drink</span>
                                             <select
-                                                className="flex-1 p-2 rounded border border-gray-200 text-gray-700"
+                                                className="flex-1 p-2 rounded border border-[#D7CCC8] text-[#3E2723] bg-[#F5F0E9]"
                                                 value={selectedOptions[product.id]?.drink || ""}
                                                 onChange={(e) => handleOptionChange(product.id, "drink", e.target.value)}
                                             >
-                                                <option value="">Select Type</option>
+                                                <option value="" className="text-[#A1887F]">Chọn loại</option>
                                                 {product.drinkOptions.map((drink) => (
-                                                    <option key={drink} value={drink}>{drink}</option>
+                                                    <option key={drink} value={drink} className="text-[#3E2723]">{drink}</option>
                                                 ))}
                                             </select>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center justify-between pt-4">
-                                        <span className="text-2xl font-bold text-orange-600">
+                                        <span className="text-2xl font-bold text-[#3E2723]">
                                             ${calculatePrice(product.id).toFixed(2)}
                                         </span>
                                         <button
                                             onClick={() => {
                                                 const options = selectedOptions[product.id];
                                                 if (!options?.size || !options?.drink || (product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && !options?.milk)) {
-                                                    alert("Please select all required options");
+                                                    alert("Vui lòng chọn đầy đủ các tuỳ chọn");
                                                     return;
                                                 }
                                                 addToCart({
@@ -151,9 +160,9 @@ export default function MenuPage() {
                                                     image: product.image
                                                 });
                                             }}
-                                            className="px-6 py-2 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
+                                            className="px-6 py-2 bg-[#5D4037] text-white rounded-full hover:bg-[#4E342E] transition-colors shadow-md hover:shadow-lg"
                                         >
-                                            Add to Cart
+                                            Thêm vào giỏ
                                         </button>
                                     </div>
                                 </div>

@@ -164,10 +164,10 @@ export default function HeroCarousel() {
         </div>
       </div>      
       {/* External Navigation Buttons */}
-      <div className="absolute top-1/2 -translate-x-50 -translate-y-1/2 w-full max-w-[100rem] mx-auto px-4 flex justify-between z-10 pointer-events-none">
+      <div className="absolute top-1/2 -translate-x-27 -translate-y-1/2 w-full max-w-[90rem] mx-auto px-4 flex justify-between z-10 pointer-events-none">
         <button
           onClick={(e) => {
-            e.stopPropagation();
+            e.stopPropagation();  
             goToPrev();
             pauseAutoPlay();
           }}

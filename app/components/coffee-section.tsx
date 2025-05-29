@@ -21,6 +21,7 @@ const CoffeeSection = () => {
         const product = products.find(p => p.id === productId);
         const options = selectedOptions[productId];
 
+
         if (!product || !options?.size) return 0;
 
         // Lấy giá base theo size

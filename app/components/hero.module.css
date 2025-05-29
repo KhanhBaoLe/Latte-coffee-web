@@ -1,0 +1,31 @@
+.heroSwiper :global(.swiper-button-next),
+.heroSwiper :global(.swiper-button-prev) {
+  color: #064e3b;
+  width: 50px;
+  height: 50px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.heroSwiper :global(.swiper-button-next:hover),
+.heroSwiper :global(.swiper-button-prev:hover) {
+  background: #f1f5f9;
+  color: #047857;
+  transform: scale(1.1);
+}
+
+.heroSwiper :global(.swiper-button-next:after),
+.heroSwiper :global(.swiper-button-prev:after) {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.heroSwiper :global(.swiper-button-next) {
+  right: -5%;
+}
+
+.heroSwiper :global(.swiper-button-prev) {
+  left: -5%;
+}

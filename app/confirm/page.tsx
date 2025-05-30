@@ -3,22 +3,37 @@ import Link from 'next/link'
 
 export default function OrderConfirmation() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="bg-white rounded-lg shadow-md p-8 max-w-md w-full text-center">
-                <div className="text-blue-500 text-6xl mb-4">✓</div>
-                <h1 className="text-blue-500 text-3xl font-bold mb-4">ĐẶT HÀNG THÀNH CÔNG!</h1>
-                <p className="text-gray-700 mb-4">
-                    Cảm ơn bạn đã đặt hàng. Đơn hàng của bạn đã được tiếp nhận và đang được xử lý.
-                </p>
-                <p className="text-gray-700 mb-6">
-                    Mã đơn hàng của bạn: <span className="text-blue-500 font-bold">#DH123456</span>
-                </p>
-                <Link
-                    href="/"
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg inline-block transition-colors"
-                >
-                    TIẾP TỤC MUA SẮM
-                </Link>
+        <div className="min-h-screen bg-gradient-to-b from-[#F5F0E9] to-[#E8D5B5] py-12 px-6 flex items-center justify-center">
+            <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center border border-[#D7CCC8]">
+                <div className="text-[#4CAF50] text-6xl mb-6">✓</div>
+
+                <h1 className="text-[#3E2723] text-3xl font-bold mb-6">
+                    ORDER SUCCESSFUL!
+                </h1>
+
+                <div className="space-y-4 mb-8">
+                    <p className="text-[#5D4037]">
+                        Thank you for placing your order. Your order has been received and is being processed.
+                    </p>
+
+                    {/* <div className="bg-[#F5F0E9] rounded-xl py-3 px-4 inline-block">
+                        <p className="text-[#5D4037]">
+                            Mã đơn hàng: 
+                            <span className="text-[#3E2723] font-bold ml-2">
+                                #DH123456
+                            </span>
+                        </p>
+                    </div> */}
+                </div>
+
+                <div className="border-t border-[#D7CCC8] pt-6">
+                    <Link
+                        href="/"
+                        className="bg-[#5D4037] hover:bg-[#4E342E] text-white font-bold py-3 px-6 rounded-lg inline-block transition-colors duration-300"
+                    >
+                        CONTINUE SHOPPING
+                    </Link>
+                </div>
             </div>
         </div>
     )

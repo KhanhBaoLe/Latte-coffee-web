@@ -10,11 +10,13 @@ import "./globals.css";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -30,13 +32,17 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
+      >
         <CartProvider>
-          <Suspense fallback={<DashboardSkeleton />}>
-            <Header />
-            {children}
-            <Footer />
-          </Suspense>
+          <div className="flex flex-col min-h-screen">
+            <Suspense fallback={<DashboardSkeleton />}>
+              <Header />
+              <main className="flex-grow">{children}</main>
+              <Footer />
+            </Suspense>
+          </div>
         </CartProvider>
       </body>
     </html>

@@ -11,11 +11,8 @@ export default function CartPage() {
 
     const toggleSelectAll = () => {
         setSelectedAll(!selectedAll);
-    };
-
-    const handleOrder = () => {
-        clearCart();
-        router.push('/confirm');
+    }; const handleOrder = () => {
+        router.push('/checkout');
     };
 
     const totalAmount = cartItems.reduce(

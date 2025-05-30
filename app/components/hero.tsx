@@ -73,7 +73,7 @@ export default function HeroCarousel() {
 
   return (
     <section 
-      className="bg-gradient-to-br from-[#F9F6F1] to-[#F5F0E9] min-h-screen py-20 px-4 sm:px-6 lg:px-60 cursor-pointer relative"
+      className="bg-gradient-to-br from-[#F9F6F1] to-[#F5F0E9] min-h-screen py-30 px-4 sm:px-6 lg:px-60 cursor-pointer relative"
       onClick={handleMainClick}
     >      <div className="max-w-8xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12">
         {/* Product Info */}
@@ -172,8 +172,9 @@ export default function HeroCarousel() {
             </div>
           </div>
         </div>
-      </div>        {/* Fixed Navigation Buttons */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[80rem] px-4 flex justify-between z-50">
+      </div>        
+      {/*  Navigation Buttons */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-30 w-full max-w-[80rem] px-4 flex justify-between z-20">
         <div className="relative left-[-5%] md:left-[-10%]">
           <button
             onClick={(e) => {

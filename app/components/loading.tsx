@@ -36,11 +36,11 @@ export default function Loading() {
         {/* Text content */}
         <div className="flex flex-col items-center gap-3">
           <h3 className="text-2xl font-bold text-[#3E2723] animate-pulse">
-            Đang chuẩn bị cà phê...
+              Preparing coffee...
           </h3>
           <p className="text-[#5D4037] text-center max-w-md">
-            Cà phê ngon cần thời gian<br/>
-            Xin vui lòng đợi trong giây lát
+            Good coffee takes time<br/>
+            Please wait a moment
           </p>
         </div>
         

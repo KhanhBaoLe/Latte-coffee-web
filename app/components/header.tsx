@@ -125,7 +125,7 @@ export default function Header() {
             <div className="relative w-full group">
               <input
                 type="text"
-                placeholder="Tìm kiếm đồ uống yêu thích..."
+                placeholder="Find your favorite drink..."
                 className="w-full pl-12 pr-4 py-2.5 rounded-full border text-[#5D4037] placeholder:text-[#A1887F] border-[#D7CCC8] hover:border-[#8D6E63] focus:outline-none focus:border-[#5D4037] focus:ring-2 focus:ring-[#5D4037]/30 transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -166,7 +166,7 @@ export default function Header() {
                       product.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).length === 0 && (
                       <div className="px-4 py-3 text-sm text-[#5D4037] text-center">
-                        Không tìm thấy sản phẩm phù hợp
+                        No matching products found
                       </div>
                     )}
                   </div>
@@ -227,7 +227,7 @@ export default function Header() {
                           </div>
                           <div className="flex flex-col items-end text-right whitespace-nowrap">
                             <p className="text-[#5D4037] font-semibold">{item.quantity}x</p>
-                            <p className="text-[#5D4037]">₫{item.price.toLocaleString()}</p>
+                            <p className="text-[#5D4037]">${item.price.toLocaleString()}</p>
                           </div>
                           <button
                             className="text-[#8D6E63] hover:text-[#D84315] transition-colors text-sm"
@@ -239,7 +239,7 @@ export default function Header() {
                         </div>
                       ))
                     ) : (
-                      <p className="text-sm text-[#8D6E63] text-center">Giỏ hàng đang trống</p>
+                      <p className="text-sm text-[#8D6E63] text-center">The shopping cart is empty</p>
                     )}
 
                   </div>
@@ -248,8 +248,8 @@ export default function Header() {
                   {cartItems.length > 0 && (
                     <div className="pt-4 px-4 border-t border-[#E8D5B5]">
                       <div className="flex justify-between items-center font-medium text-sm">
-                        <span className="text-[#3E2723]">Tổng:</span>
-                        <span className="text-[#5D4037] text-base font-semibold">₫{totalPrice.toLocaleString()}</span>
+                        <span className="text-[#3E2723]">Total:</span>
+                        <span className="text-[#5D4037] text-base font-semibold">${totalPrice.toLocaleString()}</span>
                       </div>
                     </div>
                   )}
@@ -264,7 +264,7 @@ export default function Header() {
                           router.push('/cart');
                         }}
                       >
-                        XEM GIỎ HÀNG
+                        VIEW CART
                       </button>
                     </div>
                   )}

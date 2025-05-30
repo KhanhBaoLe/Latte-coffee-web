@@ -95,10 +95,10 @@ export default function ProductPage() {
           </button>
           <span className="text-gray-300">›</span>
           <button
-            onClick={() => router.push('/coffee')}
+            onClick={() => router.push('/menu')}
             className="hover:text-amber-600 transition-colors font-medium"
           >
-            Products
+            Menu
           </button>
           <span className="text-gray-300">›</span>
           <span className="text-amber-600 font-semibold truncate max-w-[180px] md:max-w-none">{product.title}</span>

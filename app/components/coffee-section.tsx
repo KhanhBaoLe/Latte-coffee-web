@@ -72,7 +72,7 @@ const CoffeeSection = () => {
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between">
                                                 <div className="text-2xl font-bold text-[#3E2723] flex items-center">
-                                                    {product.price.toLocaleString()}đ
+                                                    ${product.price.toLocaleString()}
                                                     {product.originalPrice && (
                                                         <span className="text-sm text-[#D84315] font-semibold ml-2 bg-[#FFCCBC] px-2 py-1 rounded-full">
                                                             -{Math.round(100 - (product.price / product.originalPrice * 100))}%

@@ -1,4 +1,4 @@
-import { CartProvider } from "@/app/components/CartContext"; // thêm dòng này
+import { CartProvider } from "@/app/components/CartContext";
 import Footer from "@/app/components/footer";
 import Header from "@/app/components/header";
 import type { Metadata } from "next";
@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <CartProvider> {/* Bọc mọi thành phần trong CartProvider */}
+        <CartProvider>
           <Header />
           {children}
           <Footer />

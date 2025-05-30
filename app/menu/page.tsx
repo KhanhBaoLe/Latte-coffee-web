@@ -6,11 +6,11 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const categories = [
-    { id: 'all', name: 'Tất cả' },
-    { id: 'coffee', name: 'Cà Phê' },
-    { id: 'milk-tea', name: 'Trà sữa' },
+    { id: 'all', name: 'All' },
+    { id: 'coffee', name: 'Coffee' },
+    { id: 'milk-tea', name: 'Milk Tea' },
     { id: 'matcha', name: 'MatchaLatte' },
-    { id: 'fruit-tea', name: 'Trà trái cây' },
+    { id: 'fruit-tea', name: 'Fruit Tea' },
 ];
 
 export default function MenuPage() {
@@ -42,14 +42,14 @@ export default function MenuPage() {
         <div className="flex min-h-screen">
             {/* Sidebar */}
             <aside className="w-64 min-h-screen bg-[#E8D5B5] p-6 space-y-4">
-                <h2 className="text-xl font-bold text-[#3E2723] mb-4">Danh mục</h2>
+                <h2 className="text-xl font-bold text-[#3E2723] mb-4">Category</h2>
                 {categories.map((category) => (
                     <button
                         key={category.id}
                         onClick={() => setActiveCategory(category.id)}
                         className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${activeCategory === category.id
-                                ? 'bg-[#5D4037] text-white shadow-md'
-                                : 'text-[#5D4037] hover:bg-[#D7CCC8] hover:text-[#3E2723]'
+                            ? 'bg-[#5D4037] text-white shadow-md'
+                            : 'text-[#5D4037] hover:bg-[#D7CCC8] hover:text-[#3E2723]'
                             }`}
                     >
                         {category.name}
@@ -62,11 +62,11 @@ export default function MenuPage() {
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-10">
                         <h1 className="text-4xl font-bold text-[#3E2723] mb-3">
-                            Thực đơn <span className="text-[#5D4037]">của chúng tôi</span>
+                            Our <span className="text-[#5D4037]">Menu</span>
                         </h1>
                         <div className="w-32 h-1 bg-gradient-to-r from-[#A1887F] to-[#5D4037] mx-auto mb-5 rounded-full"></div>
                         <p className="text-[#5D4037] text-lg max-w-2xl mx-auto">
-                            Khám phá các loại đồ uống thơm ngon được pha chế tỉ mỉ từ những nguyên liệu cao cấp
+                            Discover delicious drinks carefully crafted from premium ingredients
                         </p>
                     </div>
 
@@ -100,7 +100,7 @@ export default function MenuPage() {
                                                 value={selectedOptions[product.id]?.size || ""}
                                                 onChange={(e) => handleOptionChange(product.id, "size", e.target.value)}
                                             >
-                                                <option value="" className="text-[#A1887F]">Chọn size</option>
+                                                <option value="" className="text-[#A1887F]">Select size</option>
                                                 {product.sizes.map((size) => (
                                                     <option key={size} value={size} className="text-[#3E2723]">{size}</option>
                                                 ))}
@@ -115,7 +115,7 @@ export default function MenuPage() {
                                                     value={selectedOptions[product.id]?.milk || ""}
                                                     onChange={(e) => handleOptionChange(product.id, "milk", e.target.value)}
                                                 >
-                                                    <option value="" className="text-[#A1887F]">Chọn sữa</option>
+                                                    <option value="" className="text-[#A1887F]">Choose milk</option>
                                                     {product.milkOptions.map((milk) => (
                                                         <option key={milk} value={milk} className="text-[#3E2723]">{milk}</option>
                                                     ))}
@@ -130,7 +130,7 @@ export default function MenuPage() {
                                                 value={selectedOptions[product.id]?.drink || ""}
                                                 onChange={(e) => handleOptionChange(product.id, "drink", e.target.value)}
                                             >
-                                                <option value="" className="text-[#A1887F]">Chọn loại</option>
+                                                <option value="" className="text-[#A1887F]">Select type</option>
                                                 {product.drinkOptions.map((drink) => (
                                                     <option key={drink} value={drink} className="text-[#3E2723]">{drink}</option>
                                                 ))}
@@ -146,7 +146,7 @@ export default function MenuPage() {
                                             onClick={() => {
                                                 const options = selectedOptions[product.id];
                                                 if (!options?.size || !options?.drink || (product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && !options?.milk)) {
-                                                    alert("Vui lòng chọn đầy đủ các tuỳ chọn");
+                                                    alert("Please select all options");
                                                     return;
                                                 }
                                                 addToCart({
@@ -162,7 +162,7 @@ export default function MenuPage() {
                                             }}
                                             className="px-6 py-2 bg-[#5D4037] text-white rounded-full hover:bg-[#4E342E] transition-colors shadow-md hover:shadow-lg"
                                         >
-                                            Thêm vào giỏ
+                                            Add to cart
                                         </button>
                                     </div>
                                 </div>

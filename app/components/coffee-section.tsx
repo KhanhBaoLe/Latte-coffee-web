@@ -12,7 +12,7 @@ const CoffeeSection = () => {
 
     return (
         <section className="bg-gradient-to-b from-[#F9F6F1] to-[#F5F0E9] py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto relative">
                 <div className="mb-12 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold text-[#3E2723] mb-3">
                         Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#795548] to-[#5D4037]">Special Coffees</span>
@@ -23,11 +23,46 @@ const CoffeeSection = () => {
                     </p>
                 </div>
 
+                {/* Navigation Buttons */}
+                <div className="coffee-swiper-prev absolute left-[-8%] xl:left-[-6%] top-[55%] -translate-y-1/2 z-20">
+                    <button
+                        className="pointer-events-auto group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-4 sm:p-5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm"
+                        aria-label="Previous slide"
+                    >
+                        <span className="absolute inset-0 rounded-full bg-[#5D4037]/10 group-hover:scale-110 transition-transform duration-300"></span>
+                        <svg 
+                            className="w-6 h-6 sm:w-7 sm:h-7 transform group-hover:scale-110 group-hover:-translate-x-1 transition-all duration-300" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <div className="coffee-swiper-next absolute right-[-8%] xl:right-[-6%] top-[55%] -translate-y-1/2 z-20">
+                    <button
+                        className="pointer-events-auto group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-4 sm:p-5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm"
+                        aria-label="Next slide"
+                    >
+                        <span className="absolute inset-0 rounded-full bg-[#5D4037]/10 group-hover:scale-110 transition-transform duration-300"></span>
+                        <svg 
+                            className="w-6 h-6 sm:w-7 sm:h-7 transform group-hover:scale-110 group-hover:translate-x-1 transition-all duration-300" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
                 <Swiper
                     modules={[Navigation]}
                     navigation={{
-                        prevEl: '.swiper-button-prev',
-                        nextEl: '.swiper-button-next',
+                        prevEl: '.coffee-swiper-prev',
+                        nextEl: '.coffee-swiper-next',
                     }}
                     spaceBetween={24}
                     slidesPerView={1}
@@ -96,18 +131,6 @@ const CoffeeSection = () => {
                             </div>
                         </SwiperSlide>
                     ))}
-                    
-                    {/* Custom Navigation Buttons */}
-                    <div className="swiper-button-prev absolute left-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-[#F5F0E9] transition-colors">
-                        <svg className="w-6 h-6 text-[#5D4037]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </div>
-                    <div className="swiper-button-next absolute right-0 top-1/2 -translate-y-1/2 z-10 w-12 h-12  rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:bg-[#F5F0E9] transition-colors">
-                        <svg className="w-6 h-6 text-[#5D4037]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                    </div>
                 </Swiper>
             </div>
         </section>

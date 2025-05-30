@@ -89,7 +89,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Logo and Navigation */}
-          <div className="flex items-center gap-3 flex-1">
+          <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <Image
                 src="/images/cup.png"
@@ -120,8 +120,8 @@ export default function Header() {
             </nav>
           </div>          
           
-          {/* Search Bar */}
-          <div className="hidden md:flex items-center justify-center flex-1 max-w-xl">
+          {/* Search Bar - Centered */}
+          <div className="flex items-center justify-center flex-1 max-w-xl mx-auto px-4">
             <div className="relative w-full group">
               <input
                 type="text"
@@ -134,21 +134,22 @@ export default function Header() {
                 <svg className="w-5 h-5 text-[#A1887F] group-hover:text-[#5D4037] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-              </div>  
-              
+              </div>
+
               {/* Search Results Dropdown */}
               {searchQuery && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-[#E8D5B5] overflow-hidden">
-                  <div className="max-h-[300px] overflow-y-auto py-2">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-[#E8D5B5] overflow-hidden z-50">
+                  <div className="max-h-[50vh] md:max-h-[300px] overflow-y-auto py-2">
                     {products.filter(product => 
                       product.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).map(product => (
                       <Link
                         key={product.id}
                         href={`/detail/${product.id}`}
-                        className="flex items-center gap-3 px-4 py-2 hover:bg-[#F5F0E9] transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[#F5F0E9] transition-colors"
+                        onClick={() => setSearchQuery('')}
                       >
-                        <div className="relative w-10 h-10">
+                        <div className="relative w-14 h-14 md:w-10 md:h-10">
                           <Image
                             src={product.image}
                             alt={product.title}
@@ -157,8 +158,8 @@ export default function Header() {
                           />
                         </div>
                         <div className="flex-1">
-                          <h4 className="text-sm font-medium text-[#3E2723]">{product.title}</h4>
-                          <p className="text-xs text-[#5D4037]">${product.price.toFixed(2)}</p>
+                          <h4 className="text-base md:text-sm font-medium text-[#3E2723]">{product.title}</h4>
+                          <p className="text-sm md:text-xs text-[#5D4037]">${product.price.toFixed(2)}</p>
                         </div>
                       </Link>
                     ))}
@@ -175,19 +176,20 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Hamburger for mobile */}
-          <button
-            className="md:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-[#5D4037]"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Open menu"
-          >
-            <svg className="w-7 h-7 text-[#3E2723]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 8h16M4 16h16"} />
-            </svg>
-          </button>
+          {/* Cart and Mobile Menu */}
+          <div className="flex items-center gap-4">
+            {/* Hamburger for mobile */}
+            <button
+              className="md:hidden p-2 rounded-lg hover:bg-[#E8D5B5]/50 transition-colors focus:outline-none focus:ring-2 focus:ring-[#5D4037]"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Open menu"
+            >
+              <svg className="w-7 h-7 text-[#3E2723]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 8h16M4 16h16"} />
+              </svg>
+            </button>
 
-          {/* Cart */}
-          <div className="flex-1 flex justify-end">
+            {/* Cart */}
             <div
               className="relative"
               ref={cartButtonRef}
@@ -278,11 +280,38 @@ export default function Header() {
       
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-black bg-opacity-30 z-50" onClick={() => setMobileMenuOpen(false)}>
+        <div 
+          className="md:hidden fixed inset-0 backdrop-blur-sm z-50" 
+          onClick={() => setMobileMenuOpen(false)}
+        >
           <div
-            className="absolute top-0 left-0 w-3/4 max-w-xs h-full bg-[#F5F0E9] shadow-lg p-6 flex flex-col gap-4 border-r border-[#E8D5B5]"
+            className="absolute top-0 right-0 w-3/4 max-w-xs h-full bg-[#F5F0E9]/95 shadow-lg p-6 flex flex-col gap-4 border-l border-[#E8D5B5] animate-slide-left"
             onClick={e => e.stopPropagation()}
           >
+            {/* Close button */}            <button
+              className="absolute top-7 right-4 p-2 rounded-lg hover:bg-[#E8D5B5]/50 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-label="Close menu"
+            >
+              <svg className="w-6 h-6 text-[#3E2723]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Logo */}
+            <div className="flex items-center gap-2 mb-6 mt-2">
+              <Image
+                src="/images/cup.png"
+                alt="logo-coffee"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain"
+              />
+              <span className="text-lg font-bold text-[#3E2723]">
+                latteCoffee
+              </span>
+            </div>
+
             <Link 
               href="/" 
               className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors" 

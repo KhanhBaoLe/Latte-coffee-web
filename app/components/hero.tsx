@@ -73,16 +73,17 @@ export default function HeroCarousel() {
 
   return (
     <section 
-      className="bg-gradient-to-br from-[#F9F6F1] to-[#F5F0E9] min-h-screen py-30 px-4 sm:px-6 lg:px-60 cursor-pointer relative"
+      className="bg-gradient-to-br from-[#F9F6F1] to-[#F5F0E9] py-6 sm:py-8 md:py-12 lg:py-20 xl:py-15 px-4 sm:px-6 lg:px-20 xl:px-60 cursor-pointer relative"
       onClick={handleMainClick}
-    >      <div className="max-w-8xl mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12">
-        {/* Product Info */}
-        <div className="space-y-6 lg:space-y-8 lg:max-w-xl">
-          <div className="space-y-4">
-            <span className="bg-[#E8D5B5] text-[#5D4037] px-4 py-1.5 rounded-full text-sm font-medium inline-block">
+    >
+      <div className="max-w-[1920px] mx-auto flex flex-col lg:grid lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
+        {/* Product Info - Center on mobile/tablet, left on desktop */}
+        <div className="w-full space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8 max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
+          <div className="space-y-2 sm:space-y-3 md:space-y-4">
+            <span className="bg-[#E8D5B5] text-[#5D4037] px-2.5 sm:px-3 md:px-4 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium inline-block">
               Bestseller of the Month ✨
             </span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#3E2723] leading-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-[#3E2723] leading-tight">
               {currentProduct.title.split(' ')[0]}
               <span className="text-[#795548]">
                 {currentProduct.title.split(' ').slice(1).join(' ')}
@@ -90,104 +91,115 @@ export default function HeroCarousel() {
             </h1>
           </div>
 
-          <div className="flex items-center gap-3">
-            <StarRating rating={currentProduct.rating} />
-            <span className="text-[#5D4037] font-medium">
+          <div className="flex justify-center lg:justify-start items-center gap-2 sm:gap-3">
+            <div className="scale-75 sm:scale-90 lg:scale-100 origin-left">
+              <StarRating rating={currentProduct.rating} />
+            </div>
+            <span className="text-sm sm:text-base lg:text-lg text-[#5D4037] font-medium">
               {currentProduct.rating}/5 ({currentProduct.reviews} reviews)
             </span>
           </div>
+          <div className="relative">
+            <p className="text-sm sm:text-base lg:text-lg text-[#5D4037] leading-relaxed max-w-xl mx-auto lg:mx-0 mb-32">
+              {currentProduct.description}
+            </p>
 
-          <p className="text-lg text-[#5D4037] leading-relaxed max-w-xl">
-            {currentProduct.description}
-          </p>
-
-          <div className="flex items-baseline gap-4">
-            <span className="text-5xl font-bold text-[#3E2723]">
-              ${currentProduct.price.toFixed(2)}
-            </span>
-            {currentProduct.originalPrice && (
-              <>
-                <span className="text-[#795548] line-through">${currentProduct.originalPrice.toFixed(2)}</span>
-                <span className="bg-[#FFCC80] text-[#5D4037] px-3 py-1 rounded-full text-sm">
-                  {discountPercent}% OFF
+            {/* Price and Order Button - Absolute positioned */}
+            <div className="absolute -bottom-90 sm:-bottom-115 md:-bottom-115 lg:-bottom-40 left-0 right-0 lg:right-auto space-y-4 sm:space-y-5">
+              <div className="flex items-baseline justify-center lg:justify-start gap-3 sm:gap-4">
+                <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#3E2723]">
+                  ${currentProduct.price.toFixed(2)}
                 </span>
-              </>
-            )}
-          </div>
+                {currentProduct.originalPrice && (
+                  <>
+                    <span className="text-base sm:text-lg lg:text-xl text-[#795548] line-through">
+                      ${currentProduct.originalPrice.toFixed(2)}
+                    </span>
+                    <span className="bg-[#FFCC80] text-[#5D4037] px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm">
+                      {discountPercent}% OFF
+                    </span>
+                  </>
+                )}
+              </div>
 
-          <div className="flex gap-4">
-            <Link 
-              href={`/detail/${currentProduct.id}`}
-              className="inline-flex items-center bg-[#5D4037] hover:bg-[#4E342E] text-white font-semibold py-4 px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-[#A1887F]/40 gap-2"
-              onClick={handleButtonClick}
-            >
-              <span>Order Now</span>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+              <div className="flex justify-center lg:justify-start">
+                <Link 
+                  href={`/detail/${currentProduct.id}`}
+                  className="inline-flex items-center bg-[#5D4037] hover:bg-[#4E342E] text-white font-semibold py-2.5 sm:py-3 md:py-4 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-[#A1887F]/40 gap-2 text-sm sm:text-base"
+                  onClick={handleButtonClick}
+                >
+                  <span>Order Now</span>
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
           </div>
-        </div>        {/* Image with Carousel Controls */}
-        <div className="relative flex items-center justify-center lg:justify-end">
-          <div className="relative w-[320px] h-[320px] sm:w-[400px] sm:h-[400px] lg:w-[500px] lg:h-[500px]">
+        </div>
+
+        {/* Image with Carousel Controls */}
+        <div className="relative bottom-40 sm:bottom-40 md:bottom-44 lg:bottom-1 lg:-right-0 xl:-right-27 2xl:right-0 flex items-center justify-center lg:justify-end mt-6 lg:mt-0">
+          <div className="relative w-[250px] h-[250px] sm:w-[320px] sm:h-[320px] md:w-[320px] md:h-[320px] lg:w-[450px] lg:h-[450px] xl:w-[450px] xl:h-[450px] 2xl:w-[450px] 2xl:h-[450px]">
             {/* Vòng tròn lớn phía sau */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#F5F0E9] to-[#E8D5B5] rounded-full shadow-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#F5F0E9] to-[#E8D5B5] rounded-full shadow-xl md:shadow-2xl"></div>
 
             {/* Hình ảnh tròn phía trước */}
-            <div className="absolute inset-4 sm:inset-6 lg:inset-8 rounded-full overflow-hidden shadow-lg">
+            <div className="absolute inset-3 sm:inset-4 md:inset-6 lg:inset-8 rounded-full overflow-hidden shadow-md md:shadow-lg">
               <Image
                 src={currentProduct.image}
                 alt={currentProduct.title}
                 fill
                 className="object-cover"
                 priority
-                sizes="(max-width: 640px) 320px, (max-width: 1024px) 400px, 500px"
+                sizes="(max-width: 640px) 250px, (max-width: 768px) 320px, (max-width: 1024px) 400px, (max-width: 1280px) 450px, 500px"
               />            
             </div>
           </div>
-          
-          {/* Carousel Indicators */}
-          <div className="absolute -bottom-12 left-1/2 transform -translate-x-9 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg border border-[#E8D5B5]">
-            <div className="flex items-center gap-6">
-              {featuredProducts.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setCurrentIndex(index);
-                    pauseAutoPlay();
-                  }}
-                  className={`w-4 h-4 rounded-full transition-all duration-300 relative ${
-                    index === currentIndex 
-                      ? 'bg-[#5D4037]' 
-                      : 'bg-[#D7CCC8] hover:bg-[#BCAAA4]'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                >
-                  {index === currentIndex && (
-                    <span className="absolute inset-0 rounded-full bg-[#5D4037]/30 animate-ping"></span>
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
-      </div>        
-      {/*  Navigation Buttons */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-30 w-full max-w-[80rem] px-4 flex justify-between z-20">
-        <div className="relative left-[-5%] md:left-[-10%]">
+      </div>
+
+      {/* Carousel Indicators */}
+      <div className="absolute bottom-6 sm:bottom-4 md:bottom-5 lg:bottom-1 left-1/2 transform -translate-x-1/2 bg-white/80 backdrop-blur-sm px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full shadow-md md:shadow-lg border border-[#E8D5B5]">
+        <div className="flex items-center gap-3 sm:gap-4 md:gap-6">
+          {featuredProducts.map((_, index) => (
+            <button
+              key={index}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentIndex(index);
+                pauseAutoPlay();
+              }}
+              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 rounded-full transition-all duration-300 relative ${
+                index === currentIndex 
+                  ? 'bg-[#5D4037]' 
+                  : 'bg-[#D7CCC8] hover:bg-[#BCAAA4]'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            >
+              {index === currentIndex && (
+                <span className="absolute inset-0 rounded-full bg-[#5D4037]/30 animate-ping"></span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="absolute top-1/2  lg:1/5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[90rem] px-4 flex justify-between z-20 pointer-events-none ">
+        <div className="pointer-events-auto">
           <button
             onClick={(e) => {
               e.stopPropagation();  
               goToPrev();
               pauseAutoPlay();
             }}
-            className="pointer-events-auto group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-4 sm:p-5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm"
+            className="group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-2 sm:p-2.5 md:p-3 lg:p-4 rounded-full shadow-md md:shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
             aria-label="Previous product"
           >
             <span className="absolute inset-0 rounded-full bg-[#5D4037]/10 group-hover:scale-110 transition-transform duration-300"></span>
             <svg 
-              className="w-6 h-6 sm:w-7 sm:h-7 transform group-hover:scale-110 group-hover:-translate-x-1 transition-all duration-300" 
+              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:scale-110 group-hover:-translate-x-0.5 transition-all duration-300" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -197,19 +209,19 @@ export default function HeroCarousel() {
           </button>
         </div>
 
-        <div className="relative right-[-5%] md:right-[-10%]">
+        <div className="pointer-events-auto">
           <button
             onClick={(e) => {
               e.stopPropagation();
               goToNext();
               pauseAutoPlay();
             }}
-            className="pointer-events-auto group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-4 sm:p-5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm"
+            className="group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-2 sm:p-2.5 md:p-3 lg:p-4 rounded-full shadow-md md:shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
             aria-label="Next product"
           >
             <span className="absolute inset-0 rounded-full bg-[#5D4037]/10 group-hover:scale-110 transition-transform duration-300"></span>
             <svg 
-              className="w-6 h-6 sm:w-7 sm:h-7 transform group-hover:scale-110 group-hover:translate-x-1 transition-all duration-300" 
+              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:scale-110 group-hover:translate-x-0.5 transition-all duration-300" 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"

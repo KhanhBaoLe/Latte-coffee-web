@@ -1,5 +1,6 @@
 'use client';
 import { useCart } from '@/app/components/CartContext';
+import { isInCategory } from '@/app/data/categories';
 import { products } from '@/app/data/products';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -8,9 +9,9 @@ import { useEffect, useRef, useState } from 'react';
 const categories = [
     { id: 'all', name: 'All' },
     { id: 'coffee', name: 'Coffee' },
-    { id: 'milk-tea', name: 'Milk Tea' },
-    { id: 'matcha', name: 'MatchaLatte' },
-    { id: 'fruit-tea', name: 'Fruit Tea' },
+    { id: 'milkTea', name: 'Milk Tea' },
+    { id: 'matchaLatte', name: 'MatchaLatte' },
+    { id: 'fruitTea', name: 'Fruit Tea' },
 ];
 
 export default function MenuPage() {
@@ -63,6 +64,10 @@ export default function MenuPage() {
         const basePrice = product.basePrices[options.size as keyof typeof product.basePrices] || 0;
         return basePrice;
     };
+
+    const filteredProducts = products.filter(product =>
+        activeCategory === 'all' ? true : isInCategory(product.id, activeCategory)
+    );
 
     return (
         <div className="flex flex-col md:flex-row min-h-screen">
@@ -125,7 +130,7 @@ export default function MenuPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        {products.map((product) => (
+                        {filteredProducts.map((product) => (
                             <div
                                 key={product.id}
                                 className="bg-white rounded-xl shadow-md md:shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E8D5B5]"

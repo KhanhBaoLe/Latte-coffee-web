@@ -16,7 +16,7 @@ export default function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartButtonRef = useRef<HTMLDivElement>(null);
   const lastScrollY = useRef(0);
-  const [isVisible, setIsVisible] = useState(true);
+  const [, setIsVisible] = useState(true);
 
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cartItems.reduce((total, item) => total + item.quantity * item.price, 0);

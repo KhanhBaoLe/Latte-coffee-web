@@ -1,23 +1,116 @@
 'use client';
 
-import { products } from '@/app/data/products';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { isInCategory } from '@/app/data/categories';
+// import Image from 'next/image';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Navigation } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
+interface Product {
+    id: string;
+    title: string;
+    description: string;
+    price: number;
+    originalPrice: number | null;
+    rating: number;
+    reviews: number;
+    image: string;
+    category: string;
+    sizes: string[];
+    milkOptions: string[];
+    drinkOptions: string[];
+    toppings: string[];
+}
+
 const CoffeeSection = () => {
     const router = useRouter();
+    const [products, setProducts] = useState<Product[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState('all');
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await fetch('/api/products');
+                const data = await response.json();
+                setProducts(data);
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);    const filteredProducts = selectedCategory === 'all'
+        ? products
+        : products.filter(product => isInCategory(product.id, selectedCategory));
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#795548]"></div>
+            </div>
+        );
+    }
 
     return (
         <section className="bg-gradient-to-b from-[#F9F6F1] to-[#F5F0E9] py-16 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-7xl mx-auto relative">
-                <div className="mb-12 text-center">
+            <div className="max-w-7xl mx-auto relative">                <div className="mb-12 text-center">
                     <h1 className="text-4xl md:text-5xl font-bold text-[#3E2723] mb-3">
-                        Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#795548] to-[#5D4037]">Special Coffees</span>
+                        Our <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#795548] to-[#5D4037]">Special Menu</span>
                     </h1>
                     <div className="w-24 h-1 bg-gradient-to-r from-[#A1887F] to-[#5D4037] mx-auto mb-5 rounded-full"></div>
+                    <div className="flex justify-center gap-4 mb-8">
+                        <button
+                            onClick={() => setSelectedCategory('all')}
+                            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 
+                                ${selectedCategory === 'all' 
+                                    ? 'bg-[#5D4037] text-white' 
+                                    : 'bg-white text-[#5D4037] hover:bg-[#5D4037] hover:text-white'}`}
+                        >
+                            All
+                        </button>
+                        <button
+                            onClick={() => setSelectedCategory('coffee')}
+                            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 
+                                ${selectedCategory === 'coffee' 
+                                    ? 'bg-[#5D4037] text-white' 
+                                    : 'bg-white text-[#5D4037] hover:bg-[#5D4037] hover:text-white'}`}
+                        >
+                            Coffee
+                        </button>
+                        <button
+                            onClick={() => setSelectedCategory('milk-tea')}
+                            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 
+                                ${selectedCategory === 'milk-tea' 
+                                    ? 'bg-[#5D4037] text-white' 
+                                    : 'bg-white text-[#5D4037] hover:bg-[#5D4037] hover:text-white'}`}
+                        >
+                            Milk Tea
+                        </button>
+                        <button
+                            onClick={() => setSelectedCategory('matcha')}
+                            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 
+                                ${selectedCategory === 'matcha' 
+                                    ? 'bg-[#5D4037] text-white' 
+                                    : 'bg-white text-[#5D4037] hover:bg-[#5D4037] hover:text-white'}`}
+                        >
+                            Matcha
+                        </button>
+                        <button
+                            onClick={() => setSelectedCategory('fruit-tea')}
+                            className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 
+                                ${selectedCategory === 'fruit-tea' 
+                                    ? 'bg-[#5D4037] text-white' 
+                                    : 'bg-white text-[#5D4037] hover:bg-[#5D4037] hover:text-white'}`}
+                        >
+                            Fruit Tea
+                        </button>
+                    </div>
                     <p className="text-[#5D4037] text-lg max-w-2xl mx-auto">
                         Discover our handcrafted selection of premium coffees, expertly prepared to delight your senses
                     </p>
@@ -75,7 +168,7 @@ const CoffeeSection = () => {
                     }}
                     className="coffee-swiper relative"
                 >
-                    {products.map((product) => (
+                    {filteredProducts.map((product) => (
                         <SwiperSlide key={product.id} className="h-auto">
                             <div className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 h-full flex flex-col border border-[#E8D5B5]">
                                 <div className="relative p-6">

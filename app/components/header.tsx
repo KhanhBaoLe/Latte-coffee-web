@@ -1,10 +1,10 @@
 'use client';
+import { products } from '@/app/data/products';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from './CartContext';
-import { products } from '@/app/data/products';
 
 export default function Header() {
   const { cartItems, removeFromCart } = useCart();
@@ -15,6 +15,8 @@ export default function Header() {
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cartButtonRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
+  const [isVisible, setIsVisible] = useState(true);
 
   const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
   const totalPrice = cartItems.reduce((total, item) => total + item.quantity * item.price, 0);
@@ -84,8 +86,47 @@ export default function Header() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // FIXED SCROLL HANDLER FOR MOBILE
+  useEffect(() => {
+    const handleScroll = () => {
+      // Use document scrolling properties for mobile compatibility
+      const currentScrollY = document.documentElement.scrollTop || document.body.scrollTop;
+
+      // Always show header at top of page
+      if (currentScrollY <= 0) {
+        setIsVisible(true);
+        lastScrollY.current = 0;
+        return;
+      }
+
+      // Handle iOS bounce effect
+      if (currentScrollY < 0) return;
+
+      // Calculate scroll delta for better detection
+      const scrollDelta = currentScrollY - lastScrollY.current;
+
+      // Sensitivity threshold
+      const SCROLL_THRESHOLD = 5;
+
+      if (scrollDelta > SCROLL_THRESHOLD) {
+        // Scrolling down
+        setIsVisible(false);
+      } else if (scrollDelta < -SCROLL_THRESHOLD) {
+        // Scrolling up
+        setIsVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+
+
   return (
-    <header className="bg-[#F9F6F1] shadow-sm sticky top-0 z-50 border-b border-[#E8D5B5]">
+    <header className="bg-[#F9F6F1] shadow-sm sticky top-0 z-50 border-b border-[#E8D5B5] transform transition-transform duration-300 ease-in-out ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Logo and Navigation */}
@@ -102,7 +143,7 @@ export default function Header() {
                 latteCoffee
               </Link>
             </div>
-            
+
             {/* Desktop Nav */}
             <nav className="hidden md:flex items-center gap-6 ml-4 border-l pl-4 border-[#D7CCC8]">
               <Link href="/" className="text-[#5D4037] hover:text-[#3E2723] transition-colors font-medium">
@@ -111,15 +152,15 @@ export default function Header() {
               <Link href="/menu" className="text-[#5D4037] hover:text-[#3E2723] transition-colors font-medium">
                 Menu
               </Link>
-              <Link 
-                href={`/table/1`} 
+              <Link
+                href={`/table/1`}
                 className="bg-[#5D4037] text-white px-4 py-2 rounded hover:bg-[#4E342E] transition-colors"
               >
                 Table
               </Link>
             </nav>
-          </div>          
-          
+          </div>
+
           {/* Search Bar - Centered */}
           <div className="flex items-center justify-center flex-1 max-w-xl mx-auto px-4">
             <div className="relative w-full group">
@@ -136,11 +177,12 @@ export default function Header() {
                 </svg>
               </div>
 
+
               {/* Search Results Dropdown */}
               {searchQuery && (
                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-[#E8D5B5] overflow-hidden z-50">
                   <div className="max-h-[50vh] md:max-h-[300px] overflow-y-auto py-2">
-                    {products.filter(product => 
+                    {products.filter(product =>
                       product.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).map(product => (
                       <Link
@@ -163,18 +205,19 @@ export default function Header() {
                         </div>
                       </Link>
                     ))}
-                    {products.filter(product => 
+                    {products.filter(product =>
                       product.title.toLowerCase().includes(searchQuery.toLowerCase())
                     ).length === 0 && (
-                      <div className="px-4 py-3 text-sm text-[#5D4037] text-center">
-                        No matching products found
-                      </div>
-                    )}
+                        <div className="px-4 py-3 text-sm text-[#5D4037] text-center">
+                          No matching products found
+                        </div>
+                      )}
                   </div>
                 </div>
               )}
             </div>
           </div>
+
 
           {/* Cart and Mobile Menu */}
           <div className="flex items-center gap-4">
@@ -188,6 +231,7 @@ export default function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 8h16M4 16h16"} />
               </svg>
             </button>
+
 
             {/* Cart */}
             <div
@@ -204,6 +248,7 @@ export default function Header() {
                   {totalItems}
                 </span>
               </button>
+
 
               {/* Cart Dropdown */}
               <div
@@ -244,7 +289,9 @@ export default function Header() {
                       <p className="text-sm text-[#8D6E63] text-center">The shopping cart is empty</p>
                     )}
 
+
                   </div>
+
 
                   {/* Total */}
                   {cartItems.length > 0 && (
@@ -255,6 +302,7 @@ export default function Header() {
                       </div>
                     </div>
                   )}
+
 
                   {/* Buttons */}
                   {cartItems.length > 0 && (
@@ -273,15 +321,16 @@ export default function Header() {
                 </div>
               </div>
 
+
             </div>
           </div>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div 
-          className="md:hidden fixed inset-0 backdrop-blur-sm z-50" 
+        <div
+          className="md:hidden fixed inset-0 backdrop-blur-sm z-50"
           onClick={() => setMobileMenuOpen(false)}
         >
           <div
@@ -298,6 +347,7 @@ export default function Header() {
               </svg>
             </button>
 
+
             {/* Logo */}
             <div className="flex items-center gap-2 mb-6 mt-2">
               <Image
@@ -312,23 +362,24 @@ export default function Header() {
               </span>
             </div>
 
-            <Link 
-              href="/" 
-              className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors" 
+
+            <Link
+              href="/"
+              className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
             </Link>
-            <Link 
-              href="/menu" 
-              className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors" 
+            <Link
+              href="/menu"
+              className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Menu
             </Link>
-            <Link 
-              href={`/table/1`} 
-              className="bg-[#5D4037] text-white px-4 py-2 rounded text-center hover:bg-[#4E342E] transition-colors" 
+            <Link
+              href={`/table/1`}
+              className="bg-[#5D4037] text-white px-4 py-2 rounded text-center hover:bg-[#4E342E] transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               Table
@@ -339,3 +390,4 @@ export default function Header() {
     </header>
   );
 }
+

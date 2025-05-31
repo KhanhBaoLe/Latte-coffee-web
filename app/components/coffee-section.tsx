@@ -24,7 +24,7 @@ const CoffeeSection = () => {
                 </div>
 
                 {/* Navigation Buttons */}
-                <div className="coffee-swiper-prev absolute left-[-8%] xl:left-[-6%] top-[55%] -translate-y-1/2 z-20">
+                <div className="coffee-swiper-prev absolute left-[-3%] sm:left-[-3%] md:left-[-3%] lg:left-[-3%] xl:left-[-3%] 2xl:left-[-6%] top-[55%] translate-y-2/8 z-20">
                     <button
                         className="pointer-events-auto group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-4 sm:p-5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm"
                         aria-label="Previous slide"
@@ -41,7 +41,7 @@ const CoffeeSection = () => {
                     </button>
                 </div>
                 
-                <div className="coffee-swiper-next absolute right-[-8%] xl:right-[-6%] top-[55%] -translate-y-1/2 z-20">
+                <div className="coffee-swiper-next absolute right-[-3%] sm:right-[-3%] md:right-[-3%] lg:right-[-3%] xl:right-[-3%] 2xl:right-[-6%] top-[55%] translate-y-2/8 z-20">
                     <button
                         className="pointer-events-auto group relative bg-white/90 hover:bg-[#5D4037] text-[#5D4037] hover:text-white p-4 sm:p-5 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 backdrop-blur-sm"
                         aria-label="Next slide"

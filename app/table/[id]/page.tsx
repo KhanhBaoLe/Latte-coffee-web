@@ -4,6 +4,7 @@ import CoffeeSection from '@/app/components/coffee-section';
 import { useCart } from '../../components/CartContext';
 import { table as tableList } from '@/app/data/id_table';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 
 export default function TablePage() {
     const params = useParams();
@@ -24,46 +25,123 @@ export default function TablePage() {
                 </section>
 
                 {/* Section: Cart Table */}
-                <section className="bg-white rounded-2xl shadow-lg p-6 overflow-x-auto border border-[#D7CCC8]">
-                    <h2 className="text-3xl font-bold text-[#3E2723] mb-6">Your Order</h2>
-                    <table className="min-w-full text-left text-sm border-collapse">
-                        <thead className="bg-[#5D4037] text-white">
+                <section className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-[#D7CCC8]">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-[#3E2723] mb-4 sm:mb-6">Your Order</h2>
+                    
+                    {cartItems.length === 0 ? (
+                        <div className="py-8 text-center text-[#8D6E63] italic">
+                        Your cart is empty. Please select items from the menu below!
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm border-collapse">
+                            {/* Table Head */}
+                            <thead className="bg-[#5D4037] text-white">
                             <tr>
-                                <th className="py-3 px-5 rounded-tl-xl">Item Name</th>
-                                <th className="py-3 px-5">Size</th>
-                                <th className="py-3 px-5">Milk</th>
-                                <th className="py-3 px-5">Type</th>
-                                <th className="py-3 px-5">Quantity</th>
-                                <th className="py-3 px-5 rounded-tr-xl">Price</th>
+                                <th className="py-3 px-4 rounded-tl-xl sm:rounded-tl-2xl">Item</th>
+                                <th className="py-3 px-4 hidden xs:table-cell">Size</th>
+                                <th className="py-3 px-4 hidden sm:table-cell">Milk</th>
+                                <th className="py-3 px-4">Type</th>
+                                <th className="py-3 px-4">Qty</th>
+                                <th className="py-3 px-4 rounded-tr-xl sm:rounded-tr-2xl">Price</th>
                             </tr>
-                        </thead>
-                        <tbody>
+                            </thead>
+                            
+                            {/* Table Body */}
+                            <tbody>
                             {cartItems.map((item) => (
-                                <tr key={`${item.id}-${item.size}-${item.milk}-${item.drink}`} className="odd:bg-white even:bg-[#F5F0E9] border-b last:border-none border-[#E8D5B5] hover:bg-[#E8D5B5]/50 transition">
-                                    <td className="py-3 px-5 font-medium text-[#3E2723]">{item.name}</td>
-                                    <td className="py-3 px-5 text-[#5D4037]">{item.size}</td>
-                                    <td className="py-3 px-5 text-[#5D4037]">{item.milk}</td>
-                                    <td className="py-3 px-5 text-[#5D4037]">{item.drink}</td>
-                                    <td className="py-3 px-5 font-bold text-[#5D4037]">{item.quantity}</td>
-                                    <td className="py-3 px-5 font-semibold text-[#4E342E]">${(item.price * item.quantity).toFixed(2)}</td>
+                                <tr 
+                                key={`${item.id}-${item.size}-${item.milk}-${item.drink}`} 
+                                className="border-b border-[#E8D5B5] last:border-0"
+                                >
+                                {/* Item Name (Always visible) */}
+                                <td className="py-3 px-4 font-medium text-[#3E2723]">
+                                    <div className="flex flex-col">
+                                    <span className="font-medium">{item.name}</span>
+                                    {/* Additional info for mobile */}
+                                    <div className="xs:hidden text-xs text-[#795548] mt-1">
+                                        {item.size} • {item.milk}
+                                    </div>
+                                    </div>
+                                </td>
+                                
+                                {/* Size (Visible on xs+ screens) */}
+                                <td className="py-3 px-4 text-[#5D4037] hidden xs:table-cell">
+                                    {item.size}
+                                </td>
+                                
+                                {/* Milk (Visible on sm+ screens) */}
+                                <td className="py-3 px-4 text-[#5D4037] hidden sm:table-cell">
+                                    {item.milk}
+                                </td>
+                                
+                                {/* Type (Always visible) */}
+                                <td className="py-3 px-4 text-[#5D4037]">
+                                    {item.drink}
+                                </td>
+                                
+                                {/* Quantity (Always visible) */}
+                                <td className="py-3 px-4 font-bold text-[#5D4037]">
+                                    {item.quantity}
+                                </td>
+                                
+                                {/* Price (Always visible) */}
+                                <td className="py-3 px-4 font-semibold text-[#4E342E]">
+                                    ${(item.price * item.quantity).toFixed(2)}
+                                </td>
                                 </tr>
                             ))}
-                            {cartItems.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="py-8 text-center text-[#8D6E63] italic">Your cart is empty. Please select items from the menu below!</td>
-                                </tr>
-                            )}
-                        </tbody>
-                        {cartItems.length > 0 && (
+                            </tbody>
+                            
+                            {/* Table Footer */}
                             <tfoot className="border-t-2 border-[#D7CCC8]">
-                                <tr>
-                                    <td colSpan={5} className="py-4 px-5 font-bold text-right text-[#3E2723]">Total:</td>
-                                    <td className="py-4 px-5 font-bold text-[#4E342E]">${totalPrice.toFixed(2)}</td>
-                                </tr>
+                            <tr>
+                                <td 
+                                colSpan={4} 
+                                className="py-3 px-4 font-bold text-right text-[#3E2723] hidden sm:table-cell"
+                                >
+                                Total:
+                                </td>
+                                <td 
+                                className="py-3 px-4 font-bold text-right text-[#3E2723] sm:hidden"
+                                colSpan={3}
+                                >
+                                Total:
+                                </td>
+                                <td className="py-3 px-4 font-bold text-[#4E342E]">
+                                ${totalPrice.toFixed(2)}
+                                </td>
+                            </tr>
                             </tfoot>
-                        )}
-                    </table>
-                </section>
+                        </table>
+                              {/* View Cart Button */}
+                            {cartItems.length > 0 && (
+                                <div className="mt-6 flex justify-center">
+                                    <Link
+                                        href="/cart"
+                                        className="inline-flex items-center bg-[#5D4037] hover:bg-[#4E342E] text-white font-semibold py-2.5 sm:py-3 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-[#A1887F]/40 gap-2 text-sm sm:text-base"
+                                    >
+                                        <span>View Cart</span>
+                                        <svg 
+                                            className="w-4 h-4 sm:w-5 sm:h-5" 
+                                            fill="none" 
+                                            stroke="currentColor" 
+                                            viewBox="0 0 24 24" 
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
+                                            <path 
+                                                strokeLinecap="round" 
+                                                strokeLinejoin="round" 
+                                                strokeWidth="2" 
+                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                                            />
+                                        </svg>
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    </section>
 
                 {/* Section: Coffee Products */}
                 <section>

@@ -1,6 +1,6 @@
 'use client'
-import { Product } from '@/app/types'
 import { useCart } from '@/app/components/CartContext'
+import { Product } from '@/app/types'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import { notFound, useParams, useRouter } from 'next/navigation'
@@ -31,10 +31,10 @@ export default function ProductPage() {
           }
           throw new Error('Failed to fetch product');
         }
-        
+
         const data = await res.json();
         setProduct(data);
-        
+
         // Set default values from product data
         if (data.sizes?.length > 0) {
           setSelectedSize(data.sizes[0] as 'S' | 'M' | 'L');
@@ -51,7 +51,7 @@ export default function ProductPage() {
         setLoading(false);
       }
     }
-    
+
     if (id) {
       fetchProduct();
     }
@@ -76,15 +76,24 @@ export default function ProductPage() {
       </div>
     );
   }
-
   if (!product) return notFound();
 
-  // Calculate price
-  const basePrice = selectedSize && product.basePrices?.[selectedSize] || product.price;
-  const milkPrice = selectedMilk && selectedMilk !== 'None' && selectedMilk !== 'Whole Milk' ? 1 : 0;
-  const drinkPrice = selectedDrink && selectedDrink !== 'Hot' ? 1 : 0;
+  // Calculate base price according to size
+  let basePrice = product.price; // Default price
+  if (selectedSize && product.basePrices?.[selectedSize]) {
+    basePrice = product.basePrices[selectedSize];
+  }
+
+  // Calculate additional costs for milk options
+  const milkPrice = selectedMilk && selectedMilk !== 'None' && selectedMilk !== 'Whole Milk' ? 2 : 0;
+
+  // Calculate additional costs for drink type
+  const drinkPrice = selectedDrink && selectedDrink !== 'Hot' ? 1.5 : 0;
+
+  // Calculate topping costs ($0.75 per topping)
   const toppingPrice = selectedToppings.length * 0.75;
 
+  // Calculate total price
   const totalPrice = basePrice + milkPrice + drinkPrice + toppingPrice;
 
   const discountPercent = product.originalPrice

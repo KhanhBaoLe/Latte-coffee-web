@@ -19,6 +19,7 @@ interface Product {
     milkOptions: string[];
     drinkOptions: string[];
     toppings: string[];
+    basePrices?: { [key in 'S' | 'M' | 'L']?: number };
 }
 
 const categories = [
@@ -93,23 +94,22 @@ export default function MenuPage() {
 
         if (!product || !options?.size) return 0;
 
-        // Base price is already Medium size price
-        let basePrice = product.price;
-        switch (options.size) {
-            case 'L':
-                basePrice *= 1.2; // 20% more for Large
-                break;
-            case 'S':
-                basePrice *= 0.9; // 10% less for Small
-                break;
-            case 'M':
-            default:
-                // Medium price is the base price
-                break;
-                break;
-            // Small is base price
+        // Calculate base price according to size
+        let basePrice = product.price; // Default price
+        if (options.size && product.basePrices?.[options.size as 'S' | 'M' | 'L']) {
+            basePrice = product.basePrices[options.size as 'S' | 'M' | 'L'] ?? product.price;
         }
-        return basePrice;
+
+        // Calculate additional costs for milk options
+        const milkPrice = options.milk && options.milk !== 'None' && options.milk !== 'Whole Milk' ? 2 : 0;
+
+        // Calculate additional costs for drink type
+        const drinkPrice = options.drink && options.drink !== 'Hot' ? 1.5 : 0;
+
+        // Calculate total price
+        const totalPrice = basePrice + milkPrice + drinkPrice;
+
+        return totalPrice;
     };
 
     if (loading) {

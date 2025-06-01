@@ -1,9 +1,9 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
 import { products } from '@/app/data/products';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 // Star Rating Component
 const StarRating = ({ rating }: { rating: number }) => {
@@ -11,17 +11,17 @@ const StarRating = ({ rating }: { rating: number }) => {
     <div className="flex text-amber-400">
       {[...Array(Math.floor(rating))].map((_, i) => (
         <svg key={i} className="w-7 h-7 fill-current" viewBox="0 0 20 20">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ))}
       {(rating % 1 > 0) && (
         <svg className="w-7 h-7 fill-current" viewBox="0 0 20 20">
-          <path d="M10 1L12.39 6.3L18 7.24L14 11.14L15.08 16.02L10 13.3L4.92 16.02L6 11.14L2 7.24L7.61 6.3L10 1Z"/>
+          <path d="M10 1L12.39 6.3L18 7.24L14 11.14L15.08 16.02L10 13.3L4.92 16.02L6 11.14L2 7.24L7.61 6.3L10 1Z" />
         </svg>
       )}
       {[...Array(5 - Math.ceil(rating))].map((_, i) => (
         <svg key={i} className="w-7 h-7 text-stone-300" viewBox="0 0 20 20">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
       ))}
     </div>
@@ -37,25 +37,31 @@ export default function HeroCarousel() {
   const currentProduct = featuredProducts[currentIndex];
 
   // Calculate discount percentage
-  const discountPercent = currentProduct.originalPrice 
+  // Lấy size mặc định giống trang detail (size đầu tiên nếu có)
+  const defaultSize = currentProduct.sizes?.[0] as 'S' | 'M' | 'L';
+  const heroBasePrice =
+    defaultSize && currentProduct.basePrices?.[defaultSize]
+      ? currentProduct.basePrices[defaultSize]
+      : currentProduct.price;
+  const discountPercent = currentProduct.originalPrice
     ? Math.round(
-        ((currentProduct.originalPrice - currentProduct.price) / 
+      ((currentProduct.originalPrice - heroBasePrice) /
         currentProduct.originalPrice * 100
       )
-    ): 0;
+    ) : 0;
 
   const handleMainClick = () => router.push(`/detail/${currentProduct.id}`);
   const handleButtonClick = (e: React.MouseEvent) => e.stopPropagation();
 
   // Navigation functions
   const goToNext = useCallback(() => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === featuredProducts.length - 1 ? 0 : prevIndex + 1
     );
   }, [featuredProducts.length]);
 
   const goToPrev = () => {
-    setCurrentIndex((prevIndex) => 
+    setCurrentIndex((prevIndex) =>
       prevIndex === 0 ? featuredProducts.length - 1 : prevIndex - 1
     );
   };
@@ -63,7 +69,7 @@ export default function HeroCarousel() {
   // Auto-play functionality
   useEffect(() => {
     if (!isAutoPlaying) return;
-    
+
     const interval = setInterval(goToNext, 5000);
     return () => clearInterval(interval);
   }, [isAutoPlaying, goToNext]);
@@ -72,7 +78,7 @@ export default function HeroCarousel() {
   const pauseAutoPlay = () => setIsAutoPlaying(false);
 
   return (
-    <section 
+    <section
       className="bg-gradient-to-br from-[#F9F6F1] to-[#F5F0E9] py-6 sm:py-8 md:py-12 lg:py-20 xl:py-15 px-4 sm:px-6 lg:px-20 xl:px-60 cursor-pointer relative"
       onClick={handleMainClick}
     >
@@ -108,7 +114,7 @@ export default function HeroCarousel() {
             <div className="absolute -bottom-90 sm:-bottom-115 md:-bottom-115 lg:-bottom-40 left-0 right-0 lg:right-auto space-y-4 sm:space-y-5">
               <div className="flex items-baseline justify-center lg:justify-start gap-3 sm:gap-4">
                 <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#3E2723]">
-                  ${currentProduct.price.toFixed(2)}
+                  ${heroBasePrice.toFixed(2)}
                 </span>
                 {currentProduct.originalPrice && (
                   <>
@@ -123,7 +129,7 @@ export default function HeroCarousel() {
               </div>
 
               <div className="flex justify-center lg:justify-start">
-                <Link 
+                <Link
                   href={`/detail/${currentProduct.id}`}
                   className="inline-flex items-center bg-[#5D4037] hover:bg-[#4E342E] text-white font-semibold py-2.5 sm:py-3 md:py-4 px-6 sm:px-8 rounded-full transition-all duration-300 shadow-lg hover:shadow-[#A1887F]/40 gap-2 text-sm sm:text-base"
                   onClick={handleButtonClick}
@@ -153,7 +159,7 @@ export default function HeroCarousel() {
                 className="object-cover"
                 priority
                 sizes="(max-width: 640px) 250px, (max-width: 768px) 320px, (max-width: 1024px) 400px, (max-width: 1280px) 450px, 500px"
-              />            
+              />
             </div>
           </div>
         </div>
@@ -170,11 +176,10 @@ export default function HeroCarousel() {
                 setCurrentIndex(index);
                 pauseAutoPlay();
               }}
-              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 rounded-full transition-all duration-300 relative ${
-                index === currentIndex 
-                  ? 'bg-[#5D4037]' 
+              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3 lg:w-4 lg:h-4 rounded-full transition-all duration-300 relative ${index === currentIndex
+                  ? 'bg-[#5D4037]'
                   : 'bg-[#D7CCC8] hover:bg-[#BCAAA4]'
-              }`}
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             >
               {index === currentIndex && (
@@ -190,7 +195,7 @@ export default function HeroCarousel() {
         <div className="pointer-events-auto">
           <button
             onClick={(e) => {
-              e.stopPropagation();  
+              e.stopPropagation();
               goToPrev();
               pauseAutoPlay();
             }}
@@ -198,10 +203,10 @@ export default function HeroCarousel() {
             aria-label="Previous product"
           >
             <span className="absolute inset-0 rounded-full bg-[#5D4037]/10 group-hover:scale-110 transition-transform duration-300"></span>
-            <svg 
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:scale-110 group-hover:-translate-x-0.5 transition-all duration-300" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:scale-110 group-hover:-translate-x-0.5 transition-all duration-300"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -220,10 +225,10 @@ export default function HeroCarousel() {
             aria-label="Next product"
           >
             <span className="absolute inset-0 rounded-full bg-[#5D4037]/10 group-hover:scale-110 transition-transform duration-300"></span>
-            <svg 
-              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:scale-110 group-hover:translate-x-0.5 transition-all duration-300" 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transform group-hover:scale-110 group-hover:translate-x-0.5 transition-all duration-300"
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

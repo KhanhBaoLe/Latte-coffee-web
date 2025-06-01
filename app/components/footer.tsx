@@ -44,13 +44,18 @@ const Footer = () => {
 
                     {/* Menu Links */}
                     <div>
-                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-[#A1887F] inline-block">Menu</h4>
-                        <ul className="space-y-3">
-                            {['Coffee', 'Milk Tea', 'Matchalatte', 'Fruit Tea', 'Seasonal specialties'].map((item) => (
-                                <li key={item}>
-                                    <a href="#" className="flex items-center text-[#5D4037] hover:text-[#3E2723] transition group">
+                        <h4 className="text-lg font-bold mb-6 pb-2 border-b border-[#A1887F] inline-block">Menu</h4>                        <ul className="space-y-3">
+                            {[
+                                // { name: 'All', href: '/menu' },
+                                { name: 'Coffee', href: '/menu?category=coffee' },
+                                { name: 'Milk Tea', href: '/menu?category=milk-tea' },
+                                { name: 'Matcha', href: '/menu?category=matcha' },
+                                { name: 'Fruit Tea', href: '/menu?category=fruit-tea' }
+                            ].map((item) => (
+                                <li key={item.name}>
+                                    <a href={item.href} className="flex items-center text-[#5D4037] hover:text-[#3E2723] transition group">
                                         <span className="w-2 h-2 bg-[#5D4037] rounded-full mr-3 opacity-0 group-hover:opacity-100 transition"></span>
-                                        {item}
+                                        {item.name}
                                     </a>
                                 </li>
                             ))}

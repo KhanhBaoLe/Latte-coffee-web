@@ -30,6 +30,9 @@ const categories = [
     { id: 'fruit-tea', name: 'Fruit Tea' },
 ];
 
+// Products that are eligible for 25% discount when size M is selected
+const saleProducts = ['1', '2', '3', '7', '8', '12'];
+
 export default function MenuPage() {
     const { addToCart } = useCart();
     const router = useRouter();
@@ -189,17 +192,20 @@ export default function MenuPage() {
                             <div
                                 key={product.id}
                                 className="bg-white rounded-xl shadow-md md:shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E8D5B5]"
-                            >
-                                <div
-                                    className="relative h-40 sm:h-48 cursor-pointer group"
-                                    onClick={() => router.push(`/detail/${product.id}`)}
-                                >
-                                    <Image
+                            >                                <div
+                                className="relative h-40 sm:h-48 cursor-pointer group"
+                                onClick={() => router.push(`/detail/${product.id}`)}
+                            >                                    <Image
                                         src={product.image}
                                         alt={product.title}
                                         fill
                                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
+                                    {saleProducts.includes(product.id.toString()) && (
+                                        <div className="absolute top-2 right-2 bg-[#D32F2F] text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
+                                            SALE 25% OFF for M Size
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="p-4 md:p-6 space-y-3 md:space-y-4">
@@ -213,14 +219,8 @@ export default function MenuPage() {
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <div className="text-lg md:text-xl font-bold text-[#3E2723]">
-                                                ${product.price.toFixed(2)}
-                                            </div>
-                                            {product.originalPrice && (
-                                                <div className="text-sm text-[#D32F2F] line-through">
-                                                    ${product.originalPrice.toFixed(2)}
-                                                </div>
-                                            )}
+
+
                                         </div>
                                     </div>
 
@@ -272,12 +272,16 @@ export default function MenuPage() {
                                                 </select>
                                             </div>
                                         )}
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-3">
+                                    </div>                                    <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-3">                                        <div className="flex flex-col">
                                         <div className="text-xl md:text-2xl font-bold text-[#3E2723]">
                                             Total: ${calculatePrice(product.id).toFixed(2)}
                                         </div>
+                                        {selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString()) && (
+                                            <div className="text-sm text-[#D32F2F] line-through">
+                                                ${(calculatePrice(product.id) * 1.15).toFixed(2)}
+                                            </div>
+                                        )}
+                                    </div>
                                         <button
                                             onClick={() => {
                                                 const options = selectedOptions[product.id];
@@ -287,34 +291,32 @@ export default function MenuPage() {
                                                     return;
                                                 }
                                                 const price = calculatePrice(product.id);
-                                                if (price === 0) {
-                                                    alert("Error calculating price. Please try again.");
-                                                    return;
+                                                if (selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString())) {
+                                                    addToCart({
+                                                        id: product.id,
+                                                        name: product.title,
+                                                        price: price * 0.75,
+                                                        quantity: 1,
+                                                        size: selectedOptions[product.id]?.size,
+                                                        milk: selectedOptions[product.id]?.milk,
+                                                        drink: selectedOptions[product.id]?.drink
+                                                    });
+                                                } else {
+                                                    addToCart({
+                                                        id: product.id,
+                                                        name: product.title,
+                                                        price: price,
+                                                        quantity: 1,
+                                                        size: selectedOptions[product.id]?.size,
+                                                        milk: selectedOptions[product.id]?.milk,
+                                                        drink: selectedOptions[product.id]?.drink
+                                                    });
                                                 }
-                                                addToCart({
-                                                    id: product.id,
-                                                    name: product.title,
-                                                    price: price,
-                                                    quantity: 1,
-                                                    size: options.size,
-                                                    milk: options.milk || "None",
-                                                    drink: options.drink || "Regular",
-                                                    image: product.image
-                                                });
-
-                                                // Reset options after adding to cart
-                                                setSelectedOptions(prev => ({
-                                                    ...prev,
-                                                    [product.id]: {}
-                                                }));
-
-                                                // Show success toast
-                                                alert("Added to cart successfully!");
                                             }}
-                                            className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-[#5D4037] to-[#3E2723] text-white rounded-full hover:from-[#4E342E] hover:to-[#3E2723] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg text-sm md:text-base font-semibold"
+                                            className="flex-1 px-4 py-2 rounded-lg bg-[#5D4037] text-white font-semibold transition-all duration-300 hover:bg-[#795548] flex items-center justify-center gap-2"
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h18M3 9h18M3 15h18M3 21h18" />
                                             </svg>
                                             Add to Cart
                                         </button>
@@ -325,16 +327,6 @@ export default function MenuPage() {
                     </div>
                 </div>
             </main>
-
-            <style jsx>{`
-                .hide-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-                .hide-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-            `}</style>
         </div>
     );
 }

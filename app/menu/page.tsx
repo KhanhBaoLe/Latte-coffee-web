@@ -1,5 +1,6 @@
 'use client';
 import { useCart } from '@/app/components/CartContext';
+import { isInCategory } from '@/app/data/categories';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -86,15 +87,15 @@ export default function MenuPage() {
                 [optionType]: value
             }
         }));
-    };    const calculatePrice = (productId: number) => {
+    }; const calculatePrice = (productId: number) => {
         const product = products.find(p => p.id === productId);
         const options = selectedOptions[productId];
 
         if (!product || !options?.size) return 0;
-        
+
         // Base price is already Medium size price
         let basePrice = product.price;
-        switch(options.size) {
+        switch (options.size) {
             case 'L':
                 basePrice *= 1.2; // 20% more for Large
                 break;
@@ -120,7 +121,7 @@ export default function MenuPage() {
     }
 
     const filteredProducts = products.filter(product =>
-        activeCategory === 'all' ? true : product.category === activeCategory
+        activeCategory === 'all' ? true : isInCategory(String(product.id), activeCategory)
     );
 
     return (
@@ -280,7 +281,7 @@ export default function MenuPage() {
                                         <button
                                             onClick={() => {
                                                 const options = selectedOptions[product.id];
-                                                if (!options?.size || (product.drinkOptions.length > 0 && !options?.drink) || 
+                                                if (!options?.size || (product.drinkOptions.length > 0 && !options?.drink) ||
                                                     (product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && !options?.milk)) {
                                                     alert("Please select all required options");
                                                     return;
@@ -300,13 +301,13 @@ export default function MenuPage() {
                                                     drink: options.drink || "Regular",
                                                     image: product.image
                                                 });
-                                                
+
                                                 // Reset options after adding to cart
                                                 setSelectedOptions(prev => ({
                                                     ...prev,
                                                     [product.id]: {}
                                                 }));
-                                                
+
                                                 // Show success toast
                                                 alert("Added to cart successfully!");
                                             }}

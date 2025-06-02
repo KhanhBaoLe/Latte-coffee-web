@@ -83,7 +83,7 @@ export default function AboutPage() {
                                     className="object-cover rounded-full shadow-xl"
                                 />
                             </div>
-                            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 bg-[#5C3D2E] text-white px-6 py-2 rounded-full shadow-lg">
+                            <div className="absolute -bottom-15 sm:-bottom-8 md:-bottom-15 lg:-bottom-8 xl:-bottom-6 2xl:-bottom-8 left-1/2 transform -translate-x-1/2 bg-[#5C3D2E] text-white px-6 py-2 rounded-full shadow-lg">
                                 <h3 className="text-lg font-semibold">Nguyễn Tiến Dũng</h3>
                                 <p className="text-sm text-gray-200">CEO & Co-founder</p>
                             </div>

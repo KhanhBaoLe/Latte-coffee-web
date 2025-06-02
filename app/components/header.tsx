@@ -328,7 +328,7 @@ export default function Header() {
                               router.push('/cart');
                             }}
                           >
-                            Detail
+                            Detail your order
                           </button>
                           <div className="w-12 h-0.5 bg-gray-700" />
                         </div>

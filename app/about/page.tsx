@@ -77,7 +77,7 @@ export default function AboutPage() {
                         <div className="relative">
                             <div className="relative w-48 h-48 mx-auto md:w-64 md:h-64">
                                 <Image
-                                    src="/images/founder1.jpg"
+                                    src="/founder-images/myprofile.jpg"
                                     alt="Founder"
                                     fill
                                     className="object-cover rounded-full shadow-xl"

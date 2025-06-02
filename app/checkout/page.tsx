@@ -1,8 +1,8 @@
 'use client';
 import { useCart } from '@/app/components/CartContext';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 
 type DeliveryMethod = 'pickup' | 'delivery';
 
@@ -17,7 +17,7 @@ type CustomerInfo = {
 };
 
 export default function CheckoutPage() {
-    const { cartItems, totalPrice, clearCart, updateQuantity, removeFromCart } = useCart();
+    const { cartItems, totalPrice, updateQuantity, removeFromCart } = useCart();
     const router = useRouter();
     const [customerInfo, setCustomerInfo] = useState<CustomerInfo>({
         name: '',
@@ -50,9 +50,7 @@ export default function CheckoutPage() {
             deliveryMethod: method,
             ...(method === 'delivery' ? { tableNumber: '' } : {})
         }));
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
+    };    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (customerInfo.deliveryMethod === 'pickup' && !customerInfo.tableNumber) {
@@ -64,17 +62,40 @@ export default function CheckoutPage() {
             alert('Please enter your delivery address');
             return;
         }
-        
-        setIsSubmitting(true);
-        router.push('/confirm');
-        setTimeout(() => {
-            clearCart();
-        }, 0);
+
+        try {
+            setIsSubmitting(true);
+
+            // Calculate order totals
+            const subtotal = totalPrice;
+            const tax = totalPrice * 0.1;
+            const total = totalPrice * 1.1;
+
+            // Create order data object
+            const orderData = {
+                customerInfo,
+                cartItems,
+                subtotal,
+                tax,
+                total,
+            };
+
+            // Lưu vào sessionStorage
+            sessionStorage.setItem('currentOrder', JSON.stringify(orderData));
+
+            // Điều hướng đến trang xác nhận
+            router.push('/checkout/confirmOrder');
+        } catch (error) {
+            console.error('Error processing order:', error);
+            alert('There was an error processing your order. Please try again.');
+            setIsSubmitting(false);
+        }
     };
 
     const steps = [
         { id: 1, name: 'Order Overview', status: 'complete' },
-        { id: 2, name: 'Complete Order', status: 'upcoming' },
+        { id: 2, name: 'Confirm Order', status: 'upcoming' },
+        { id: 3, name: 'Complete Order', status: 'upcoming' },
     ];
 
     const handleQuantityChange = (id: number, newQuantity: number) => {
@@ -368,8 +389,8 @@ export default function CheckoutPage() {
                             <button
                                 type="submit"
                                 className="w-full bg-[#5D4037] text-white py-3 rounded-lg mt-6 hover:bg-[#4E342E] transition-colors font-semibold shadow-md"
-                            >
-                                Place Order (${(totalPrice * 1.1).toFixed(2)})
+                                >
+                                Confirm Order (${(totalPrice * 1.1).toFixed(2)})
                             </button>
                         </form>
                     </div>

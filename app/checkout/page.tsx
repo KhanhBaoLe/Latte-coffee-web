@@ -1,8 +1,8 @@
 'use client';
 import { useCart } from '@/app/components/CartContext';
-import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type DeliveryMethod = 'pickup' | 'delivery';
 
@@ -31,6 +31,15 @@ export default function CheckoutPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
+        // Check for existing order data when component mounts
+        const storedOrder = sessionStorage.getItem('currentOrder');
+        if (storedOrder) {
+            const orderData = JSON.parse(storedOrder);
+            setCustomerInfo(orderData.customerInfo);
+        }
+    }, []);
+
+    useEffect(() => {
         if (cartItems.length === 0 && !isSubmitting) {
             router.push('/cart');
         }
@@ -50,14 +59,14 @@ export default function CheckoutPage() {
             deliveryMethod: method,
             ...(method === 'delivery' ? { tableNumber: '' } : {})
         }));
-    };    const handleSubmit = async (e: React.FormEvent) => {
+    }; const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (customerInfo.deliveryMethod === 'pickup' && !customerInfo.tableNumber) {
             alert('Please enter your table number for pickup');
             return;
         }
-        
+
         if (customerInfo.deliveryMethod === 'delivery' && !customerInfo.address) {
             alert('Please enter your delivery address');
             return;
@@ -152,7 +161,7 @@ export default function CheckoutPage() {
                     {/* Order Summary */}
                     <div className="bg-white rounded-lg shadow p-6 border border-gray-200 flex flex-col">
                         <h2 className="text-xl font-semibold text-gray-800 mb-4">Order Overview</h2>
-                        
+
                         <div className={`${maxItemsHeight} overflow-y-auto pr-2 mb-4 flex-grow`}>
                             <div className="space-y-6">
                                 {cartItems.map((item) => (
@@ -176,7 +185,7 @@ export default function CheckoutPage() {
                                                 {item.milk && <p className="flex items-center"><span className="w-24">Milk:</span> {item.milk}</p>}
                                                 {item.drink && <p className="flex items-center"><span className="w-24">Drink:</span> {item.drink}</p>}
                                             </div>
-                                            
+
                                             <div className="mt-3 flex items-center">
                                                 <div className="flex items-center border-2 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
                                                     <button
@@ -186,11 +195,11 @@ export default function CheckoutPage() {
                                                     >
                                                         <span className="text-xl font-bold">−</span>
                                                     </button>
-                                                    
+
                                                     <span className="w-12 text-center font-bold text-lg bg-blue-50 text-blue-700 py-1 mx-1 rounded-md">
                                                         {item.quantity}
                                                     </span>
-                                                    
+
                                                     <button
                                                         onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                                                         className="w-10 h-10 flex items-center justify-center rounded-r-lg bg-green-100 hover:bg-green-300 text-green-700 transition-colors duration-200"
@@ -198,7 +207,7 @@ export default function CheckoutPage() {
                                                         <span className="text-xl font-bold">+</span>
                                                     </button>
                                                 </div>
-                                                
+
                                                 <button
                                                     onClick={() => removeFromCart(item.id)}
                                                     className="ml-4 text-red-600 hover:text-red-800 p-2 bg-red-50 rounded-full hover:bg-red-100 transition-colors duration-200"
@@ -209,7 +218,7 @@ export default function CheckoutPage() {
                                                 </button>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="flex flex-col items-end">
                                             <p className="font-medium text-[#3E2723] text-lg whitespace-nowrap">
                                                 ${(item.price * item.quantity).toFixed(2)}
@@ -220,7 +229,7 @@ export default function CheckoutPage() {
                                 ))}
                             </div>
                         </div>
-                        
+
                         <div className="border-t-2 border-[#D7CCC8] pt-4 mt-auto">
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-[#5D4037]">Subtotal:</span>
@@ -249,8 +258,8 @@ export default function CheckoutPage() {
                                         type="button"
                                         onClick={() => handleDeliveryMethodChange('pickup')}
                                         className={`py-3 px-4 rounded-lg border-2 flex items-center justify-center transition-colors
-                                            ${customerInfo.deliveryMethod === 'pickup' 
-                                                ? 'border-[#5D4037] bg-[#EFEBE9] text-[#3E2723] font-semibold' 
+                                            ${customerInfo.deliveryMethod === 'pickup'
+                                                ? 'border-[#5D4037] bg-[#EFEBE9] text-[#3E2723] font-semibold'
                                                 : 'border-[#D7CCC8] text-[#8D6E63] hover:bg-[#F5F0E9]'}`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -263,8 +272,8 @@ export default function CheckoutPage() {
                                         type="button"
                                         onClick={() => handleDeliveryMethodChange('delivery')}
                                         className={`py-3 px-4 rounded-lg border-2 flex items-center justify-center transition-colors
-                                            ${customerInfo.deliveryMethod === 'delivery' 
-                                                ? 'border-[#5D4037] bg-[#EFEBE9] text-[#3E2723] font-semibold' 
+                                            ${customerInfo.deliveryMethod === 'delivery'
+                                                ? 'border-[#5D4037] bg-[#EFEBE9] text-[#3E2723] font-semibold'
                                                 : 'border-[#D7CCC8] text-[#8D6E63] hover:bg-[#F5F0E9]'}`}
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -389,7 +398,7 @@ export default function CheckoutPage() {
                             <button
                                 type="submit"
                                 className="w-full bg-[#5D4037] text-white py-3 rounded-lg mt-6 hover:bg-[#4E342E] transition-colors font-semibold shadow-md"
-                                >
+                            >
                                 Confirm Order (${(totalPrice * 1.1).toFixed(2)})
                             </button>
                         </form>

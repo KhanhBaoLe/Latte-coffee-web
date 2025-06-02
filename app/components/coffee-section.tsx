@@ -29,8 +29,6 @@ interface Product {
     };
 }
 
-
-
 const CoffeeSection = () => {
     const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);

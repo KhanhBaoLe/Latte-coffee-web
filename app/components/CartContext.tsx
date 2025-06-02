@@ -42,15 +42,30 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         localStorage.setItem('cart', JSON.stringify(cartItems));
     }, [cartItems]);
 
+    // Hàm kiểm tra xem hai món có hoàn toàn giống nhau không (cả tên và options)
+    const areItemsEqual = (item1: CartItem, item2: CartItem) => {
+        return item1.name === item2.name &&
+            item1.size === item2.size &&
+            item1.milk === item2.milk &&
+            item1.drink === item2.drink &&
+            JSON.stringify(item1.toppings) === JSON.stringify(item2.toppings);
+    };
+
     const addToCart = (item: CartItem) => {
         setCartItems((prevItems) => {
-            const existingItem = prevItems.find((i) => i.id === item.id);
+            // Tìm món hoàn toàn giống (cả tên và options)
+            const existingItem = prevItems.find((i) => areItemsEqual(i, item));
+
             if (existingItem) {
+                // Nếu tìm thấy món hoàn toàn giống, tăng số lượng
                 return prevItems.map((i) =>
-                    i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+                    areItemsEqual(i, item) ? { ...i, quantity: i.quantity + 1 } : i
                 );
             } else {
-                return [...prevItems, { ...item, quantity: 1 }];
+                // Nếu không tìm thấy, thêm món mới với số lượng là 1
+                // Tạo ID mới bằng cách lấy timestamp để đảm bảo mỗi món có ID khác nhau
+                const newId = Date.now();
+                return [...prevItems, { ...item, id: newId, quantity: 1 }];
             }
         });
     };

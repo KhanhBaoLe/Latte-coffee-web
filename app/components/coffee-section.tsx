@@ -29,12 +29,7 @@ interface Product {
     };
 }
 
-// Giá cho từng size
-const sizePrices = {
-    'S': 0,
-    'M': 1,
-    'L': 2
-};
+
 
 const CoffeeSection = () => {
     const router = useRouter();

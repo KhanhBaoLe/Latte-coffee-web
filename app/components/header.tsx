@@ -317,11 +317,28 @@ export default function Header() {
                         className="w-full py-2 px-4 bg-[#5D4037] text-white rounded-full hover:bg-[#4E342E] transition-colors text-sm font-medium"
                         onClick={() => {
                           setIsCartOpen(false);
-                          router.push('/cart');
+                          router.push('/checkout');
                         }}
                       >
-                        VIEW CART
+                        CHECKOUT
                       </button>
+                      <div className="flex justify-center items-center">
+                        <div className="flex flex-col items-center space-y-1">
+                          <button
+                            className="text-gray-700 uppercase text-xs font-medium tracking-wider hover:text-green-800 transition-colors"
+                            onClick={() => {
+                              setIsCartOpen(false);
+                              router.push('/cart');
+                            }}
+                          >
+                            Detail
+                          </button>
+                          <div className="w-12 h-0.5 bg-gray-700" />
+                        </div>
+                      </div>
+
+
+
                     </div>
                   )}
                 </div>

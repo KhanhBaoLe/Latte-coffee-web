@@ -139,7 +139,7 @@ export default function AboutPage() {
                             </p>
                             <div className="flex justify-center md:justify-start space-x-4 mt-6">
                                 <a
-                                    href="#"
+                                    href="https://www.facebook.com/khanh.le.51222"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-[#5C3D2E] hover:text-[#8B4513] transition-colors"
@@ -149,7 +149,7 @@ export default function AboutPage() {
                                     </svg>
                                 </a>
                                 <a
-                                    href="#"
+                                    href="https://www.instagram.com/baokahnh/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-[#5C3D2E] hover:text-[#8B4513] transition-colors"

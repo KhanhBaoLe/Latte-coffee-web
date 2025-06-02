@@ -37,11 +37,11 @@ export default function RootLayout({
       >
         <CartProvider>
           <div className="flex flex-col min-h-screen">
+            <Header />
             <Suspense fallback={<DashboardSkeleton />}>
-              <Header />
               <main className="flex-grow">{children}</main>
-              <Footer />
             </Suspense>
+            <Footer />
           </div>
         </CartProvider>
       </body>

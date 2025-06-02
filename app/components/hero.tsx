@@ -1,9 +1,9 @@
 'use client';
-import { products } from '@/app/data/products';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
+import { Product } from '@/app/types';
 
 // Star Rating Component
 const StarRating = ({ rating }: { rating: number }) => {
@@ -28,11 +28,82 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
+
 export default function HeroCarousel() {
   const router = useRouter();
-  const featuredProducts = products.slice(0, 3); // Get first 3 products for the carousel
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Navigation functions
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === (featuredProducts.length - 1) ? 0 : prevIndex + 1
+    );
+  }, [featuredProducts.length]);
+
+  const goToPrev = () => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? featuredProducts.length - 1 : prevIndex - 1
+    );
+  };
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+
+    const interval = setInterval(goToNext, 5000);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, goToNext]);
+
+  // Fetch featured products
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch('/api/featured');
+        if (!response.ok) {
+          throw new Error('Failed to fetch featured products');
+        }
+        const data = await response.json();
+        console.log('Fetched featured products:', data);
+        setFeaturedProducts(data);
+        setIsLoading(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+        setIsLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <section className="bg-gradient-to-br from-[#F9F6F1] to-[#F5F0E9] py-20 px-4 flex items-center justify-center">
+        <div className="animate-pulse text-center">
+          <div className="h-8 bg-[#E8D5B5] w-40 mx-auto rounded-full mb-8"></div>
+          <div className="h-12 bg-[#E8D5B5] w-96 mx-auto rounded-lg mb-6"></div>
+          <div className="h-4 bg-[#E8D5B5] w-64 mx-auto rounded mb-4"></div>
+          <div className="h-48 bg-[#E8D5B5] w-48 mx-auto rounded-full"></div>
+        </div>
+      </section>
+    );
+  }
+
+  // Show error state
+  if (error || featuredProducts.length === 0) {
+    return (
+      <section className="bg-gradient-to-br from-[#F9F6F1] to-[#F5F0E9] py-20 px-4 flex items-center justify-center">
+        <div className="text-center text-[#5D4037]">
+          <h2 className="text-2xl font-bold mb-4">Oops! Something went wrong</h2>
+          <p>{error || 'No featured products available'}</p>
+        </div>
+      </section>
+    );
+  }
 
   const currentProduct = featuredProducts[currentIndex];
 
@@ -52,29 +123,6 @@ export default function HeroCarousel() {
 
   const handleMainClick = () => router.push(`/detail/${currentProduct.id}`);
   const handleButtonClick = (e: React.MouseEvent) => e.stopPropagation();
-
-  // Navigation functions
-  const goToNext = useCallback(() => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === featuredProducts.length - 1 ? 0 : prevIndex + 1
-    );
-  }, [featuredProducts.length]);
-
-  const goToPrev = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? featuredProducts.length - 1 : prevIndex - 1
-    );
-  };
-
-  // Auto-play functionality
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-
-    const interval = setInterval(goToNext, 5000);
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, goToNext]);
-
-  // Pause auto-play when user interacts
   const pauseAutoPlay = () => setIsAutoPlaying(false);
 
   return (

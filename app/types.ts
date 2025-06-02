@@ -13,6 +13,8 @@ export interface Product {
   drinkOptions?: string[];
   toppingOptions?: string[];
   category?: string;
+  rating: number;
+  reviews: number;
 }
 
 export interface CartItem {

@@ -153,6 +153,12 @@ export default function Header() {
                 Menu
               </Link>
               <Link
+                href="/about"
+                className="text-[#5D4037] hover:text-[#3E2723] transition-colors font-medium"
+              >
+                About
+              </Link>
+              <Link
                 href={`/table/1`}
                 className="bg-[#5D4037] text-white px-4 py-2 rounded hover:bg-[#4E342E] transition-colors"
               >
@@ -376,6 +382,13 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               Menu
+            </Link>
+            <Link
+              href="/about"
+              className="text-[#5D4037] font-medium py-2 px-4 rounded hover:bg-[#E8D5B5] transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              About
             </Link>
             <Link
               href={`/table/1`}

@@ -95,13 +95,17 @@ export default function MenuPage() {
         const product = products.find(p => p.id === productId);
         const options = selectedOptions[productId];
 
-
         if (!product || !options?.size) return 0;
 
         // Calculate base price according to size
         let basePrice = product.price; // Default price
         if (options.size && product.basePrices?.[options.size as 'S' | 'M' | 'L']) {
             basePrice = product.basePrices[options.size as 'S' | 'M' | 'L'] ?? product.price;
+        }
+
+        // Apply 25% discount for M size on sale products
+        if (options.size === 'M' && saleProducts.includes(String(productId))) {
+            basePrice = basePrice * 0.75; // Apply 25% discount
         }
 
         // Calculate additional costs for milk options
@@ -294,10 +298,7 @@ export default function MenuPage() {
                                                     return;
                                                 }
 
-                                                const price = calculatePrice(product.id);
-                                                const finalPrice = (selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString()))
-                                                    ? price * 0.75
-                                                    : price;
+                                                const price = calculatePrice(product.id); const finalPrice = price; // Price already includes any applicable discounts
 
                                                 addToCart({
                                                     id: product.id,

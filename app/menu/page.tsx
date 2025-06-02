@@ -95,6 +95,7 @@ export default function MenuPage() {
         const product = products.find(p => p.id === productId);
         const options = selectedOptions[productId];
 
+
         if (!product || !options?.size) return 0;
 
         // Calculate base price according to size
@@ -105,13 +106,10 @@ export default function MenuPage() {
 
         // Calculate additional costs for milk options
         const milkPrice = options.milk && options.milk !== 'None' && options.milk !== 'Whole Milk' ? 2 : 0;
-
         // Calculate additional costs for drink type
         const drinkPrice = options.drink && options.drink !== 'Hot' ? 1.5 : 0;
-
         // Calculate total price
         const totalPrice = basePrice + milkPrice + drinkPrice;
-
         return totalPrice;
     };
 
@@ -191,11 +189,13 @@ export default function MenuPage() {
                         {filteredProducts.map((product) => (
                             <div
                                 key={product.id}
-                                className="bg-white rounded-xl shadow-md md:shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E8D5B5]"
-                            >                                <div
-                                className="relative h-40 sm:h-48 cursor-pointer group"
-                                onClick={() => router.push(`/detail/${product.id}`)}
-                            >                                    <Image
+                                className="bg-white rounded-xl shadow-md md:shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E8D5B5] flex flex-col h-full"
+                            >
+                                <div
+                                    className="relative h-40 sm:h-48 cursor-pointer group"
+                                    onClick={() => router.push(`/detail/${product.id}`)}
+                                >
+                                    <Image
                                         src={product.image}
                                         alt={product.title}
                                         fill
@@ -208,7 +208,8 @@ export default function MenuPage() {
                                     )}
                                 </div>
 
-                                <div className="p-4 md:p-6 space-y-3 md:space-y-4">
+                                {/* Sửa phần này: Thêm flex flex-col và flex-grow */}
+                                <div className="p-4 md:p-6 flex flex-col flex-grow">
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h3 className="text-lg md:text-xl font-bold text-[#3E2723] hover:text-[#5D4037] transition-colors">
@@ -218,15 +219,12 @@ export default function MenuPage() {
                                                 {product.rating} ★ ({product.reviews} reviews)
                                             </p>
                                         </div>
-                                        <div className="text-right">
-
-
-                                        </div>
                                     </div>
 
-                                    <p className="text-[#5D4037] text-xs md:text-sm line-clamp-2">{product.description}</p>
+                                    <p className="text-[#5D4037] text-xs md:text-sm line-clamp-2 mt-2">{product.description}</p>
 
-                                    <div className="space-y-3 mt-4">
+                                    {/* Phần options - thêm flex-grow để chiếm không gian còn lại */}
+                                    <div className="space-y-3 mt-4 flex-grow">
                                         <div className="flex flex-col md:flex-row md:items-center gap-2">
                                             <span className="font-medium text-[#5D4037] w-16">Size</span>
                                             <select
@@ -272,49 +270,47 @@ export default function MenuPage() {
                                                 </select>
                                             </div>
                                         )}
-                                    </div>                                    <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-3">                                        <div className="flex flex-col">
-                                        <div className="text-xl md:text-2xl font-bold text-[#3E2723]">
-                                            Total: ${calculatePrice(product.id).toFixed(2)}
-                                        </div>
-                                        {selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString()) && (
-                                            <div className="text-sm text-[#D32F2F] line-through">
-                                                ${(calculatePrice(product.id) * 1.15).toFixed(2)}
-                                            </div>
-                                        )}
                                     </div>
+
+                                    {/* Phần giá và nút - luôn nằm ở dưới cùng */}
+                                    <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-3 mt-auto">
+                                        <div className="flex flex-col">
+                                            <div className="text-xl md:text-2xl font-bold text-[#3E2723]">
+                                                Total: ${calculatePrice(product.id).toFixed(2)}
+                                            </div>
+                                            {selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString()) && (
+                                                <div className="text-sm text-[#D32F2F] line-through">
+                                                    ${(calculatePrice(product.id) * 1.15).toFixed(2)}
+                                                </div>
+                                            )}
+                                        </div>
                                         <button
                                             onClick={() => {
                                                 const options = selectedOptions[product.id];
-                                                if (!options?.size || (product.drinkOptions.length > 0 && !options?.drink) ||
+                                                if (!options?.size ||
+                                                    (product.drinkOptions.length > 0 && !options?.drink) ||
                                                     (product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && !options?.milk)) {
                                                     alert("Please select all required options");
                                                     return;
                                                 }
+
                                                 const price = calculatePrice(product.id);
-                                                if (selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString())) {
-                                                    addToCart({
-                                                        id: product.id,
-                                                        name: product.title,
-                                                        price: price * 0.75,
-                                                        quantity: 1,
-                                                        size: selectedOptions[product.id]?.size,
-                                                        milk: selectedOptions[product.id]?.milk,
-                                                        drink: selectedOptions[product.id]?.drink
-                                                    });
-                                                } else {
-                                                    addToCart({
-                                                        id: product.id,
-                                                        name: product.title,
-                                                        price: price,
-                                                        quantity: 1,
-                                                        size: selectedOptions[product.id]?.size,
-                                                        milk: selectedOptions[product.id]?.milk,
-                                                        drink: selectedOptions[product.id]?.drink
-                                                    });
-                                                }
+                                                const finalPrice = (selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString()))
+                                                    ? price * 0.75
+                                                    : price;
+
+                                                addToCart({
+                                                    id: product.id,
+                                                    name: product.title,
+                                                    price: Number(finalPrice.toFixed(2)), // Convert to number after fixing decimal places
+                                                    quantity: 1,
+                                                    size: options.size,
+                                                    milk: options.milk,
+                                                    drink: options.drink,
+                                                    image: product.image
+                                                });
                                             }}
-                                            className="flex-1 px-4 py-2 rounded-lg bg-[#5D4037] text-white font-semibold transition-all duration-300 hover:bg-[#795548] flex items-center justify-center gap-2"
-                                        >
+                                            className="flex-1 px-4 py-2 rounded-lg bg-[#5D4037] text-white font-semibold transition-all duration-300 hover:bg-[#795548] flex items-center justify-center gap-2"                                        >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h18M3 9h18M3 15h18M3 21h18" />
                                             </svg>

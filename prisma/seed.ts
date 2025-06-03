@@ -1,13 +1,25 @@
 import { PrismaClient } from '@prisma/client'
 import { categoryIds } from '../app/data/categories'
-import { table as tables } from '../app/data/id_table'
 import { products } from '../app/data/products'
+import { table as tables } from '../app/data/id_table'
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
 async function main() {
+  console.log('Cleaning up old data...')
+  try {
+    await prisma.payment.deleteMany({})
+    await prisma.orderItem.deleteMany({})
+    await prisma.order.deleteMany({})
+    await prisma.product.deleteMany({})
+    await prisma.category.deleteMany({})
+    await prisma.table.deleteMany({})
+  } catch (error) {
+    console.error('EError during cleanup:', error)
+  }
+
   console.log('Creating categories...')
-  // Create categories
   const categories = await Promise.all([
     prisma.category.create({
       data: {
@@ -39,25 +51,41 @@ async function main() {
     })
   ])
 
-  const categoryMap = new Map(categories.map(c => [c.name, c]))
+  const categoryMap = new Map<string, string>() // name -> UUID
+  for (const c of categories) {
+    categoryMap.set(c.name, c.id)
+  }
 
-  console.log('Creating products...')
-  // Import products
+  console.log(' Creating products...')
   for (const product of products) {
-    // Determine category based on product ID
-    const categoryName =
-      Number(product.id) >= Number(categoryIds.coffee.start) && Number(product.id) <= Number(categoryIds.coffee.end) ? 'coffee' :
-        Number(product.id) >= Number(categoryIds.milkTea.start) && Number(product.id) <= Number(categoryIds.milkTea.end) ? 'milk-tea' :
-          Number(product.id) >= Number(categoryIds.matchaLatte.start) && Number(product.id) <= Number(categoryIds.matchaLatte.end) ? 'matcha' :
-            'fruit-tea'
+    const productId = Number(product.id)
 
-    const category = categoryMap.get(categoryName)
-    if (!category) {
-      throw new Error(`Category ${categoryName} not found`)
+    let categoryName: string | undefined = undefined
+
+    if (productId >= Number(categoryIds.coffee.start) && productId <= Number(categoryIds.coffee.end)) {
+      categoryName = 'coffee'
+    } else if (productId >= Number(categoryIds.milkTea.start) && productId <= Number(categoryIds.milkTea.end)) {
+      categoryName = 'milk-tea'
+    } else if (productId >= Number(categoryIds.matchaLatte.start) && productId <= Number(categoryIds.matchaLatte.end)) {
+      categoryName = 'matcha'
+    } else if (productId >= Number(categoryIds.fruitTea.start) && productId <= Number(categoryIds.fruitTea.end)) {
+      categoryName = 'fruit-tea'
+    }
+
+    if (!categoryName) {
+      console.warn(` Không xác định được category cho sản phẩm ID ${product.id} - ${product.title}`)
+      continue
+    }
+
+    const categoryId = categoryMap.get(categoryName)
+    if (!categoryId) {
+      console.warn(` Không tìm thấy categoryId cho ${categoryName}`)
+      continue
     }
 
     await prisma.product.create({
       data: {
+        id: uuidv4(),
         title: product.title,
         description: product.description,
         price: product.price,
@@ -65,32 +93,32 @@ async function main() {
         rating: product.rating,
         reviews: product.reviews,
         image: product.image,
-        categoryId: category.id,
+        categoryId: categoryId,
         sizes: product.sizes || [],
         milkOptions: product.milkOptions || [],
         drinkOptions: product.drinkOptions || [],
         toppings: product.toppings || [],
-        basePrices: product.basePrices || {}
+        basePrices: product.basePrices
       }
     })
   }
 
-  console.log('Creating tables...')
-  // Create tables
+  console.log('🪑 Creating tables...')
   for (const table of tables) {
     await prisma.table.create({
       data: {
-        tableId: table.id_table
+        id: uuidv4(),
+        tableId: Number(table.id_table.replace('table', ''))
       }
     })
   }
 
-  console.log('Seeding completed!')
+  console.log(' Seeding completed!')
 }
 
 main()
   .catch((e) => {
-    console.error(e)
+    console.error(' Seed error:', e)
     process.exit(1)
   })
   .finally(async () => {

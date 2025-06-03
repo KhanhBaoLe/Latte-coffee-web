@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DIRECT_URL")
 }
 
 model Product {
@@ -17,11 +16,95 @@ model Product {
   rating        Float
   reviews       Int
   image         String
-  category      String
+  categoryId    Int
   sizes         String[]
   milkOptions   String[]
   drinkOptions  String[]
   toppings      String[]
+  basePrices    Json
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  category      Category @relation(fields: [categoryId], references: [id])
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  startId   String
+  endId     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+}
+
+model Table {
+  id        Int      @id @default(autoincrement())
+  tableId   String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  tableId   Int
+  total     Float
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  table     Table       @relation(fields: [tableId], references: [id])
+  items     OrderItem[]
+  payment   Payment? // Một đơn hàng có thể có một thanh toán
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Float
+  size      String?
+  milk      String?
+  drink     String?
+  toppings  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order     Order    @relation(fields: [orderId], references: [id])
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  orderId       Int           @unique // Mỗi đơn hàng chỉ có một thanh toán
+  amount        Float // Số tiền thanh toán
+  paymentMethod PaymentMethod // Phương thức thanh toán
+  status        PaymentStatus @default(PENDING)
+  paymentDate   DateTime      @default(now())
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  order         Order         @relation(fields: [orderId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  DELIVERED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  MOMO
+  ZALOPAY
+  VNPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }

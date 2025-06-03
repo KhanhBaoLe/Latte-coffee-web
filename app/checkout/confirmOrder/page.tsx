@@ -3,7 +3,7 @@ import { useCart } from '@/app/components/CartContext';
 import { CartItem } from '@/app/types';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type DeliveryMethod = 'pickup' | 'delivery';
 
@@ -41,17 +41,61 @@ export default function ConfirmOrder() {
       router.push('/');
     }
   }, [router]);
+  const handleConfirmOrder = async () => {
+    try {
+      // Bắt đầu xử lý
+      console.log('Processing payment...');
+      setIsLoading(true);
 
-  const handleConfirmOrder = () => {
-    // Xử lý thanh toán ở đây (gọi API, v.v...)
-    console.log('Processing payment...');
-    
-    // Sau khi thanh toán thành công:
-    setIsConfirmed(true);
-    clearCart();
-    sessionStorage.removeItem('currentOrder');
-    
-    // Có thể gửi email xác nhận ở đây
+      // Chuẩn bị dữ liệu để gửi đến API      // Log the order data for debugging
+      console.log('Order data being sent:', orderData);
+
+      const checkoutData = {
+        tableId: orderData?.customerInfo.tableNumber,
+        items: orderData?.cartItems.map(item => ({
+          id: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          size: item.size,
+          milk: item.milk,
+          drink: item.drink,
+          toppings: item.toppings
+        })) || [],
+        total: orderData?.total || 0,
+        paymentMethod: 'CASH' // Mặc định là thanh toán tiền mặt
+      };
+
+      // Gọi API checkout      console.log('Sending checkout data:', checkoutData);
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkoutData)
+      });
+
+      console.log('Server response status:', response.status);
+      const result = await response.json();
+      console.log('Server response:', result);
+
+      if (!result.success) {
+        throw new Error(result.message || 'Failed to process order');
+      }
+
+      // Sau khi thanh toán thành công:
+      setIsConfirmed(true);
+      clearCart();
+      sessionStorage.removeItem('currentOrder');
+
+      // Hiển thị thông báo thành công
+      alert('Order placed successfully! Thank you for your purchase.');
+    } catch (error) {
+      console.error('Error processing order:', error);
+      alert('There was an error processing your order. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -100,22 +144,20 @@ export default function ConfirmOrder() {
                 <div key={step.id} className="flex items-center">
                   {index > 0 && (
                     <div
-                      className={`h-px w-16 mx-2 ${
-                        step.status === 'current' 
-                          ? 'bg-[#5D4037]' 
-                          : step.status === 'complete'
-                            ? 'bg-green-500'
-                            : 'bg-gray-300'
-                      }`}
+                      className={`h-px w-16 mx-2 ${step.status === 'current'
+                        ? 'bg-[#5D4037]'
+                        : step.status === 'complete'
+                          ? 'bg-green-500'
+                          : 'bg-gray-300'
+                        }`}
                     />
                   )}
                   <div className="flex items-center">
                     <span
                       className={`w-8 h-8 flex items-center justify-center rounded-full mr-2 
-                        ${
-                          step.status === 'complete'
-                            ? 'bg-green-500 text-white'
-                            : step.status === 'current'
+                        ${step.status === 'complete'
+                          ? 'bg-green-500 text-white'
+                          : step.status === 'current'
                             ? 'border-2 border-[#5D4037] text-[#5D4037]'
                             : 'border-2 border-gray-300 text-gray-400'
                         }`}
@@ -127,8 +169,8 @@ export default function ConfirmOrder() {
                         step.status === 'complete'
                           ? 'text-green-500'
                           : step.status === 'current'
-                          ? 'text-[#5D4037] font-semibold'
-                          : 'text-gray-400'
+                            ? 'text-[#5D4037] font-semibold'
+                            : 'text-gray-400'
                       }
                     >
                       {step.name}
@@ -147,7 +189,7 @@ export default function ConfirmOrder() {
             {isConfirmed ? 'Order Confirmed!' : 'Confirm Your Order'}
           </h1>
           <p className="text-[#8D6E63] mt-2">
-            {isConfirmed 
+            {isConfirmed
               ? `Thank you for your order, ${customerInfo.name}`
               : 'Please review your order details before confirming'}
           </p>
@@ -265,7 +307,7 @@ export default function ConfirmOrder() {
 
                 <div>
                   <p className="text-sm text-[#8D6E63]">Full Name</p>
-                    <p className="font-medium text-[#3E2723]">{customerInfo.name}</p>
+                  <p className="font-medium text-[#3E2723]">{customerInfo.name}</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

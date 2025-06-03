@@ -1,68 +1,86 @@
 import { PrismaClient } from '@prisma/client'
+import { categoryIds } from '../app/data/categories'
+import { table as tables } from '../app/data/id_table'
 import { products } from '../app/data/products'
-import { isInCategory } from '../app/data/categories'
-
-// Define a Product type based on the used properties
-type Product = {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviews: number;
-  image: string;
-  sizes?: string[];
-  milkOptions?: string[];
-  drinkOptions?: string[];
-  toppings?: string[];
-  basePrices?: { [key: string]: number | undefined };
-};
-
-// Function to get price for Medium size
-function getSizeMPrice(product: Product) {
-  if (product.basePrices && product.basePrices.M) {
-    return product.basePrices.M;
-  }
-  // If basePrices.M doesn't exist, return the default price
-  return product.price;
-}
 
 const prisma = new PrismaClient()
 
 async function main() {
-  // Xóa dữ liệu cũ
-  await prisma.product.deleteMany()
+  console.log('Creating categories...')
+  // Create categories
+  const categories = await Promise.all([
+    prisma.category.create({
+      data: {
+        name: 'coffee',
+        startId: categoryIds.coffee.start,
+        endId: categoryIds.coffee.end,
+      }
+    }),
+    prisma.category.create({
+      data: {
+        name: 'milk-tea',
+        startId: categoryIds.milkTea.start,
+        endId: categoryIds.milkTea.end,
+      }
+    }),
+    prisma.category.create({
+      data: {
+        name: 'matcha',
+        startId: categoryIds.matchaLatte.start,
+        endId: categoryIds.matchaLatte.end,
+      }
+    }),
+    prisma.category.create({
+      data: {
+        name: 'fruit-tea',
+        startId: categoryIds.fruitTea.start,
+        endId: categoryIds.fruitTea.end,
+      }
+    })
+  ])
 
+  const categoryMap = new Map(categories.map(c => [c.name, c]))
+
+  console.log('Creating products...')
   // Import products
   for (const product of products) {
-    // Xác định category dựa vào product ID
-    let category = 'coffee' // default category
-    
-    if (isInCategory(product.id, 'coffee')) {
-      category = 'coffee'
-    } else if (isInCategory(product.id, 'milk-tea')) {
-      category = 'milk-tea'
-    } else if (isInCategory(product.id, 'matcha')) {
-      category = 'matcha'
-    } else if (isInCategory(product.id, 'fruit-tea')) {
-      category = 'fruit-tea'
+    // Determine category based on product ID
+    const categoryName =
+      Number(product.id) >= Number(categoryIds.coffee.start) && Number(product.id) <= Number(categoryIds.coffee.end) ? 'coffee' :
+        Number(product.id) >= Number(categoryIds.milkTea.start) && Number(product.id) <= Number(categoryIds.milkTea.end) ? 'milk-tea' :
+          Number(product.id) >= Number(categoryIds.matchaLatte.start) && Number(product.id) <= Number(categoryIds.matchaLatte.end) ? 'matcha' :
+            'fruit-tea'
+
+    const category = categoryMap.get(categoryName)
+    if (!category) {
+      throw new Error(`Category ${categoryName} not found`)
     }
 
     await prisma.product.create({
       data: {
         title: product.title,
         description: product.description,
-        price: getSizeMPrice(product),
+        price: product.price,
         originalPrice: product.originalPrice || null,
         rating: product.rating,
         reviews: product.reviews,
         image: product.image,
-        category: category,
-        sizes: product.sizes,
-        milkOptions: product.milkOptions,
-        drinkOptions: product.drinkOptions,
-        toppings: product.toppings || []
+        categoryId: category.id,
+        sizes: product.sizes || [],
+        milkOptions: product.milkOptions || [],
+        drinkOptions: product.drinkOptions || [],
+        toppings: product.toppings || [],
+        basePrices: product.basePrices || {}
+      }
+    })
+  }
+
+  console.log('Creating tables...')
+  // Create tables
+  for (const table of tables) {
+    await prisma.table.create({
+      data: {
+        tableId: table.id_table
       }
     })
   }

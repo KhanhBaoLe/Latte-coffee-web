@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
 type CartItem = {
-    id: number;
+    id: string;
     name: string;
     price: number;
     quantity: number;
@@ -16,10 +16,10 @@ type CartItem = {
 type CartContextType = {
     cartItems: CartItem[];
     addToCart: (item: CartItem) => void;
-    decreaseQuantity: (id: number) => void;
-    removeFromCart: (id: number) => void;
+    decreaseQuantity: (id: string) => void;
+    removeFromCart: (id: string) => void;
     clearCart: () => void;
-    updateQuantity: (id: number, quantity: number) => void; // ✅ Thêm ở đây
+    updateQuantity: (id: string, quantity: number) => void;
     totalItems: number;
     totalPrice: number;
 };
@@ -53,24 +53,18 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
     const addToCart = (item: CartItem) => {
         setCartItems((prevItems) => {
-            // Tìm món hoàn toàn giống (cả tên và options)
             const existingItem = prevItems.find((i) => areItemsEqual(i, item));
-
             if (existingItem) {
-                // Nếu tìm thấy món hoàn toàn giống, tăng số lượng
                 return prevItems.map((i) =>
                     areItemsEqual(i, item) ? { ...i, quantity: i.quantity + 1 } : i
                 );
             } else {
-                // Nếu không tìm thấy, thêm món mới với số lượng là 1
-                // Tạo ID mới bằng cách lấy timestamp để đảm bảo mỗi món có ID khác nhau
-                const newId = Date.now();
-                return [...prevItems, { ...item, id: newId, quantity: 1 }];
+                return [...prevItems, { ...item, quantity: 1 }];
             }
         });
     };
 
-    const decreaseQuantity = (id: number) => {
+    const decreaseQuantity = (id: string) => {
         setCartItems((prevItems) =>
             prevItems
                 .map((item) =>
@@ -80,7 +74,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         );
     };
 
-    const updateQuantity = (id: number, quantity: number) => {
+    const updateQuantity = (id: string, quantity: number) => {
         setCartItems((prevItems) =>
             prevItems.map((item) =>
                 item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
@@ -88,7 +82,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         );
     };
 
-    const removeFromCart = (id: number) => {
+    const removeFromCart = (id: string) => {
         setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
     };
 

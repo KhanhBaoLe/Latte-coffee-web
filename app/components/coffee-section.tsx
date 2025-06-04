@@ -306,7 +306,7 @@ const CoffeeSection = () => {
 
                                                         const price = calculatePrice(product, options);
                                                         addToCart({
-                                                            id: parseInt(product.id),
+                                                            id: product.id,
                                                             name: product.title,
                                                             price: price,
                                                             quantity: 1,

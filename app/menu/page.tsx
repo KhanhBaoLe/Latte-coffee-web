@@ -303,7 +303,7 @@ export default function MenuPage() {
                                                 addToCart({
                                                     id: product.id,
                                                     name: product.title,
-                                                    price: Number(finalPrice.toFixed(2)), // Convert to number after fixing decimal places
+                                                    price: Number(finalPrice.toFixed(2)),
                                                     quantity: 1,
                                                     size: options.size,
                                                     milk: options.milk,

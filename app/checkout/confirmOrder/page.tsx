@@ -3,7 +3,7 @@ import { useCart } from '@/app/components/CartContext';
 import { CartItem } from '@/app/types';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type DeliveryMethod = 'pickup' | 'delivery';
 
@@ -30,10 +30,13 @@ export default function ConfirmOrder() {
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const { clearCart } = useCart();
   const [isLoading, setIsLoading] = useState(true);
-  const [isConfirmed, setIsConfirmed] = useState(false); // Thêm state xác nhận
+  const [isProcessing, setIsProcessing] = useState(false); // Sửa tên state
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   useEffect(() => {
     const storedOrder = sessionStorage.getItem('currentOrder');
+
+    console.log('Stored Order:', storedOrder); // Log dữ liệu để kiểm tra
     if (storedOrder) {
       setOrderData(JSON.parse(storedOrder));
       setIsLoading(false);
@@ -42,16 +45,103 @@ export default function ConfirmOrder() {
     }
   }, [router]);
 
-  const handleConfirmOrder = () => {
-    // Xử lý thanh toán ở đây (gọi API, v.v...)
-    console.log('Processing payment...');
-    
-    // Sau khi thanh toán thành công:
-    setIsConfirmed(true);
-    clearCart();
-    sessionStorage.removeItem('currentOrder');
-    
-    // Có thể gửi email xác nhận ở đây
+  const handleConfirmOrder = async () => {
+    try {
+      if (!orderData) {
+        alert('No order data found. Please try again.');
+        return;
+      }
+
+      // Validate customer information
+      if (!orderData.customerInfo.name || !orderData.customerInfo.email || !orderData.customerInfo.phone) {
+        alert('Please provide all required customer information.');
+        return;
+      }
+
+      if (orderData.customerInfo.deliveryMethod === 'pickup' && !orderData.customerInfo.tableNumber) {
+        alert('Please select a table number for pickup orders.');
+        return;
+      }
+
+      if (orderData.customerInfo.deliveryMethod === 'delivery' && !orderData.customerInfo.address) {
+        alert('Please provide a delivery address.');
+        return;
+      }
+
+      if (!orderData.cartItems || orderData.cartItems.length === 0) {
+        alert('Your cart is empty. Please add items before checking out.');
+        return;
+      }
+
+      if (orderData.customerInfo.deliveryMethod === 'pickup') {
+        const tableNumber = Number(orderData.customerInfo.tableNumber);
+        if (isNaN(tableNumber) || tableNumber <= 0) {
+          alert('Please enter a valid table number.');
+          return;
+        }
+      }
+
+      // Sử dụng state processing riêng cho thao tác thanh toán
+      setIsProcessing(true);
+
+      const checkoutData = {
+        tableId: orderData.customerInfo.deliveryMethod === 'pickup'
+          ? `table${orderData.customerInfo.tableNumber}`
+          : undefined, // tableId is now formatted as "tableX"
+        items: orderData.cartItems.map(item => ({
+          id: item.id,
+          quantity: item.quantity,
+          price: item.price,
+          size: item.size,
+          milk: item.milk, 
+          drink: item.drink,
+          toppings: item.toppings
+        })),
+        total: orderData.total,
+        paymentMethod: 'CASH',
+        deliveryMethod: orderData.customerInfo.deliveryMethod.toUpperCase(),
+        address: orderData.customerInfo.deliveryMethod === 'delivery' 
+          ? orderData.customerInfo.address 
+          : undefined,
+        customer: {
+          name: orderData.customerInfo.name,
+          email: orderData.customerInfo.email,
+          phone: orderData.customerInfo.phone,
+          note: orderData.customerInfo.note,
+        }
+      };
+
+      console.log('Checkout Data:', checkoutData); // Log dữ liệu trước khi gửi API
+
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(checkoutData)
+      });
+
+      const result = await response.json();
+
+      // Kiểm tra cả status code và success flag
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Failed to process order');
+      }
+
+      // Xử lý thành công
+      setIsConfirmed(true);
+      clearCart();
+      sessionStorage.removeItem('currentOrder');
+      
+      // KHÔNG dùng alert() mà cập nhật giao diện
+      console.log('Order placed successfully!');
+    } catch (error) {
+      console.error('Error processing order:', error);
+      const errorMessage = error instanceof Error ? error.message : 'There was an error processing your order. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (isLoading) {
@@ -100,22 +190,20 @@ export default function ConfirmOrder() {
                 <div key={step.id} className="flex items-center">
                   {index > 0 && (
                     <div
-                      className={`h-px w-16 mx-2 ${
-                        step.status === 'current' 
-                          ? 'bg-[#5D4037]' 
-                          : step.status === 'complete'
-                            ? 'bg-green-500'
-                            : 'bg-gray-300'
-                      }`}
+                      className={`h-px w-16 mx-2 ${step.status === 'current'
+                        ? 'bg-[#5D4037]'
+                        : step.status === 'complete'
+                          ? 'bg-green-500'
+                          : 'bg-gray-300'
+                        }`}
                     />
                   )}
                   <div className="flex items-center">
                     <span
                       className={`w-8 h-8 flex items-center justify-center rounded-full mr-2 
-                        ${
-                          step.status === 'complete'
-                            ? 'bg-green-500 text-white'
-                            : step.status === 'current'
+                        ${step.status === 'complete'
+                          ? 'bg-green-500 text-white'
+                          : step.status === 'current'
                             ? 'border-2 border-[#5D4037] text-[#5D4037]'
                             : 'border-2 border-gray-300 text-gray-400'
                         }`}
@@ -127,8 +215,8 @@ export default function ConfirmOrder() {
                         step.status === 'complete'
                           ? 'text-green-500'
                           : step.status === 'current'
-                          ? 'text-[#5D4037] font-semibold'
-                          : 'text-gray-400'
+                            ? 'text-[#5D4037] font-semibold'
+                            : 'text-gray-400'
                       }
                     >
                       {step.name}
@@ -147,7 +235,7 @@ export default function ConfirmOrder() {
             {isConfirmed ? 'Order Confirmed!' : 'Confirm Your Order'}
           </h1>
           <p className="text-[#8D6E63] mt-2">
-            {isConfirmed 
+            {isConfirmed
               ? `Thank you for your order, ${customerInfo.name}`
               : 'Please review your order details before confirming'}
           </p>
@@ -265,7 +353,7 @@ export default function ConfirmOrder() {
 
                 <div>
                   <p className="text-sm text-[#8D6E63]">Full Name</p>
-                    <p className="font-medium text-[#3E2723]">{customerInfo.name}</p>
+                  <p className="font-medium text-[#3E2723]">{customerInfo.name}</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -330,18 +418,31 @@ export default function ConfirmOrder() {
                 </div>
 
                 <button
-                  onClick={() => router.push('/confirm')}
+                  onClick={() => router.push('/')}
                   className="w-full bg-[#5D4037] text-white py-3 rounded-xl hover:bg-[#4E342E] transition-colors font-semibold shadow-lg text-lg"
                 >
-                  Place Order
+                  Back to Home
                 </button>
               </>
             ) : (
               <button
                 onClick={handleConfirmOrder}
-                className="w-full bg-[#5D4037] text-white py-3 rounded-xl hover:bg-[#4E342E] transition-colors font-semibold shadow-lg text-lg"
+                disabled={isProcessing}
+                className={`w-full bg-[#5D4037] text-white py-3 rounded-xl font-semibold shadow-lg text-lg ${
+                  isProcessing ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#4E342E] transition-colors'
+                }`}
               >
-                Confirm Order (${total.toFixed(2)})
+                {isProcessing ? (
+                  <div className="flex items-center justify-center">
+                    <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </div>
+                ) : (
+                  `Confirm Order ($${total.toFixed(2)})`
+                )}
               </button>
             )}
           </div>
@@ -349,4 +450,4 @@ export default function ConfirmOrder() {
       </div>
     </div>
   );
-} 
+}

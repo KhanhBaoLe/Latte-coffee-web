@@ -1,78 +1,125 @@
 import { PrismaClient } from '@prisma/client'
+import { categoryIds } from '../app/data/categories'
 import { products } from '../app/data/products'
-import { isInCategory } from '../app/data/categories'
-
-// Define a Product type based on the used properties
-type Product = {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  originalPrice?: number;
-  rating: number;
-  reviews: number;
-  image: string;
-  sizes?: string[];
-  milkOptions?: string[];
-  drinkOptions?: string[];
-  toppings?: string[];
-  basePrices?: { [key: string]: number | undefined };
-};
-
-// Function to get price for Medium size
-function getSizeMPrice(product: Product) {
-  if (product.basePrices && product.basePrices.M) {
-    return product.basePrices.M;
-  }
-  // If basePrices.M doesn't exist, return the default price
-  return product.price;
-}
+import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
 async function main() {
-  // Xóa dữ liệu cũ
-  await prisma.product.deleteMany()
+  console.log('Cleaning up old data...')
+  try {    await prisma.payment.deleteMany({})
+    await prisma.orderItem.deleteMany({})
+    await prisma.order.deleteMany({})
+    await prisma.product.deleteMany({})
+    await prisma.category.deleteMany({})
+  } catch (error) {
+    console.error('Error during cleanup:', error)
+  }
 
-  // Import products
+  console.log('Creating tables...')
+  try {
+    for (let i = 1; i <= 8; i++) {
+      await prisma.table.create({
+        data: {
+          id: `table${i}`,
+          tableId: i,
+        }
+      });
+    }
+    console.log('Tables created successfully');
+  } catch (error) {
+    console.error('Error creating tables:', error);
+  }
+
+  console.log('Creating categories...')
+  const categories = await Promise.all([
+    prisma.category.create({
+      data: {
+        name: 'coffee',
+        startId: categoryIds.coffee.start,
+        endId: categoryIds.coffee.end,
+      }
+    }),
+    prisma.category.create({
+      data: {
+        name: 'milk-tea',
+        startId: categoryIds.milkTea.start,
+        endId: categoryIds.milkTea.end,
+      }
+    }),
+    prisma.category.create({
+      data: {
+        name: 'matcha',
+        startId: categoryIds.matchaLatte.start,
+        endId: categoryIds.matchaLatte.end,
+      }
+    }),
+    prisma.category.create({
+      data: {
+        name: 'fruit-tea',
+        startId: categoryIds.fruitTea.start,
+        endId: categoryIds.fruitTea.end,
+      }
+    })
+  ])
+
+  const categoryMap = new Map<string, string>() // name -> UUID
+  for (const c of categories) {
+    categoryMap.set(c.name, c.id)
+  }
+
+  console.log(' Creating products...')
   for (const product of products) {
-    // Xác định category dựa vào product ID
-    let category = 'coffee' // default category
-    
-    if (isInCategory(product.id, 'coffee')) {
-      category = 'coffee'
-    } else if (isInCategory(product.id, 'milk-tea')) {
-      category = 'milk-tea'
-    } else if (isInCategory(product.id, 'matcha')) {
-      category = 'matcha'
-    } else if (isInCategory(product.id, 'fruit-tea')) {
-      category = 'fruit-tea'
+    const productId = Number(product.id)
+
+    let categoryName: string | undefined = undefined
+
+    if (productId >= Number(categoryIds.coffee.start) && productId <= Number(categoryIds.coffee.end)) {
+      categoryName = 'coffee'
+    } else if (productId >= Number(categoryIds.milkTea.start) && productId <= Number(categoryIds.milkTea.end)) {
+      categoryName = 'milk-tea'
+    } else if (productId >= Number(categoryIds.matchaLatte.start) && productId <= Number(categoryIds.matchaLatte.end)) {
+      categoryName = 'matcha'
+    } else if (productId >= Number(categoryIds.fruitTea.start) && productId <= Number(categoryIds.fruitTea.end)) {
+      categoryName = 'fruit-tea'
+    }
+
+    if (!categoryName) {
+      console.warn(` Không xác định được category cho sản phẩm ID ${product.id} - ${product.title}`)
+      continue
+    }
+
+    const categoryId = categoryMap.get(categoryName)
+    if (!categoryId) {
+      console.warn(` Không tìm thấy categoryId cho ${categoryName}`)
+      continue
     }
 
     await prisma.product.create({
       data: {
+        id: uuidv4(),
         title: product.title,
         description: product.description,
-        price: getSizeMPrice(product),
+        price: product.price,
         originalPrice: product.originalPrice || null,
         rating: product.rating,
         reviews: product.reviews,
         image: product.image,
-        category: category,
-        sizes: product.sizes,
-        milkOptions: product.milkOptions,
-        drinkOptions: product.drinkOptions,
-        toppings: product.toppings || []
+        categoryId: categoryId,
+        sizes: product.sizes || [],
+        milkOptions: product.milkOptions || [],
+        drinkOptions: product.drinkOptions || [],
+        toppings: product.toppings || [],
+        basePrices: product.basePrices
       }
     })
   }
-
-  console.log('Seeding completed!')
+  console.log(' Seeding completed!')
 }
 
 main()
   .catch((e) => {
-    console.error(e)
+    console.error(' Seed error:', e)
     process.exit(1)
   })
   .finally(async () => {

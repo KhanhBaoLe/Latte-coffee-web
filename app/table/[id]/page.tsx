@@ -1,24 +1,33 @@
 'use client';
 
 import CoffeeSection from '@/app/components/coffee-section';
-import { table as tableList } from '@/app/data/id_table';
+// import { table as tableList } from '@/app/data/id_table';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../../components/CartContext';
 
 export default function TablePage() {
     const params = useParams();
-    const tableId = params.id ? `table${params.id}` : null;
-    const foundTable = tableList.find(t => t.id_table === tableId);
-    const tableNumber = foundTable ? foundTable.id_table.replace('table', '') : 'Unknown';
+    const [tableList, setTableList] = useState<{ id: string; tableId: number }[]>([]);
+    useEffect(() => {
+        async function fetchTables() {
+            try {
+                const res = await fetch('/api/tables');
+                const data = await res.json();
+                setTableList(data);
+            } catch {
+                setTableList([]);
+            }
+        }
+        fetchTables();
+    }, []);
+    const tableId = params.id ? Number(params.id) : null;
+    const foundTable = tableList.find(t => t.tableId === tableId);
+    const tableNumber = foundTable ? foundTable.tableId : 'Unknown';
     const { cartItems, removeFromCart, updateQuantity, clearCart } = useCart();
-    const [selectedAll, setSelectedAll] = useState(false);
-
     const router = useRouter();
-    const toggleSelectAll = () => {
-        setSelectedAll(!selectedAll);
-    };
+    
 
     const handleOrder = () => {
         router.push('/checkout');

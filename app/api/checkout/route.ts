@@ -3,7 +3,7 @@ import { OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 interface OrderItem {
-    id: number;
+    id: string;
     quantity: number;
     price: number;
     size?: string;
@@ -12,8 +12,15 @@ interface OrderItem {
     toppings?: string[];
 }
 
+interface TableData {
+    id: string;
+    tableId: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
 interface CheckoutData {
-    tableId?: number; // tableId là số
+    tableId?: string; // Thay đổi từ String sang string
     items: OrderItem[];
     total: number;
     paymentMethod: PaymentMethod;
@@ -32,7 +39,6 @@ export async function POST(request: Request) {
     try {
         body = await request.json();
         
-        // Validate required fields
         if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
             throw new Error('Order items are required');
         }
@@ -45,14 +51,8 @@ export async function POST(request: Request) {
             throw new Error('Delivery method is required');
         }
 
-        // Validate address for delivery
         if (body.deliveryMethod === 'DELIVERY' && !body.address) {
             throw new Error('Delivery address is required for delivery orders');
-        }
-
-        // Validate items data
-        if (body.items.some(item => !item.id || item.quantity <= 0 || item.price <= 0)) {
-            throw new Error('Invalid item data');
         }
 
         const {
@@ -61,49 +61,69 @@ export async function POST(request: Request) {
             total,
             paymentMethod = PaymentMethod.CASH,
             deliveryMethod,
-            address
+            address,
+            customer
         } = body;
 
-        // Log the incoming data
-        console.log('Received order data:', {
-            tableId,
-            itemsCount: items?.length,
-            total,
-            paymentMethod,
-            deliveryMethod,
-            address
-        });
-
-        let tableData = null;
-        
-        // Tìm bàn dựa trên id_table
+        console.log('Processing order with items:', items);
+        let tableData: TableData | null = null;
+        // Xử lý table cho pickup orders        let tableData: TableData | null = null;
         if (deliveryMethod === 'PICKUP') {
             if (!tableId) {
-                throw new Error('Table ID is required for pickup orders');
+                return NextResponse.json({
+                    success: false,
+                    message: 'Table number is required for pickup orders'
+                }, { status: 400 });
             }
             
-            // Tìm bàn bằng tableId (Int, đúng với schema)
-            const table = await prisma.table.findFirst({
-                where: {
-                    tableId: tableId // tableId là Int
-                }
+            // The tableId is now already in the correct format "tableX"
+            console.log('Table ID:', tableId);
+            
+            tableData = await prisma.table.findFirst({
+                where: { id: tableId }
             });
-
-            if (!table) {
-                throw new Error(`Table with ID ${tableId} not found`);
-            }
             
-            tableData = table;
+            console.log('Found table data:', tableData);
+            if (!tableData) {
+                return NextResponse.json({
+                    success: false,
+                    message: `Table with ID ${tableId} not found`
+                }, { status: 400 });
+            }
         }
 
-        // Tạo đơn hàng
+        // Validate product IDs
+        const productIds = items.map(item => item.id);
+        const existingProducts = await prisma.product.findMany({
+            where: {
+                id: { in: productIds }
+            },
+            select: { id: true }
+        });
+
+        const existingProductIds = new Set(existingProducts.map(product => product.id));
+        const invalidProductIds = productIds.filter(id => !existingProductIds.has(id));
+
+        if (invalidProductIds.length > 0) {
+            return NextResponse.json({
+                success: false,
+                message: 'One or more product IDs are invalid',
+                invalidProductIds
+            }, { status: 400 });
+        }
+
+        // Create order with original product IDs
         const order = await prisma.order.create({
             data: {
-                table: tableData?.id ? { connect: { id: tableData.id } } : undefined,
+                table: tableData ? { connect: { id: tableData.id } } : undefined,
                 total: total,
                 status: OrderStatus.PENDING,
                 deliveryMethod: deliveryMethod,
                 deliveryAddress: address,
+                customerName: customer.name,
+                customerEmail: customer.email,
+                customerPhone: customer.phone,
+                note: customer.note,
                 items: {
                     create: items.map(item => ({
                         productId: item.id,
@@ -124,7 +144,11 @@ export async function POST(request: Request) {
                 }
             },
             include: {
-                items: true,
+                items: {
+                    include: {
+                        product: true
+                    }
+                },
                 payment: true,
                 table: true
             }
@@ -134,7 +158,7 @@ export async function POST(request: Request) {
             success: true,
             message: 'Order created successfully',
             order: order,
-            tableCode: tableData?.tableId // Trả về id_table
+            tableCode: tableData?.tableId
         });
 
     } catch (error) {
@@ -152,6 +176,8 @@ export async function POST(request: Request) {
                 errorMessage = 'Invalid item data in order';
             } else if (error.message.includes('Delivery address')) {
                 errorMessage = 'Delivery address is required for delivery orders';
+            } else if (error.message.includes('Foreign key constraint failed')) {
+                errorMessage = 'One or more products are not available. Please check your cart.';
             }
         }
 

@@ -35,7 +35,14 @@ export default function CheckoutPage() {
         const storedOrder = sessionStorage.getItem('currentOrder');
         if (storedOrder) {
             const orderData = JSON.parse(storedOrder);
-            setCustomerInfo(orderData.customerInfo);
+            console.log('Stored Order Data:', orderData); // Log để debug
+            if (orderData.customerInfo) {
+                setCustomerInfo(prev => ({
+                    ...prev,
+                    ...orderData.customerInfo,
+                    tableNumber: orderData.customerInfo.tableNumber || ''
+                }));
+            }
         }
     }, []);
 
@@ -47,10 +54,15 @@ export default function CheckoutPage() {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setCustomerInfo(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        console.log('Input Change:', { name, value }); // Log để debug
+        setCustomerInfo(prev => {
+            const newState = {
+                ...prev,
+                [name]: value
+            };
+            console.log('New Customer Info:', newState); // Log để debug
+            return newState;
+        });
     };
 
     const handleDeliveryMethodChange = (method: DeliveryMethod) => {
@@ -89,6 +101,8 @@ export default function CheckoutPage() {
                 total,
             };
 
+            console.log('Saving Order Data:', orderData); // Log để debug
+
             // Lưu vào sessionStorage
             sessionStorage.setItem('currentOrder', JSON.stringify(orderData));
 
@@ -107,7 +121,7 @@ export default function CheckoutPage() {
         { id: 3, name: 'Complete Order', status: 'upcoming' },
     ];
 
-    const handleQuantityChange = (id: number, newQuantity: number) => {
+    const handleQuantityChange = (id: string, newQuantity: number) => {
         if (newQuantity >= 1) {
             updateQuantity(id, newQuantity);
         }
@@ -295,10 +309,12 @@ export default function CheckoutPage() {
                                         id="tableNumber"
                                         name="tableNumber"
                                         required
+                                        min="1"
+                                        max="8"
                                         value={customerInfo.tableNumber}
                                         onChange={handleInputChange}
                                         className={`w-full px-4 py-2 rounded-lg border border-[#D7CCC8] focus:outline-none focus:ring-2 focus:ring-[#5D4037] transition-colors placeholder:text-gray-600 ${customerInfo.tableNumber ? 'font-medium text-black' : 'font-normal text-gray-600'}`}
-                                        placeholder="Enter your table number"
+                                        placeholder="Enter your table number (1-8)"
                                     />
                                 </div>
                             ) : (

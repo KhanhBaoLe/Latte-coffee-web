@@ -1,4 +1,4 @@
-import { products } from '@/app/data/products'
+import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
 export async function GET(
@@ -6,17 +6,17 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    // Thêm await trước khi destructure
     const { id } = await params
-    const product = products.find(p => p.id === id)
-
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: { category: true }
+    })
     if (!product) {
       return NextResponse.json(
         { error: 'Product not found' },
         { status: 404 }
       )
     }
-
     return NextResponse.json(product)
   } catch (error) {
     console.error('Failed to fetch product:', error)

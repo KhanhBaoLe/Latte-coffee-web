@@ -35,6 +35,8 @@ export default function ConfirmOrder() {
 
   useEffect(() => {
     const storedOrder = sessionStorage.getItem('currentOrder');
+
+    console.log('Stored Order:', storedOrder); // Log dữ liệu để kiểm tra
     if (storedOrder) {
       setOrderData(JSON.parse(storedOrder));
       setIsLoading(false);
@@ -84,8 +86,8 @@ export default function ConfirmOrder() {
 
       const checkoutData = {
         tableId: orderData.customerInfo.deliveryMethod === 'pickup'
-          ? Number(orderData.customerInfo.tableNumber)
-          : undefined, // tableId là số, undefined nếu không pickup
+          ? `table${orderData.customerInfo.tableNumber}`
+          : undefined, // tableId is now formatted as "tableX"
         items: orderData.cartItems.map(item => ({
           id: item.id,
           quantity: item.quantity,
@@ -108,6 +110,8 @@ export default function ConfirmOrder() {
           note: orderData.customerInfo.note,
         }
       };
+
+      console.log('Checkout Data:', checkoutData); // Log dữ liệu trước khi gửi API
 
       const response = await fetch('/api/checkout', {
         method: 'POST',

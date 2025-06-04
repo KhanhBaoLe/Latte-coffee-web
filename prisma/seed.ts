@@ -1,22 +1,34 @@
 import { PrismaClient } from '@prisma/client'
 import { categoryIds } from '../app/data/categories'
 import { products } from '../app/data/products'
-import { table as tables } from '../app/data/id_table'
 import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
 async function main() {
   console.log('Cleaning up old data...')
-  try {
-    await prisma.payment.deleteMany({})
+  try {    await prisma.payment.deleteMany({})
     await prisma.orderItem.deleteMany({})
     await prisma.order.deleteMany({})
     await prisma.product.deleteMany({})
     await prisma.category.deleteMany({})
-    await prisma.table.deleteMany({})
   } catch (error) {
-    console.error('EError during cleanup:', error)
+    console.error('Error during cleanup:', error)
+  }
+
+  console.log('Creating tables...')
+  try {
+    for (let i = 1; i <= 8; i++) {
+      await prisma.table.create({
+        data: {
+          id: `table${i}`,
+          tableId: i,
+        }
+      });
+    }
+    console.log('Tables created successfully');
+  } catch (error) {
+    console.error('Error creating tables:', error);
   }
 
   console.log('Creating categories...')
@@ -102,17 +114,6 @@ async function main() {
       }
     })
   }
-
-  console.log('🪑 Creating tables...')
-  for (const table of tables) {
-    await prisma.table.create({
-      data: {
-        id: uuidv4(),
-        tableId: Number(table.id_table.replace('table', ''))
-      }
-    })
-  }
-
   console.log(' Seeding completed!')
 }
 

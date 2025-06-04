@@ -102,7 +102,7 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     addToCart({
-      id: Number(id),
+      id: id as string,
       name: product.title,
       price: totalPrice,
       quantity: 1,

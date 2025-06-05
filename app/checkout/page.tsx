@@ -179,7 +179,13 @@ export default function CheckoutPage() {
                         <div className={`${maxItemsHeight} overflow-y-auto pr-2 mb-4 flex-grow`}>
                             <div className="space-y-6">
                                 {cartItems.map((item) => (
-                                    <div key={`${item.id}-${item.size}`} className="flex items-start py-4 border-b border-[#E8D5B5] last:border-0">
+                                    <div key={[
+                                        item.id,
+                                        item.size,
+                                        item.milk,
+                                        item.drink,
+                                        Array.isArray(item.toppings) ? item.toppings.join('-') : ''
+                                    ].join('-')} className="flex items-start py-4 border-b border-[#E8D5B5] last:border-0">
                                         <div className="flex-shrink-0 mr-4">
                                             <div className="relative w-20 h-20 rounded-lg overflow-hidden border-2 border-[#D7CCC8]">
                                                 <Image

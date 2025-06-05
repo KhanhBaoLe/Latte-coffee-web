@@ -255,7 +255,13 @@ export default function ConfirmOrder() {
               <div className="space-y-4">
                 {cartItems.map((item) => (
                   <div
-                    key={`${item.id}-${item.size}`}
+                    key={[
+                      item.id,
+                      item.size,
+                      item.milk,
+                      item.drink,
+                      Array.isArray(item.toppings) ? item.toppings.join('-') : ''
+                    ].join('-')}
                     className="flex items-start py-4 border-b border-[#E8D5B5] last:border-0"
                   >
                     <div className="flex-shrink-0 mr-4">

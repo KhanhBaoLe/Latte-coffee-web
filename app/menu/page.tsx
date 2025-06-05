@@ -1,6 +1,5 @@
 'use client';
 import { useCart } from '@/app/components/CartContext';
-import { isInCategory } from '@/app/data/categories';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -14,7 +13,10 @@ interface Product {
     rating: number;
     reviews: number;
     image: string;
-    category: string;
+    category: {
+        name: string;
+        // ...các trường khác nếu cần
+    };
     sizes: string[];
     milkOptions: string[];
     drinkOptions: string[];
@@ -126,7 +128,7 @@ export default function MenuPage() {
     }
 
     const filteredProducts = products.filter(product =>
-        activeCategory === 'all' ? true : isInCategory(String(product.id), activeCategory)
+        activeCategory === 'all' ? true : product.category?.name === activeCategory
     );
 
     return (
@@ -301,7 +303,7 @@ export default function MenuPage() {
                                                 const price = calculatePrice(product.id); const finalPrice = price; // Price already includes any applicable discounts
 
                                                 addToCart({
-                                                    id: product.id,
+                                                    id: product.id.toString(),
                                                     name: product.title,
                                                     price: Number(finalPrice.toFixed(2)),
                                                     quantity: 1,

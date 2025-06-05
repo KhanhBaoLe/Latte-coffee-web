@@ -1,7 +1,6 @@
 'use client';
 
 import { CartContext } from '@/app/components/CartContext';
-import { isInCategory } from '@/app/data/categories';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
@@ -19,7 +18,10 @@ interface Product {
     rating: number;
     reviews: number;
     image: string;
-    category: string;
+    category: {
+        name: string;
+        // ...các trường khác nếu cần
+    };
     sizes: string[];
     milkOptions: string[];
     drinkOptions: string[];
@@ -87,9 +89,10 @@ const CoffeeSection = () => {
             try {
                 const response = await fetch('/api/products');
                 const data = await response.json();
-                setProducts(data);
+                setProducts(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error('Error fetching products:', error);
+                setProducts([]); // Đảm bảo luôn là array khi lỗi
             } finally {
                 setLoading(false);
             }
@@ -100,7 +103,7 @@ const CoffeeSection = () => {
 
     const filteredProducts = selectedCategory === 'all'
         ? products
-        : products.filter(product => isInCategory(product.id, selectedCategory));
+        : products.filter(product => product.category?.name === selectedCategory);
 
     if (loading) {
         return (
@@ -175,7 +178,7 @@ const CoffeeSection = () => {
                     }}
                     className="coffee-swiper relative"
                 >
-                    {filteredProducts.map((product) => (
+                    {Array.isArray(filteredProducts) && filteredProducts.map((product) => (
                         <SwiperSlide key={product.id} className="h-auto">
                             <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-[#E8D5B5] p-4">
                                 <div className="relative">

@@ -58,29 +58,31 @@ export default function MenuPage() {
 
         fetchProducts();
     }, []);
+
     const [isMobile, setIsMobile] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const mainRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
+        const mainElement = mainRef.current;
         const checkMobile = () => setIsMobile(window.innerWidth < 768);
         checkMobile();
         window.addEventListener('resize', checkMobile);
 
         const handleScroll = () => {
-            if (mainRef.current) {
-                setScrolled(mainRef.current.scrollTop > 10);
+            if (mainElement) {
+                setScrolled(mainElement.scrollTop > 10);
             }
         };
 
-        if (mainRef.current) {
-            mainRef.current.addEventListener('scroll', handleScroll);
+        if (mainElement) {
+            mainElement.addEventListener('scroll', handleScroll);
         }
 
         return () => {
             window.removeEventListener('resize', checkMobile);
-            if (mainRef.current) {
-                mainRef.current.removeEventListener('scroll', handleScroll);
+            if (mainElement) {
+                mainElement.removeEventListener('scroll', handleScroll);
             }
         };
     }, []);
@@ -93,7 +95,9 @@ export default function MenuPage() {
                 [optionType]: value
             }
         }));
-    }; const calculatePrice = (productId: number) => {
+    };
+
+    const calculatePrice = (productId: number) => {
         const product = products.find(p => p.id === productId);
         const options = selectedOptions[productId];
 

@@ -154,6 +154,14 @@ export async function POST(request: Request) {
             }
         });
 
+        // Update table status to 'reserved' if pickup order
+        if (deliveryMethod === 'PICKUP' && tableData) {
+            await prisma.table.update({
+                where: { id: tableData.id },
+                data: { status: 'reserved' }
+            });
+        }
+
         return NextResponse.json({
             success: true,
             message: 'Order created successfully',

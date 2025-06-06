@@ -18,7 +18,7 @@ model Category {
 }
 
 model Product {
-  id            String   @id // Change from UUID to string-based numeric ID
+  id            String      @id
   title         String
   description   String
   price         Float
@@ -32,17 +32,18 @@ model Product {
   drinkOptions  Json
   toppings      Json
   basePrices    Json
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  category      Category @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   orderItems    OrderItem[]
+  category      Category    @relation(fields: [categoryId], references: [id])
 }
 
-model Table {
-  id        String   @id @default(uuid())
-  tableId   Int      @unique
+model ManagerTable {
+  id        String   @id(map: "Table_pkey") @default(uuid())
+  tableId   Int      @unique(map: "Table_tableId_key")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  status    String   @default("available")
   orders    Order[]
 }
 
@@ -59,7 +60,7 @@ model Order {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   tableId         String?
-  table           Table?         @relation(fields: [tableId], references: [id])
+  table           ManagerTable?  @relation(fields: [tableId], references: [id])
   items           OrderItem[]
   payment         Payment?
 }

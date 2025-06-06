@@ -39,6 +39,8 @@ export async function POST(request: Request) {
     try {
         body = await request.json();
         
+        console.log('Received tableId in backend:', body.tableId);
+
         if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
             throw new Error('Order items are required');
         }

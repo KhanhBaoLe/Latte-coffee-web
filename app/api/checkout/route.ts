@@ -1,27 +1,6 @@
 import { prisma } from '@/lib/prisma';
+import { OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
-
-// Define enums locally since they're not exported from @prisma/client
-enum OrderStatus {
-    PENDING = 'PENDING',
-    PROCESSING = 'PROCESSING',
-    COMPLETED = 'COMPLETED',
-    CANCELLED = 'CANCELLED'
-}
-
-enum PaymentMethod {
-    CASH = 'CASH',
-    CARD = 'CARD',
-    MOMO = 'MOMO',
-    VNPAY = 'VNPAY'
-}
-
-enum PaymentStatus {
-    PENDING = 'PENDING',
-    COMPLETED = 'COMPLETED',
-    FAILED = 'FAILED',
-    REFUNDED = 'REFUNDED'
-}
 
 interface OrderItem {
     id: string;

@@ -1,6 +1,27 @@
 import { prisma } from '@/lib/prisma';
-import { OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
+
+// Define enums locally since they're not exported from @prisma/client
+enum OrderStatus {
+    PENDING = 'PENDING',
+    PROCESSING = 'PROCESSING',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED'
+}
+
+enum PaymentMethod {
+    CASH = 'CASH',
+    CARD = 'CARD',
+    MOMO = 'MOMO',
+    VNPAY = 'VNPAY'
+}
+
+enum PaymentStatus {
+    PENDING = 'PENDING',
+    COMPLETED = 'COMPLETED',
+    FAILED = 'FAILED',
+    REFUNDED = 'REFUNDED'
+}
 
 interface OrderItem {
     id: string;
@@ -20,7 +41,7 @@ interface TableData {
 }
 
 interface CheckoutData {
-    tableId?: string; // Thay đổi từ String sang string
+    tableId?: string;
     items: OrderItem[];
     total: number;
     paymentMethod: PaymentMethod;
@@ -67,7 +88,7 @@ export async function POST(request: Request) {
 
         console.log('Processing order with items:', items);
         let tableData: TableData | null = null;
-        // Xử lý table cho pickup orders        let tableData: TableData | null = null;
+        
         if (deliveryMethod === 'PICKUP') {
             if (!tableId) {
                 return NextResponse.json({
@@ -76,7 +97,6 @@ export async function POST(request: Request) {
                 }, { status: 400 });
             }
             
-            // The tableId is now already in the correct format "tableX"
             console.log('Table ID:', tableId);
             
             tableData = await prisma.managerTable.findFirst({
@@ -101,7 +121,7 @@ export async function POST(request: Request) {
             select: { id: true }
         });
 
-        const existingProductIds = new Set(existingProducts.map(product => product.id));
+        const existingProductIds = new Set(existingProducts.map((product: { id: string }) => product.id));
         const invalidProductIds = productIds.filter(id => !existingProductIds.has(id));
 
         if (invalidProductIds.length > 0) {

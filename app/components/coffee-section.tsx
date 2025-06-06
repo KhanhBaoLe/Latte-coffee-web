@@ -53,6 +53,24 @@ const CoffeeSection = () => {
         };
     }>({});
 
+    const initializeDefaultOptions = (products: Product[]) => {
+        const defaultOptions: { [key: string]: { size?: string; milk?: string; drink?: string; } } = {};
+        
+        products.forEach(product => {
+            defaultOptions[product.id] = {
+                size: product.sizes.length > 0 ? (product.sizes.includes('M') ? 'M' : product.sizes[0]) : undefined,
+                milk: product.milkOptions.length > 0 && product.milkOptions[0] !== "None" 
+                    ? (product.milkOptions.includes('Whole Milk') ? 'Whole Milk' : product.milkOptions[0]) 
+                    : undefined,
+                drink: product.drinkOptions.length > 0 
+                    ? (product.drinkOptions.includes('Hot') ? 'Hot' : product.drinkOptions[0]) 
+                    : undefined
+            };
+        });
+        
+        setSelectedOptions(defaultOptions);
+    };
+
     // Calculate price based on selected options
     const calculatePrice = (product: Product, options?: { size?: string; milk?: string; drink?: string }) => {
         if (!options?.size) return product.price;
@@ -89,10 +107,16 @@ const CoffeeSection = () => {
             try {
                 const response = await fetch('/api/products');
                 const data = await response.json();
-                setProducts(Array.isArray(data) ? data : []);
+                const productsArray = Array.isArray(data) ? data : [];
+                setProducts(productsArray);
+                
+                // Initialize default options after products are loaded
+                if (productsArray.length > 0) {
+                    initializeDefaultOptions(productsArray);
+                }
             } catch (error) {
                 console.error('Error fetching products:', error);
-                setProducts([]); // Đảm bảo luôn là array khi lỗi
+                setProducts([]);
             } finally {
                 setLoading(false);
             }

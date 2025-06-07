@@ -34,30 +34,38 @@ export default function CheckoutPage() {
     useEffect(() => {
         // Detect mode from domain, URL params, or localStorage
         const detectMode = () => {
-            // Check domain first
-            const hostname = window.location.hostname;
-            
-            // Define your domains here
-            const QR_DOMAINS = ['qr.lattecoffee.com', 'table.lattecoffee.com', 'order.lattecoffee.com'];
-            const WEB_DOMAINS = ['lattecoffee.com', 'www.lattecoffee.com', 'web.lattecoffee.com'];
-            
-            // Check if current domain is in QR domains
-            if (QR_DOMAINS.includes(hostname)) {
-                return 'qr';
-            }
-            
-            // Check if current domain is in WEB domains
-            if (WEB_DOMAINS.includes(hostname)) {
-                return 'web';
-            }
-            
-            // Fallback to URL params or localStorage
-            const urlParams = new URLSearchParams(window.location.search);
-            const modeParam = urlParams.get('mode') as 'qr' | 'web';
-            const storedMode = localStorage.getItem('appMode') as 'qr' | 'web';
-            
-            return modeParam || storedMode || 'web';
-        };
+        const hostname = window.location.hostname;
+        const pathname = window.location.pathname;
+
+        console.log('Detection Info:', { hostname, pathname });
+
+        const QR_SUBDOMAINS = [
+            'order.latte-coffee-web.vercel.app',
+            'qr.latte-coffee-web.vercel.app',
+            'table.latte-coffee-web.vercel.app',
+        ];
+
+        const WEB_SUBDOMAINS = [
+            'web.latte-coffee-web.vercel.app',
+            'www.latte-coffee-web.vercel.app',
+        ];
+
+        // Ưu tiên 1: Kiểm tra subdomain cho QR
+        if (QR_SUBDOMAINS.includes(hostname)) {
+            console.log('Detected QR mode via subdomain:', hostname);
+            return 'qr';
+        }
+
+        // Ưu tiên 2: Kiểm tra subdomain cho Web
+        if (WEB_SUBDOMAINS.includes(hostname)) {
+            console.log('Detected WEB mode via subdomain:', hostname);
+            return 'web';
+        }
+
+        // Mặc định: Nếu không có subdomain, dùng 'web' (hoặc có thể xử lý thêm nếu cần)
+        console.log('Defaulting to web mode');
+        return 'web';
+    };
 
         const detectedMode = detectMode();
         setMode(detectedMode);

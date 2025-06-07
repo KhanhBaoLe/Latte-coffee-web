@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
   // Tạo 10 bàn với ID từ table1 đến table10
   for (let i = 1; i <= 10; i++) {
-    await prisma.table.create({
+    await prisma.managerTable.create({
       data: {
         id: `table${i}`,
         tableId: i,

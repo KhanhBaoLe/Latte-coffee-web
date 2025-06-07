@@ -79,7 +79,7 @@ export async function POST(request: Request) {
             // The tableId is now already in the correct format "tableX"
             console.log('Table ID:', tableId);
             
-            tableData = await prisma.table.findFirst({
+            tableData = await prisma.managerTable.findFirst({
                 where: { id: tableId }
             });
             
@@ -156,7 +156,7 @@ export async function POST(request: Request) {
 
         // Update table status to 'reserved' if pickup order
         if (deliveryMethod === 'PICKUP' && tableData) {
-            await prisma.table.update({
+            await prisma.managerTable.update({
                 where: { id: tableData.id },
                 data: { status: 'reserved' }
             });

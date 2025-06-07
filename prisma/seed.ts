@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
+import { v4 as uuidv4 } from 'uuid'
 import { categoryIds } from '../app/data/categories'
 import { products } from '../app/data/products'
-import { v4 as uuidv4 } from 'uuid'
 
 const prisma = new PrismaClient()
 
@@ -19,7 +19,7 @@ async function main() {
   console.log('Creating tables...')
   try {
     for (let i = 1; i <= 8; i++) {
-      await prisma.table.create({
+      await prisma.managerTable.create({
         data: {
           id: `table${i}`,
           tableId: i,

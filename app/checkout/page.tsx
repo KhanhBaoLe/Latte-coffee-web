@@ -114,6 +114,7 @@ export default function CheckoutPage() {
             ...(method === 'delivery' ? { tableNumber: '' } : {})
         }));
     };
+    
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

@@ -20,7 +20,7 @@ interface TableData {
 }
 
 interface CheckoutData {
-    tableId?: string; // Thay đổi từ String sang string
+    tableId?: string;
     items: OrderItem[];
     total: number;
     paymentMethod: PaymentMethod;
@@ -39,6 +39,8 @@ export async function POST(request: Request) {
     try {
         body = await request.json();
         
+        console.log('Received tableId in backend:', body.tableId);
+
         if (!body.items || !Array.isArray(body.items) || body.items.length === 0) {
             throw new Error('Order items are required');
         }
@@ -67,7 +69,7 @@ export async function POST(request: Request) {
 
         console.log('Processing order with items:', items);
         let tableData: TableData | null = null;
-        // Xử lý table cho pickup orders        let tableData: TableData | null = null;
+        
         if (deliveryMethod === 'PICKUP') {
             if (!tableId) {
                 return NextResponse.json({
@@ -76,7 +78,6 @@ export async function POST(request: Request) {
                 }, { status: 400 });
             }
             
-            // The tableId is now already in the correct format "tableX"
             console.log('Table ID:', tableId);
             
             tableData = await prisma.managerTable.findFirst({
@@ -101,7 +102,7 @@ export async function POST(request: Request) {
             select: { id: true }
         });
 
-        const existingProductIds = new Set(existingProducts.map(product => product.id));
+        const existingProductIds = new Set(existingProducts.map((product: { id: string }) => product.id));
         const invalidProductIds = productIds.filter(id => !existingProductIds.has(id));
 
         if (invalidProductIds.length > 0) {

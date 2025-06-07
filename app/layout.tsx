@@ -4,6 +4,7 @@ import Footer from "@/app/components/footer";
 import Header from "@/app/components/header";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
 
@@ -35,6 +36,20 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
+        {/* Google Analytics Script - gtag.js */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-J5BZLMW7VG"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-J5BZLMW7VG');
+          `}
+        </Script>
+
         <CartProvider>
           <div className="flex flex-col min-h-screen">
             <Header />

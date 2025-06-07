@@ -36,9 +36,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
-        {/* Google Analytics Script - gtag.js */}
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-J5BZLMW7VG"
+          src="https://www.googletagmanager.com/gtag/js?id=G-52VLHJ7TL4"
           strategy="afterInteractive"
         />
         <Script id="gtag-init" strategy="afterInteractive">
@@ -46,10 +45,9 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-J5BZLMW7VG');
+            gtag('config', 'G-52VLHJ7TL4');
           `}
         </Script>
-
         <CartProvider>
           <div className="flex flex-col min-h-screen">
             <Header />

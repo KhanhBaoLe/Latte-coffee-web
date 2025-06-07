@@ -8,7 +8,10 @@ export async function GET() {
     });
     return NextResponse.json(tables);
   } catch (error) {
-    console.error('Failed to fetch tables:', error);
-    return NextResponse.json({ error: 'Failed to fetch tables' }, { status: 500 });
+    console.error('Error fetching tables:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch tables' },
+      { status: 500 }
+    );
   }
 }

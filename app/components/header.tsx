@@ -158,12 +158,6 @@ export default function Header() {
               >
                 About
               </Link>
-              <Link
-                href={`/table/1`}
-                className="bg-[#5D4037] text-white px-4 py-2 rounded hover:bg-[#4E342E] transition-colors"
-              >
-                Table
-              </Link>
             </nav>
           </div>
 

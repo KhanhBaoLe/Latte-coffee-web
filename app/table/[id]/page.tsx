@@ -186,7 +186,7 @@ export default function TablePage() {
                                         <div className="flex-shrink-0">
                                             <Image
                                                 src={item.image || '/images/cup.png'}
-                                                alt={item.name}
+                                                alt={item.title}
                                                 width={40}
                                                 height={40}
                                                 className="w-10 h-10 rounded-full border-2 border-[#D7CCC8]"
@@ -196,7 +196,7 @@ export default function TablePage() {
                                             <div className="flex justify-between items-start">
                                                 <div className="flex-1">
                                                     <h3 className="font-medium text-sm text-[#3E2723]">
-                                                        {item.name}
+                                                        {item.title}
                                                     </h3>
                                                     <p className="text-xs text-[#795548] mt-1">
                                                         {item.size} • {item.milk} • {item.drink}
@@ -281,7 +281,7 @@ export default function TablePage() {
                                     <div className="flex-shrink-0">
                                         <Image
                                         src={item.image || '/images/cup.png'}
-                                        alt={item.name}
+                                        alt={item.title}
                                         width={40}
                                         height={40}
                                         className="w-10 h-10 rounded-full border-2 border-[#D7CCC8]"
@@ -289,7 +289,7 @@ export default function TablePage() {
                                     </div>
                                     <div className="min-w-0">
                                         <div className="font-medium text-sm text-[#3E2723] truncate">
-                                        {item.name}
+                                        {item.title}
                                         </div>
                                         <div className="text-xs text-[#795548] truncate">
                                         {item.size} • {item.milk} • {item.drink}
@@ -504,7 +504,7 @@ export default function TablePage() {
                                                 <button
                                                     onClick={() => addToCart({
                                                         id: product.id,
-                                                        name: product.title,
+                                                        title: product.title,
                                                         price: calculatePrice(product, selectedOptions[product.id]),
                                                         quantity: 1,
                                                         image: product.image,

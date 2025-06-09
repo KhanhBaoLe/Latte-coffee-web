@@ -16,7 +16,7 @@ const generateUniqueId = (item: {
 type CartItem = {
   id: string;
   uniqueId: string; // Thêm trường uniqueId
-  name: string;
+  title: string; // Changed from name to title
   price: number;
   quantity: number;
   size?: string;

@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server';
 
 interface OrderItem {
     id: string;
+    title: string;
     quantity: number;
     price: number;
     size?: string;
@@ -112,6 +113,7 @@ export async function POST(request: Request) {
                     items: {
                         create: items.map(item => ({
                             productId: item.id,
+                            title: item.title,
                             quantity: item.quantity,
                             price: item.price,
                             size: item.size || null,
@@ -170,6 +172,7 @@ export async function POST(request: Request) {
                     items: {
                         create: items.map(item => ({
                             productId: item.id,
+                            title: item.title,
                             quantity: item.quantity,
                             price: item.price,
                             size: item.size || null,

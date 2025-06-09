@@ -36,6 +36,7 @@ model Product {
   updatedAt     DateTime    @updatedAt
   orderItems    OrderItem[]
   category      Category    @relation(fields: [categoryId], references: [id])
+  webOrderItems WebOrderItem[]
 }
 
 model ManagerTable {
@@ -48,21 +49,53 @@ model ManagerTable {
 }
 
 model Order {
-  id              String         @id @default(uuid())
-  total           Float
-  status          OrderStatus    @default(PENDING)
-  deliveryMethod  DeliveryMethod @default(DINE_IN)
-  deliveryAddress String?
-  note            String?
-  customerName    String?
-  customerEmail   String?
-  customerPhone   String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  id              String          @id @default(cuid())
+  table           ManagerTable?   @relation(fields: [tableId], references: [id])
   tableId         String?
-  table           ManagerTable?  @relation(fields: [tableId], references: [id])
   items           OrderItem[]
+  total           Float
+  status          OrderStatus     @default(PENDING)
+  deliveryMethod  DeliveryMethod  @default(PICKUP)
+  deliveryAddress String?
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  note            String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
   payment         Payment?
+}
+
+model WebOrder {
+  id              String          @id @default(cuid())
+  items           WebOrderItem[]
+  total           Float
+  status          OrderStatus     @default(PENDING)
+  deliveryMethod  DeliveryMethod  @default(PICKUP)
+  deliveryAddress String?
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  note            String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  payment         Payment?
+}
+
+model WebOrderItem {
+  id          String    @id @default(cuid())
+  order       WebOrder  @relation(fields: [orderId], references: [id])
+  orderId     String
+  product     Product   @relation(fields: [productId], references: [id])
+  productId   String
+  quantity    Int
+  price       Float
+  size        String?
+  milk        String?
+  drink       String?
+  toppings    String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model OrderItem {
@@ -82,15 +115,16 @@ model OrderItem {
 }
 
 model Payment {
-  id            String        @id @default(uuid())
-  orderId       String        @unique
+  id            String        @id @default(cuid())
+  order         Order?        @relation(fields: [orderId], references: [id])
+  orderId       String?       @unique
+  webOrder      WebOrder?     @relation(fields: [webOrderId], references: [id])
+  webOrderId    String?       @unique
   amount        Float
   paymentMethod PaymentMethod
   status        PaymentStatus @default(PENDING)
-  paymentDate   DateTime      @default(now())
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
-  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 enum OrderStatus {
@@ -120,4 +154,5 @@ enum DeliveryMethod {
   PICKUP
   DELIVERY
   DINE_IN
+  WEB_DELIVERY
 }

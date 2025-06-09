@@ -11,7 +11,7 @@ type CustomerInfo = {
   name: string;
   email: string;
   phone: string;
-  tableNumber: string;
+  tableNumber?: string;
   note: string;
   deliveryMethod: DeliveryMethod;
   address: string;
@@ -23,6 +23,7 @@ type OrderData = {
   subtotal: number;
   tax: number;
   total: number;
+  mode: 'qr' | 'web';
 };
 
 export default function ConfirmOrder() {
@@ -32,23 +33,20 @@ export default function ConfirmOrder() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
-  const [tableFromQR, setTableFromQR] = useState<string>('');
-  const [mode, setMode] = useState<'qr' | 'normal'>('normal');
 
   useEffect(() => {
     const storedOrder = sessionStorage.getItem('currentOrder');
-    const qrTable = new URLSearchParams(window.location.search).get('table') || 
-                   sessionStorage.getItem('qrTable') || '';
-    
-    setTableFromQR(qrTable);
-    setMode(qrTable ? 'qr' : 'normal');
-    
+    const pathname = window.location.pathname;
+
     if (storedOrder) {
-      const parsedOrder = JSON.parse(storedOrder);
-      if (qrTable && !parsedOrder.customerInfo.tableNumber) {
-        parsedOrder.customerInfo.tableNumber = qrTable;
-        parsedOrder.customerInfo.deliveryMethod = 'pickup';
+      const parsedOrder: OrderData = JSON.parse(storedOrder);
+      
+      if (!pathname.startsWith('/table/') && parsedOrder.mode === 'qr') {
+        console.warn('Overriding order mode from QR to Web due to direct /checkout/confirmOrder access with stale QR data.');
+        parsedOrder.mode = 'web';
+        parsedOrder.customerInfo.tableNumber = undefined;
       }
+
       setOrderData(parsedOrder);
       setIsLoading(false);
     } else {
@@ -68,7 +66,8 @@ export default function ConfirmOrder() {
       return;
     }
 
-    if (orderData.customerInfo.deliveryMethod === 'pickup' && !orderData.customerInfo.tableNumber) {
+    // Only validate table number if in QR mode and pickup delivery
+    if (orderData.mode === 'qr' && orderData.customerInfo.deliveryMethod === 'pickup' && !orderData.customerInfo.tableNumber) {
       alert('Please select a table number for pickup orders.');
       return;
     }
@@ -110,7 +109,8 @@ export default function ConfirmOrder() {
           email: orderData.customerInfo.email,
           phone: orderData.customerInfo.phone,
           note: orderData.customerInfo.note,
-        }
+        },
+        mode: orderData.mode,
       };
 
       const response = await fetch('/api/checkout', {
@@ -180,7 +180,7 @@ export default function ConfirmOrder() {
     );
   }
 
-  const { customerInfo, cartItems, subtotal, tax, total } = orderData;
+  const { customerInfo, cartItems, subtotal, tax, total, mode } = orderData;
   const steps = [
     { id: 1, name: 'Order Overview', status: 'complete' },
     { id: 2, name: 'Confirm Order', status: isConfirmed ? 'complete' : 'current' },
@@ -354,9 +354,9 @@ export default function ConfirmOrder() {
                   <p className="text-sm text-[#8D6E63]">Delivery Method</p>
                   <p className="font-medium text-[#3E2723] capitalize">
                     {customerInfo.deliveryMethod}
-                    {customerInfo.deliveryMethod === 'pickup' && tableFromQR && (
-                      <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                        Table {tableFromQR}
+                    {customerInfo.deliveryMethod === 'pickup' && mode === 'qr' && customerInfo.tableNumber && (
+                      <span className="text-base text-[#5D4037] ml-2">
+                        • Table {customerInfo.tableNumber}
                       </span>
                     )}
                   </p>

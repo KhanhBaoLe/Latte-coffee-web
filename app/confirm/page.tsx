@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 type OrderDetails = {
   orderId: string;
@@ -121,8 +121,8 @@ export default function OrderConfirmation() {
           {/* Order ID Section */}
           <div className="text-center mb-8 pb-6 border-b-2 border-dashed border-[#D7CCC8]">
             <p className="text-[#8D6E63] text-sm uppercase tracking-wide mb-2">Order Number</p>
-            <div className="bg-gradient-to-r from-[#F5F0E9] to-[#E8D5B5] rounded-xl p-4 inline-block">
-              <p className="text-2xl sm:text-3xl font-bold text-[#3E2723] font-mono tracking-wider">
+            <div className="bg-gradient-to-r from-[#F5F0E9] to-[#E8D5B5] rounded-xl p-4 w-full inline-block sm:w-auto">
+              <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#3E2723] font-mono tracking-wider break-all">
                 #{orderDetails.orderId}
               </p>
             </div>

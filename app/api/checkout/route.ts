@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
+import { DeliveryMethod, OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 interface OrderItem {
@@ -24,7 +24,7 @@ interface CheckoutData {
     items: OrderItem[];
     total: number;
     paymentMethod: PaymentMethod;
-    deliveryMethod: "PICKUP" | "DELIVERY";
+    deliveryMethod: DeliveryMethod;
     address?: string;
     customer: {
         name: string;
@@ -32,6 +32,7 @@ interface CheckoutData {
         phone: string;
         note: string;
     };
+    mode: 'qr' | 'web';
 }
 
 export async function POST(request: Request) {
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
             throw new Error('Delivery method is required');
         }
 
-        if (body.deliveryMethod === 'DELIVERY' && !body.address) {
+        if (body.deliveryMethod === DeliveryMethod.DELIVERY && !body.address) {
             throw new Error('Delivery address is required for delivery orders');
         }
 
@@ -64,118 +65,150 @@ export async function POST(request: Request) {
             paymentMethod = PaymentMethod.CASH,
             deliveryMethod,
             address,
-            customer
+            customer,
+            mode
         } = body;
 
         console.log('Processing order with items:', items);
         let tableData: TableData | null = null;
         
-        if (deliveryMethod === 'PICKUP') {
-            if (!tableId) {
-                return NextResponse.json({
-                    success: false,
-                    message: 'Table number is required for pickup orders'
-                }, { status: 400 });
-            }
-            
-            console.log('Table ID:', tableId);
-            
-            tableData = await prisma.managerTable.findFirst({
-                where: { id: tableId }
-            });
-            
-            console.log('Found table data:', tableData);
-            if (!tableData) {
-                return NextResponse.json({
-                    success: false,
-                    message: `Table with ID ${tableId} not found`
-                }, { status: 400 });
-            }
-        }
-
-        // Validate product IDs
-        const productIds = items.map(item => item.id);
-        const existingProducts = await prisma.product.findMany({
-            where: {
-                id: { in: productIds }
-            },
-            select: { id: true }
-        });
-
-        const existingProductIds = new Set(existingProducts.map((product: { id: string }) => product.id));
-        const invalidProductIds = productIds.filter(id => !existingProductIds.has(id));
-
-        if (invalidProductIds.length > 0) {
-            return NextResponse.json({
-                success: false,
-                message: 'One or more product IDs are invalid',
-                invalidProductIds
-            }, { status: 400 });
-        }
-
-        // Create order with original product IDs
-        const order = await prisma.order.create({
-            data: {
-                table: tableData ? { connect: { id: tableData.id } } : undefined,
-                total: total,
-                status: OrderStatus.PENDING,
-                deliveryMethod: deliveryMethod,
-                deliveryAddress: address,
-                customerName: customer.name,
-                customerEmail: customer.email,
-                customerPhone: customer.phone,
-                note: customer.note,
-                items: {
-                    create: items.map(item => ({
-                        productId: item.id,
-                        quantity: item.quantity,
-                        price: item.price,
-                        size: item.size || null,
-                        milk: item.milk || null,
-                        drink: item.drink || null,
-                        toppings: item.toppings || []
-                    }))
-                },
-                payment: {
-                    create: {
-                        amount: total,
-                        paymentMethod: paymentMethod,
-                        status: PaymentStatus.PENDING
-                    }
+        // Handle QR orders
+        if (mode === 'qr') {
+            if (deliveryMethod === DeliveryMethod.PICKUP) {
+                if (!tableId) {
+                    return NextResponse.json({
+                        success: false,
+                        message: 'Table number is required for pickup orders in QR mode'
+                    }, { status: 400 });
                 }
-            },
-            include: {
-                items: {
-                    include: {
-                        product: true
+                
+                console.log('Table ID:', tableId);
+                
+                tableData = await prisma.managerTable.findFirst({
+                    where: { id: tableId }
+                });
+                
+                console.log('Found table data:', tableData);
+                if (!tableData) {
+                    return NextResponse.json({
+                        success: false,
+                        message: `Table with ID ${tableId} not found`
+                    }, { status: 400 });
+                }
+            }
+
+            // Create QR order
+            const order = await prisma.order.create({
+                data: {
+                    table: tableData ? { connect: { id: tableData.id } } : undefined,
+                    total: total,
+                    status: OrderStatus.PENDING,
+                    deliveryMethod: deliveryMethod,
+                    deliveryAddress: address,
+                    customerName: customer.name,
+                    customerEmail: customer.email,
+                    customerPhone: customer.phone,
+                    note: customer.note,
+                    items: {
+                        create: items.map(item => ({
+                            productId: item.id,
+                            quantity: item.quantity,
+                            price: item.price,
+                            size: item.size || null,
+                            milk: item.milk || null,
+                            drink: item.drink || null,
+                            toppings: item.toppings || []
+                        }))
+                    },
+                    payment: {
+                        create: {
+                            amount: total,
+                            paymentMethod: paymentMethod,
+                            status: PaymentStatus.PENDING
+                        }
                     }
                 },
-                payment: true,
-                table: true
-            }
-        });
+                include: {
+                    items: {
+                        include: {
+                            product: true
+                        }
+                    },
+                    payment: true,
+                    table: true
+                }
+            });
 
-        // Update table status to 'reserved' if pickup order
-        if (deliveryMethod === 'PICKUP' && tableData) {
-            await prisma.managerTable.update({
-                where: { id: tableData.id },
-                data: { status: 'reserved' }
+            if (deliveryMethod === DeliveryMethod.PICKUP && tableData) {
+                await prisma.managerTable.update({
+                    where: { id: tableData.id },
+                    data: { status: 'reserved' }
+                });
+            }
+
+            return NextResponse.json({
+                success: true,
+                message: 'Order created successfully',
+                order: order,
+                tableCode: tableData?.tableId
             });
         }
+        
+        // Handle Web orders
+        if (mode === 'web') {
+            // Create Web order
+            const webOrder = await prisma.webOrder.create({
+                data: {
+                    total: total,
+                    status: OrderStatus.PENDING,
+                    deliveryMethod: deliveryMethod,
+                    deliveryAddress: address,
+                    customerName: customer.name,
+                    customerEmail: customer.email,
+                    customerPhone: customer.phone,
+                    note: customer.note,
+                    items: {
+                        create: items.map(item => ({
+                            productId: item.id,
+                            quantity: item.quantity,
+                            price: item.price,
+                            size: item.size || null,
+                            milk: item.milk || null,
+                            drink: item.drink || null,
+                            toppings: item.toppings || []
+                        }))
+                    },
+                    payment: {
+                        create: {
+                            amount: total,
+                            paymentMethod: paymentMethod,
+                            status: PaymentStatus.PENDING
+                        }
+                    }
+                },
+                include: {
+                    items: {
+                        include: {
+                            product: true
+                        }
+                    },
+                    payment: true
+                }
+            });
 
-        return NextResponse.json({
-            success: true,
-            message: 'Order created successfully',
-            order: order,
-            tableCode: tableData?.tableId
-        });
+            return NextResponse.json({
+                success: true,
+                message: 'Web order created successfully',
+                order: webOrder
+            });
+        }
 
     } catch (error) {
         console.error('Error creating order:', error);
         
         let errorMessage = 'Failed to create order';
         if (error instanceof Error) {
-            if (error.message.includes('Table ID is required')) {
+            if (error.message.includes('Table ID is required') || error.message.includes('Table number is required for pickup orders in QR mode')) {
                 errorMessage = 'Table number is required for pickup orders';
             } else if (error.message.includes('Table with ID')) {
                 errorMessage = 'Invalid table number';

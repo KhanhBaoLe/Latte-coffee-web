@@ -1,7 +1,7 @@
 import { CartProvider } from "@/app/components/CartContext";
+import ConditionalHeader from '@/app/components/ConditionalHeader';
 import DashboardSkeleton from "@/app/components/DashboardSkeleton";
 import Footer from "@/app/components/footer";
-import Header from "@/app/components/header";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
@@ -50,7 +50,7 @@ export default function RootLayout({
         </Script>
         <CartProvider>
           <div className="flex flex-col min-h-screen">
-            <Header />
+            <ConditionalHeader />
             <Suspense fallback={<DashboardSkeleton />}>
               <main className="flex-grow">{children}</main>
             </Suspense>

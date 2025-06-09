@@ -102,6 +102,7 @@ model OrderItem {
   id        String   @id @default(uuid())
   orderId   String
   productId String
+  title     String
   quantity  Int
   price     Float
   size      String?

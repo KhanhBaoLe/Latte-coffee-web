@@ -267,7 +267,7 @@ export default function Header() {
                           className="flex justify-between items-start gap-3 text-sm border-b pb-2 last:border-none last:pb-0 border-[#E8D5B5]"
                         >
                           <div className="flex-1">
-                            <p className="font-semibold text-[#3E2723]">{item.name}</p>
+                            <p className="font-semibold text-[#3E2723]">{item.title}</p>
                             <p className="text-[#8D6E63] text-xs">
                               {item.size} · {item.milk} · {item.drink}
                             </p>

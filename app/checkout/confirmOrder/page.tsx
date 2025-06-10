@@ -233,7 +233,7 @@ export default function ConfirmOrder() {
                     >
                       {step.status === 'complete' ? '✓' : step.id}
                     </div>
-                    <span className="text-xs mt-1 text-center max-w-[60px] leading-tight">
+                    <span className="text-xs mt-1 text-center max-w-[60px] leading-tight font-bold text-gray-300">
                       {step.name.split(' ').map((word, i) => (
                         <div key={i}>{word}</div>
                       ))}

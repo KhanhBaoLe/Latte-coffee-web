@@ -247,7 +247,7 @@ export const products = [
     },
     rating: 4.5,
     reviews: 86,
-    "image": "/milk-tea-images/Brown-Sugar-Milk-Tea.png"
+    image: "/milk-tea-images/Brown-Sugar-milk-tea.png"
   },
   {
     id: "12",
@@ -282,7 +282,7 @@ export const products = [
     },
     rating: 4.8,
     reviews: 219,
-    image: "/milk-tea-images/Taro-Milk-Tea.png"
+    image: "/milk-tea-images/Taro-milk-tea.png"
   },
   {
     id: "13",
@@ -317,7 +317,7 @@ export const products = [
     },
     rating: 4.6,
     reviews: 74,
-    image: "/milk-tea-images/Honeydew-Milk-Tea.png"
+    image: "/milk-tea-images/Honeydew-milk-tea.png"
   },
   {
     id: "14",
@@ -352,7 +352,7 @@ export const products = [
     },
     rating: 4.8,
     reviews: 211,
-    image: "/milk-tea-images/Thai-Milk-Tea.png"
+    image: "/milk-tea-images/Thai-milk-tea.png"
   },
   {
     id: "15",
@@ -387,7 +387,7 @@ export const products = [
     },
     rating: 4.9,
     reviews: 229,
-    image: "/milk-tea-images/Wintermelon-Milk-Tea.png"
+    image: "/milk-tea-images/Wintermelon-milk-tea.png"
   },
   {
     id: "16",
@@ -422,7 +422,7 @@ export const products = [
     },
     rating: 4.8,
     reviews: 217,
-    image: "/milk-tea-images/Chocolate-Milk-Tea.png"
+    image: "/milk-tea-images/Chocolate-milk-tea.png"
   },
   {
     id: "17",
@@ -457,7 +457,7 @@ export const products = [
     },
     rating: 4.7,
     reviews: 213,
-    image: "/milk-tea-images/Hokkaido-Milk-Tea.png"
+    image: "/milk-tea-images/Hokkaido-milk-tea.png"
   },
   {
     "id": "18",
@@ -664,7 +664,7 @@ export const products = [
     },
     "rating": 4.5,
     "reviews": 229,
-    "image": "/fruit-tea-images/Peach-Tea.png"
+    "image": "/fruit-tea-images/Peach-tea.png"
   },
   {
     "id": "24",
@@ -695,7 +695,7 @@ export const products = [
     },
     "rating": 4.5,
     "reviews": 87,
-    "image": "/fruit-tea-images/Lemon-Tea.png"
+    "image": "/fruit-tea-images/Lemon-tea.png"
   },
 
   {
@@ -727,7 +727,7 @@ export const products = [
     },
     "rating": 4.3,
     "reviews": 100,
-    "image": "/fruit-tea-images/Passion-Fruit-Tea.png"
+    "image": "/fruit-tea-images/Passion-fruit-tea.png"
   },
   {
     "id": "26",
@@ -758,7 +758,7 @@ export const products = [
     },
     "rating": 4.6,
     "reviews": 201,
-    "image": "/fruit-tea-images/cup.png"
+    "image": "/fruit-tea-images/Mango-tea.png"
   },
   {
     "id": "27",
@@ -789,7 +789,7 @@ export const products = [
     },
     "rating": 4.9,
     "reviews": 116,
-    "image": "/fruit-tea-images/Lychee-Tea.png"
+    "image": "/fruit-tea-images/Lychee-tea.png"
   },
   {
     "id": "28",
@@ -820,7 +820,7 @@ export const products = [
     },
     "rating": 4.9,
     "reviews": 231,
-    "image": "/fruit-tea-images/Strawberry-Tea.png"
+    "image": "/fruit-tea-images/Strawberry-tea.png"
   },
   {
     "id": "29",
@@ -851,7 +851,7 @@ export const products = [
     },
     "rating": 4.9,
     "reviews": 236,
-    "image": "/fruit-tea-images/Grapefruit-Tea.png"
+    "image": "/fruit-tea-images/Grapefruit-tea.png"
   }
 ];
 

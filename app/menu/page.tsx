@@ -1,8 +1,9 @@
 'use client';
+/// <reference types="react" />
 import { useCart } from '@/app/components/CartContext';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface Product {
     id: number;
@@ -24,7 +25,12 @@ interface Product {
     basePrices?: { [key in 'S' | 'M' | 'L']?: number };
 }
 
-const categories = [
+interface Category {
+    id: string;
+    name: string;
+}
+
+const categories: Category[] = [
     { id: 'all', name: 'All' },
     { id: 'coffee', name: 'Coffee' },
     { id: 'milk-tea', name: 'Milk Tea' },
@@ -218,7 +224,6 @@ export default function MenuPage() {
                                     )}
                                 </div>
 
-                                {/* Sửa phần này: Thêm flex flex-col và flex-grow */}
                                 <div className="p-4 md:p-6 flex flex-col flex-grow">
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -233,14 +238,13 @@ export default function MenuPage() {
 
                                     <p className="text-[#5D4037] text-xs md:text-sm line-clamp-2 mt-2">{product.description}</p>
 
-                                    {/* Phần options - thêm flex-grow để chiếm không gian còn lại */}
                                     <div className="space-y-3 mt-4 flex-grow">
                                         <div className="flex flex-col md:flex-row md:items-center gap-2">
                                             <span className="font-medium text-[#5D4037] w-16">Size</span>
                                             <select
                                                 className="flex-1 p-2 rounded-lg border border-[#D7CCC8] text-[#3E2723] bg-white hover:border-[#8D6E63] focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors text-sm md:text-base"
                                                 value={selectedOptions[product.id]?.size || ""}
-                                                onChange={(e) => handleOptionChange(product.id.toString(), "size", e.target.value)}
+                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleOptionChange(product.id.toString(), "size", e.target.value)}
                                             >
                                                 <option value="" disabled>Select size</option>
                                                 {product.sizes.map((size) => (
@@ -255,7 +259,7 @@ export default function MenuPage() {
                                                 <select
                                                     className="flex-1 p-2 rounded-lg border border-[#D7CCC8] text-[#3E2723] bg-white hover:border-[#8D6E63] focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors text-sm md:text-base"
                                                     value={selectedOptions[product.id]?.milk || ""}
-                                                    onChange={(e) => handleOptionChange(product.id.toString(), "milk", e.target.value)}
+                                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleOptionChange(product.id.toString(), "milk", e.target.value)}
                                                 >
                                                     <option value="" disabled>Choose milk</option>
                                                     {product.milkOptions.map((milk) => (
@@ -271,7 +275,7 @@ export default function MenuPage() {
                                                 <select
                                                     className="flex-1 p-2 rounded-lg border border-[#D7CCC8] text-[#3E2723] bg-white hover:border-[#8D6E63] focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors text-sm md:text-base"
                                                     value={selectedOptions[product.id]?.drink || ""}
-                                                    onChange={(e) => handleOptionChange(product.id.toString(), "drink", e.target.value)}
+                                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleOptionChange(product.id.toString(), "drink", e.target.value)}
                                                 >
                                                     <option value="" disabled>Select type</option>
                                                     {product.drinkOptions.map((drink) => (
@@ -282,7 +286,6 @@ export default function MenuPage() {
                                         )}
                                     </div>
 
-                                    {/* Phần giá và nút - luôn nằm ở dưới cùng */}
                                     <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-3 mt-auto">
                                         <div className="flex flex-col">
                                             <div className="text-xl md:text-2xl font-bold text-[#3E2723]">
@@ -304,11 +307,12 @@ export default function MenuPage() {
                                                     return;
                                                 }
 
-                                                const price = calculatePrice(product.id); const finalPrice = price; // Price already includes any applicable discounts
+                                                const price = calculatePrice(product.id);
+                                                const finalPrice = price;
 
                                                 addToCart({
                                                     id: product.id.toString(),
-                                                    name: product.title,
+                                                    title: product.title,
                                                     price: Number(finalPrice.toFixed(2)),
                                                     quantity: 1,
                                                     size: options.size,
@@ -317,7 +321,8 @@ export default function MenuPage() {
                                                     image: product.image
                                                 });
                                             }}
-                                            className="flex-1 px-4 py-2 rounded-lg bg-[#5D4037] text-white font-semibold transition-all duration-300 hover:bg-[#795548] flex items-center justify-center gap-2"                                        >
+                                            className="flex-1 px-4 py-2 rounded-lg bg-[#5D4037] text-white font-semibold transition-all duration-300 hover:bg-[#795548] flex items-center justify-center gap-2"
+                                        >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h18M3 9h18M3 15h18M3 21h18" />
                                             </svg>

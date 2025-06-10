@@ -199,7 +199,7 @@ export default function ConfirmOrder() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#EFEBE9]">
+    <div className="min-h-screen bg-[#EFEBE9] flex flex-col">
       {/* Header with Progress Steps */}
       <div className="border-b bg-white sticky top-0 z-10 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -249,7 +249,7 @@ export default function ConfirmOrder() {
           <div className="hidden lg:flex items-center justify-center py-6">
             <div className="text-center mb-4">
               <h1 className="text-xl font-semibold text-gray-800 mb-2 pr-20">
-                {mode === 'qr' ? 'Table Order Checkout' : 'Order Checkout'}
+                {mode === 'qr' ? 'Table Order Confirmation' : 'Order Confirmation'}
               </h1>
             </div>
            
@@ -293,71 +293,71 @@ export default function ConfirmOrder() {
           </div>
         </div>
       </div>
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto py-8 px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Order Summary - Wider Column */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
-            <h2 className="text-xl font-bold text-[#3E2723] mb-6 pb-2 border-b border-[#D7CCC8]">
-              Order Summary
-            </h2>
 
-            <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
-              {cartItems.map((item) => (
-                <div key={`${item.id}-${item.size}-${item.milk}-${item.drink}`} 
-                  className="flex items-start py-4 border-b border-[#E8D5B5] last:border-0">
-                  <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#D7CCC8] mr-4">
-                    <Image
-                      src={item.image || '/images/cup.png'}
-                      alt={item.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 640px) 64px, 64px"
-                      priority
-                    />
-                  </div>
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 overflow-y-auto pb-[120px]">
+        <div className="max-w-6xl mx-auto py-8 px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Order Summary */}
+            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 lg:order-1 h-fit">
+              <h2 className="text-xl font-bold text-[#3E2723] mb-6 pb-2 border-b border-[#D7CCC8]">
+                Order Summary
+              </h2>
 
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-[#3E2723]">{item.title}</h3>
-                    <div className="mt-1 text-sm text-[#8D6E63] space-y-1">
-                      {item.size && <p><span className="font-medium">Size:</span> {item.size}</p>}
-                      {item.milk && <p><span className="font-medium">Milk:</span> {item.milk}</p>}
-                      {item.drink && <p><span className="font-medium">Drink:</span> {item.drink}</p>}
-                      {item.toppings && item.toppings.length > 0 && (
-                        <p><span className="font-medium">Toppings:</span> {item.toppings.join(', ')}</p>
-                      )}
+              <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                {cartItems.map((item) => (
+                  <div key={`${item.id}-${item.size}-${item.milk}-${item.drink}`} 
+                    className="flex items-start py-4 border-b border-[#E8D5B5] last:border-0">
+                    <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#D7CCC8] mr-4">
+                      <Image
+                        src={item.image || '/images/cup.png'}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 640px) 64px, 64px"
+                        priority
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-[#3E2723]">{item.title}</h3>
+                      <div className="mt-1 text-sm text-[#8D6E63] space-y-1">
+                        {item.size && <p><span className="font-medium">Size:</span> {item.size}</p>}
+                        {item.milk && <p><span className="font-medium">Milk:</span> {item.milk}</p>}
+                        {item.drink && <p><span className="font-medium">Drink:</span> {item.drink}</p>}
+                        {item.toppings && item.toppings.length > 0 && (
+                          <p><span className="font-medium">Toppings:</span> {item.toppings.join(', ')}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col items-end ml-4">
+                      <p className="font-medium text-[#3E2723]">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="text-sm text-[#8D6E63]">{item.quantity} × ${item.price.toFixed(2)}</p>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  <div className="flex flex-col items-end ml-4">
-                    <p className="font-medium text-[#3E2723]">${(item.price * item.quantity).toFixed(2)}</p>
-                    <p className="text-sm text-[#8D6E63]">{item.quantity} × ${item.price.toFixed(2)}</p>
+              {/* Fixed Total Section */}
+              <div className="border-t-2 border-[#D7CCC8] pt-4 bg-white">
+                  <div className="flex justify-between items-center mb-2 text-[#5D4037]">
+                      <span className="font-bold">Subtotal:</span>
+                      <span className="font-medium text-[#3E2723]">${subtotal.toFixed(2)}</span>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6 pt-4 border-t-2 border-[#D7CCC8]">
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-[#5D4037]">Subtotal:</span>
-                  <span className="font-medium">${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#5D4037]">Tax (10%):</span>
-                  <span className="font-medium">${tax.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between pt-3 mt-3 border-t border-[#D7CCC8]">
-                  <span className="text-lg font-bold text-[#3E2723]">Total:</span>
-                  <span className="text-lg font-bold text-[#3E2723]">${total.toFixed(2)}</span>
-                </div>
+                  <div className="flex justify-between items-center mb-2 text-[#5D4037]">
+                      <span className="font-bold">Tax (10%):</span>
+                      <span className="font-medium text-[#3E2723]">${tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center font-bold text-xl mt-4">
+                      <span className="text-[#3E2723]">Total:</span>
+                      <span className="font-medium text-[#3E2723]">${total.toFixed(2)}</span>
+                  </div>
               </div>
             </div>
-          </div>
 
-          {/* Customer Info and Actions - Narrower Column */}
-          <div className="space-y-6">
-            <div className="bg-white rounded-xl shadow-md p-6">
+            {/* Customer Information */}
+            <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 lg:order-2 h-fit">
               <h2 className="text-xl font-bold text-[#3E2723] mb-4 pb-2 border-b border-[#D7CCC8]">
                 Customer Information
               </h2>
@@ -422,57 +422,20 @@ export default function ConfirmOrder() {
                 </div>
               </div>
             </div>
-
-            {isConfirmed ? (
-              <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 mt-1">
-                    <svg className="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-lg font-semibold text-green-800">Order Confirmed!</h3>
-                    <p className="mt-2 text-green-700">
-                      {customerInfo.deliveryMethod === 'pickup'
-                        ? `Your order will be ready at Table ${customerInfo.tableNumber}.`
-                        : 'Your order is on its way!'}
-                    </p>
-                    <p className="mt-3 text-green-700">
-                      A confirmation has been sent to {customerInfo.email}.
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => router.push('/')}
-                  className="mt-6 w-full bg-[#5D4037] text-white py-3 rounded-lg hover:bg-[#4E342E] transition-colors font-semibold"
-                >
-                  Back to Home
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={handleConfirmOrder}
-                disabled={isProcessing}
-                className={`w-full bg-[#5D4037] text-white py-4 rounded-lg font-semibold shadow-md ${
-                  isProcessing ? 'opacity-75 cursor-not-allowed' : 'hover:bg-[#4E342E] transition-colors'
-                }`}
-              >
-                {isProcessing ? (
-                  <span className="flex items-center justify-center">
-                    <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing Order...
-                  </span>
-                ) : (
-                  `Confirm Order ($${total.toFixed(2)})`
-                )}
-              </button>
-            )}
           </div>
+        </div>
+      </div>
+
+      {/* Fixed Confirm Order Button Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-4 shadow-lg z-50">
+        <div className="max-w-6xl mx-auto">
+          <button
+            onClick={handleConfirmOrder}
+            disabled={isProcessing || isConfirmed}
+            className="w-full bg-[#5D4037] text-white py-3 rounded-lg hover:bg-[#4E342E] transition-colors font-semibold shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+          >
+            {isProcessing ? 'Processing...' : isConfirmed ? 'Order Confirmed!' : `Confirm Order ($${total.toFixed(2)})`}
+          </button>
         </div>
       </div>
     </div>

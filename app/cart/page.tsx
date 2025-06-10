@@ -51,13 +51,13 @@ export default function CartPage() {
                                 >
                                     <td className="py-4 px-5 flex items-center space-x-4">
                                         <Image
-                                            src="/images/matchalate.webp"
-                                            alt={item.name}
-                                            width={50}
-                                            height={50}
-                                            className="w-12 h-12 rounded-full border-2 border-[#D7CCC8]"
+                                            src="/matchalatte-images/matchalate.webp"
+                                            alt={item.title}
+                                            width={100}
+                                            height={100}
+                                            className="rounded-lg shadow-md border border-gray-200"
                                         />
-                                        <span className="font-medium text-[#3E2723]">{item.name}</span>
+                                        <span className="font-medium text-[#3E2723]">{item.title}</span>
                                     </td>
                                     <td className="py-4 px-5 text-[#5D4037]">${item.price.toFixed(2)}</td>
                                     <td className="py-4 px-5">

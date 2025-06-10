@@ -133,7 +133,16 @@ export default function CheckoutPage() {
             // Create order data object
             const orderData = {
                 customerInfo,
-                cartItems,
+                cartItems: cartItems.map(item => ({
+                    id: item.id,
+                    title: item.title,
+                    quantity: item.quantity,
+                    price: item.price,
+                    size: item.size,
+                    milk: item.milk,
+                    drink: item.drink,
+                    toppings: item.toppings
+                })),
                 subtotal,
                 tax,
                 total,
@@ -289,8 +298,8 @@ export default function CheckoutPage() {
                                         <div className="flex-shrink-0 mr-3">
                                             <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden border-2 border-[#D7CCC8]">
                                                 <Image
-                                                    src={item.image || '/images/matchalate.webp'}
-                                                    alt={item.name}
+                                                    src={item.image || '/matchalatte-images/matchalate.webp'}
+                                                    alt={item.title || "Product Image"}
                                                     fill
                                                     style={{ objectFit: 'cover' }}
                                                     sizes="(max-width: 640px) 48px, 64px"
@@ -300,7 +309,7 @@ export default function CheckoutPage() {
 
                                         {/* Product Details */}
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium text-[#3E2723] text-sm mb-1 truncate">{item.name}</p>
+                                            <p className="font-medium text-[#3E2723] text-sm mb-1 truncate">{item.title}</p>
                                             
                                             {/* Compact details */}
                                             <div className="text-xs text-[#8D6E63] space-y-0.5 mb-2">

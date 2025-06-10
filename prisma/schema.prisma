@@ -18,7 +18,7 @@ model Category {
 }
 
 model Product {
-  id            String      @id
+  id            String         @id
   title         String
   description   String
   price         Float
@@ -32,10 +32,10 @@ model Product {
   drinkOptions  Json
   toppings      Json
   basePrices    Json
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
   orderItems    OrderItem[]
-  category      Category    @relation(fields: [categoryId], references: [id])
+  category      Category       @relation(fields: [categoryId], references: [id])
   webOrderItems WebOrderItem[]
 }
 
@@ -49,53 +49,53 @@ model ManagerTable {
 }
 
 model Order {
-  id              String          @id @default(cuid())
-  table           ManagerTable?   @relation(fields: [tableId], references: [id])
+  id              String         @id @default(cuid())
+  table           ManagerTable?  @relation(fields: [tableId], references: [id])
   tableId         String?
   items           OrderItem[]
   total           Float
-  status          OrderStatus     @default(PENDING)
-  deliveryMethod  DeliveryMethod  @default(PICKUP)
+  status          OrderStatus    @default(PENDING)
+  deliveryMethod  DeliveryMethod @default(PICKUP)
   deliveryAddress String?
   customerName    String
   customerEmail   String
   customerPhone   String
   note            String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
   payment         Payment?
 }
 
 model WebOrder {
-  id              String          @id @default(cuid())
+  id              String         @id @default(cuid())
   items           WebOrderItem[]
   total           Float
-  status          OrderStatus     @default(PENDING)
-  deliveryMethod  DeliveryMethod  @default(PICKUP)
+  status          OrderStatus    @default(PENDING)
+  deliveryMethod  DeliveryMethod @default(PICKUP)
   deliveryAddress String?
   customerName    String
   customerEmail   String
   customerPhone   String
   note            String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
   payment         Payment?
 }
 
 model WebOrderItem {
-  id          String    @id @default(cuid())
-  order       WebOrder  @relation(fields: [orderId], references: [id])
-  orderId     String
-  product     Product   @relation(fields: [productId], references: [id])
-  productId   String
-  quantity    Int
-  price       Float
-  size        String?
-  milk        String?
-  drink       String?
-  toppings    String[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  order     WebOrder @relation(fields: [orderId], references: [id])
+  orderId   String
+  product   Product  @relation(fields: [productId], references: [id])
+  productId String
+  quantity  Int
+  price     Float
+  size      String?
+  milk      String?
+  drink     String?
+  toppings  String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model OrderItem {

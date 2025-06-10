@@ -26,6 +26,12 @@ type OrderData = {
   mode: 'qr' | 'web';
 };
 
+type CheckoutApiResponse = {
+  success: boolean;
+  message?: string;
+  orderId?: string;
+};
+
 export default function ConfirmOrder() {
   const router = useRouter();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
@@ -55,7 +61,7 @@ export default function ConfirmOrder() {
   }, [router]);
 
   const handleConfirmOrder = async () => {
-    let result: any;
+    let result: CheckoutApiResponse;
     if (!orderData) {
       alert('No order data found. Please try again.');
       return;

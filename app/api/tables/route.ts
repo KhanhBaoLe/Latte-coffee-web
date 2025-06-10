@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET() {
   try {
-    const tables = await prisma.managerTable.findMany({
+    const tables = await prisma.manager_table.findMany({
       orderBy: { tableId: 'asc' }
     });
     return NextResponse.json(tables);

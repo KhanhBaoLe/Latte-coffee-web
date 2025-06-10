@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { DeliveryMethod, OrderStatus, PaymentMethod, PaymentStatus } from '@prisma/client';
+import { delivery_method, order_status, payment_method, payment_status } from '@prisma/client';
 import { NextResponse } from 'next/server';
 
 interface OrderItem {
@@ -24,8 +24,8 @@ interface CheckoutData {
     tableId?: string;
     items: OrderItem[];
     total: number;
-    paymentMethod: PaymentMethod;
-    deliveryMethod: DeliveryMethod;
+    paymentMethod: payment_method;
+    deliveryMethod: delivery_method;
     address?: string;
     customer: {
         name: string;
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
             throw new Error('Delivery method is required');
         }
 
-        if (body.deliveryMethod === DeliveryMethod.DELIVERY && !body.address) {
+        if (body.deliveryMethod === delivery_method.DELIVERY && !body.address) {
             throw new Error('Delivery address is required for delivery orders');
         }
 
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
             tableId,
             items,
             total,
-            paymentMethod = PaymentMethod.CASH,
+            paymentMethod = payment_method.CASH,
             deliveryMethod,
             address,
             customer,
@@ -75,7 +75,7 @@ export async function POST(request: Request) {
         
         // Handle QR orders
         if (mode === 'qr') {
-            if (deliveryMethod === DeliveryMethod.PICKUP) {
+            if (deliveryMethod === delivery_method.PICKUP) {
                 if (!tableId) {
                     return NextResponse.json({
                         success: false,
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
                 
                 console.log('Table ID:', tableId);
                 
-                tableData = await prisma.managerTable.findFirst({
+                tableData = await prisma.manager_table.findFirst({
                     where: { id: tableId }
                 });
                 
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
                 data: {
                     table: tableData ? { connect: { id: tableData.id } } : undefined,
                     total: total,
-                    status: OrderStatus.PENDING,
+                    status: order_status.PENDING,
                     deliveryMethod: deliveryMethod,
                     deliveryAddress: address,
                     customerName: customer.name,
@@ -126,7 +126,7 @@ export async function POST(request: Request) {
                         create: {
                             amount: total,
                             paymentMethod: paymentMethod,
-                            status: PaymentStatus.PENDING
+                            status: payment_status.PENDING
                         }
                     }
                 },
@@ -141,8 +141,8 @@ export async function POST(request: Request) {
                 }
             });
 
-            if (deliveryMethod === DeliveryMethod.PICKUP && tableData) {
-                await prisma.managerTable.update({
+            if (deliveryMethod === delivery_method.PICKUP && tableData) {
+                await prisma.manager_table.update({
                     where: { id: tableData.id },
                     data: { status: 'reserved' }
                 });
@@ -159,10 +159,10 @@ export async function POST(request: Request) {
         // Handle Web orders
         if (mode === 'web') {
             // Create Web order
-            const webOrder = await prisma.webOrder.create({
+            const webOrder = await prisma.web_order.create({
                 data: {
                     total: total,
-                    status: OrderStatus.PENDING,
+                    status: order_status.PENDING,
                     deliveryMethod: deliveryMethod,
                     deliveryAddress: address,
                     customerName: customer.name,
@@ -185,7 +185,7 @@ export async function POST(request: Request) {
                         create: {
                             amount: total,
                             paymentMethod: paymentMethod,
-                            status: PaymentStatus.PENDING
+                            status: payment_status.PENDING
                         }
                     }
                 },
@@ -221,8 +221,6 @@ export async function POST(request: Request) {
                 errorMessage = 'Invalid item data in order';
             } else if (error.message.includes('Delivery address')) {
                 errorMessage = 'Delivery address is required for delivery orders';
-            } else if (error.message.includes('Foreign key constraint failed')) {
-                errorMessage = 'One or more products are not available. Please check your cart.';
             }
         }
 

@@ -83,7 +83,7 @@ export default function CartPage() {
                             <h2 className="text-2xl font-bold text-[#5D4037] mb-4">Your cart is empty</h2>
                             <p className="text-[#795548] mb-8">
                                 Looks like you have not added any delicious drinks yet. 
-                                Let's change that!
+                                Let change that!
                             </p>
                             <button
                                 onClick={() => router.push('/menu')}

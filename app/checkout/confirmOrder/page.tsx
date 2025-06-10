@@ -308,15 +308,17 @@ export default function ConfirmOrder() {
                   className="flex items-start py-4 border-b border-[#E8D5B5] last:border-0">
                   <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#D7CCC8] mr-4">
                     <Image
-                      src={item.image || '/matchalatte-images/matchalate.webp'}
-                      alt={item.title || "Product Image"}
+                      src={item.image || '/images/cup.png'}
+                      alt={item.title}
                       fill
                       className="object-cover"
+                      sizes="(max-width: 640px) 64px, 64px"
+                      priority
                     />
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-[#3E2723]">{item.name}</h3>
+                    <h3 className="font-medium text-[#3E2723]">{item.title}</h3>
                     <div className="mt-1 text-sm text-[#8D6E63] space-y-1">
                       {item.size && <p><span className="font-medium">Size:</span> {item.size}</p>}
                       {item.milk && <p><span className="font-medium">Milk:</span> {item.milk}</p>}

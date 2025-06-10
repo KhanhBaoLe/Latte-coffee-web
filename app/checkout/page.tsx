@@ -141,7 +141,8 @@ export default function CheckoutPage() {
                     size: item.size,
                     milk: item.milk,
                     drink: item.drink,
-                    toppings: item.toppings
+                    toppings: item.toppings,
+                    image: item.image
                 })),
                 subtotal,
                 tax,

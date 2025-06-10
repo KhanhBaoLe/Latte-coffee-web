@@ -3,7 +3,7 @@
 import { useCart } from '@/app/components/CartContext';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface Product {
     id: number;
@@ -16,7 +16,6 @@ interface Product {
     image: string;
     category: {
         name: string;
-        // ...các trường khác nếu cần
     };
     sizes: string[];
     milkOptions: string[];
@@ -26,19 +25,20 @@ interface Product {
 }
 
 interface Category {
-    id: string;
+    id:string;
     name: string;
+    icon: string;
+    color: string;
 }
 
 const categories: Category[] = [
-    { id: 'all', name: 'All' },
-    { id: 'coffee', name: 'Coffee' },
-    { id: 'milk-tea', name: 'Milk Tea' },
-    { id: 'matcha', name: 'Matcha' },
-    { id: 'fruit-tea', name: 'Fruit Tea' },
+    { id: 'all', name: 'All', icon: '🌟', color: 'from-purple-500 to-pink-500' },
+    { id: 'coffee', name: 'Coffee', icon: '☕', color: 'from-amber-600 to-orange-600' },
+    { id: 'milk-tea', name: 'Milk Tea', icon: '🧋', color: 'from-emerald-500 to-teal-500' },
+    { id: 'matcha', name: 'Matcha', icon: '🍵', color: 'from-green-500 to-emerald-500' },
+    { id: 'fruit-tea', name: 'Fruit Tea', icon: '🍓', color: 'from-pink-500 to-rose-500' },
 ];
 
-// Products that are eligible for 25% discount when size M is selected
 const saleProducts = ['1', '2', '3', '7', '8', '12'];
 
 export default function MenuPage() {
@@ -48,13 +48,45 @@ export default function MenuPage() {
     const [selectedOptions, setSelectedOptions] = useState<Record<string, Record<string, string>>>({});
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [clickedButton, setClickedButton] = useState<string | null>(null);
+
+    const initializeDefaultOptions = (productsToInitialize: Product[]) => {
+        const defaultOptions: Record<string, Record<string, string>> = {};
+        productsToInitialize.forEach(product => {
+            const currentProductOptions: Record<string, string> = {};
+
+            if (product.sizes && product.sizes.length > 0) {
+                currentProductOptions.size = product.sizes.includes('M') ? 'M' : product.sizes[0];
+            }
+
+            if (product.milkOptions && product.milkOptions.length > 0) {
+                if (product.milkOptions.includes('Whole Milk')) {
+                    currentProductOptions.milk = 'Whole Milk';
+                } else if (product.milkOptions[0] !== "None") {
+                    currentProductOptions.milk = product.milkOptions[0];
+                }
+            }
+
+            if (product.drinkOptions && product.drinkOptions.length > 0) {
+                currentProductOptions.drink = product.drinkOptions.includes('Hot') ? 'Hot' : product.drinkOptions[0];
+            }
+            
+            if (Object.keys(currentProductOptions).length > 0) {
+                defaultOptions[product.id.toString()] = currentProductOptions;
+            }
+        });
+        setSelectedOptions(prevOptions => ({ ...prevOptions, ...defaultOptions }));
+    };
 
     useEffect(() => {
         const fetchProducts = async () => {
             try {
                 const response = await fetch('/api/products');
-                const data = await response.json();
+                const data: Product[] = await response.json();
                 setProducts(data);
+                if (data && data.length > 0) {
+                    initializeDefaultOptions(data);
+                }
             } catch (error) {
                 console.error('Error fetching products:', error);
             } finally {
@@ -63,34 +95,7 @@ export default function MenuPage() {
         };
 
         fetchProducts();
-    }, []);
-
-    const [isMobile, setIsMobile] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-    const mainRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const mainElement = mainRef.current;
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-
-        const handleScroll = () => {
-            if (mainElement) {
-                setScrolled(mainElement.scrollTop > 10);
-            }
-        };
-
-        if (mainElement) {
-            mainElement.addEventListener('scroll', handleScroll);
-        }
-
-        return () => {
-            window.removeEventListener('resize', checkMobile);
-            if (mainElement) {
-                mainElement.removeEventListener('scroll', handleScroll);
-            }
-        };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleOptionChange = (itemId: string, optionType: string, value: string) => {
@@ -105,34 +110,63 @@ export default function MenuPage() {
 
     const calculatePrice = (productId: number) => {
         const product = products.find(p => p.id === productId);
-        const options = selectedOptions[productId];
+        const options = selectedOptions[productId.toString()];
 
-        if (!product || !options?.size) return 0;
+        if (!product) return 0; 
+        if (!options?.size && !(product.sizes && product.sizes.length > 0)) return product.price;
+        if (!options?.size) return product.price;
 
-        // Calculate base price according to size
-        let basePrice = product.price; // Default price
+
+        let basePrice = product.price;
         if (options.size && product.basePrices?.[options.size as 'S' | 'M' | 'L']) {
             basePrice = product.basePrices[options.size as 'S' | 'M' | 'L'] ?? product.price;
         }
 
-        // Apply 25% discount for M size on sale products
         if (options.size === 'M' && saleProducts.includes(String(productId))) {
-            basePrice = basePrice * 0.75; // Apply 25% discount
+            basePrice = basePrice * 0.75;
         }
 
-        // Calculate additional costs for milk options
         const milkPrice = options.milk && options.milk !== 'None' && options.milk !== 'Whole Milk' ? 2 : 0;
-        // Calculate additional costs for drink type
         const drinkPrice = options.drink && options.drink !== 'Hot' ? 1.5 : 0;
-        // Calculate total price
-        const totalPrice = basePrice + milkPrice + drinkPrice;
-        return totalPrice;
+        
+        return basePrice + milkPrice + drinkPrice;
+    };
+
+    const handleAddToCartClick = (product: Product) => {
+        const currentProductOptions = selectedOptions[product.id.toString()];
+        if (!currentProductOptions?.size ||
+            (product.drinkOptions.length > 0 && !currentProductOptions?.drink) ||
+            (product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && !currentProductOptions?.milk)) {
+            alert("Please select all required options");
+            return;
+        }
+
+        setClickedButton(product.id.toString());
+        
+        const price = calculatePrice(product.id);
+        addToCart({
+            id: product.id.toString(),
+            title: product.title,
+            price: Number(price.toFixed(2)),
+            quantity: 1,
+            size: currentProductOptions.size,
+            milk: currentProductOptions.milk,
+            drink: currentProductOptions.drink,
+            image: product.image
+        });
+
+        setTimeout(() => {
+            setClickedButton(null);
+        }, 200);
     };
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#795548]"></div>
+            <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-[#F9F6F1] to-[#F0EBE3]">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-4 border-[#D7CCC8] border-t-[#5D4037] mx-auto mb-4"></div>
+                    <p className="text-[#5D4037] font-medium">Loading delicious drinks...</p>
+                </div>
             </div>
         );
     }
@@ -142,199 +176,188 @@ export default function MenuPage() {
     );
 
     return (
-        <div className="flex flex-col md:flex-row min-h-screen">
-            {/* Mobile: Sticky category bar */}
-            {isMobile && (
-                <div
-                    className={`sticky top-0 z-[1000] bg-[#E8D5B5] px-4 py-3 border-b border-[#D7CCC8] w-full transition-all duration-300 ${scrolled ? 'shadow-md' : ''}`}
-                >
-                    <div className="flex overflow-x-auto space-x-3 hide-scrollbar">
-                        {categories.map((category) => (
-                            <button
-                                key={category.id}
-                                onClick={() => setActiveCategory(category.id)}
-                                className={`flex-shrink-0 px-4 py-2 rounded-lg transition-all duration-300 ${activeCategory === category.id
-                                    ? 'bg-[#5D4037] text-white shadow-md'
-                                    : 'text-[#5D4037] hover:bg-[#D7CCC8] hover:text-[#3E2723]'
+        <div className="min-h-screen bg-gradient-to-br from-[#F9F6F1] via-[#F5F0E9] to-[#F0EBE3]">
+            {/* Sticky Header Section */}
+            <div className="sticky top-0 z-40 bg-[#F9F6F1]/90 backdrop-blur-lg shadow-md">
+                <div className="relative max-w-7xl mx-auto px-4 py-5 md:py-6 text-center">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                        <span className="bg-gradient-to-r from-[#5D4037] to-[#8D6E63] bg-clip-text text-transparent">
+                            Our Premium Menu
+                        </span>
+                    </h1>
+                    <p className="text-sm md:text-base text-[#795548] max-w-lg mx-auto mb-5">
+                        Discover handcrafted beverages made with love
+                    </p>
+                    
+                    <div className="flex justify-center overflow-x-auto pb-1 hide-scrollbar">
+                        <div className="flex flex-nowrap gap-2.5 md:gap-3">
+                            {categories.map((category) => (
+                                <button
+                                    key={category.id}
+                                    onClick={() => setActiveCategory(category.id)}
+                                    className={`group whitespace-nowrap relative overflow-hidden px-4 py-2 md:px-5 md:py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 focus:outline-none ${
+                                        activeCategory === category.id
+                                            ? 'bg-white shadow-lg text-[#5D4037] ring-2 ring-[#5D4037]/30'
+                                            : 'bg-white/60 hover:bg-white text-[#795548] shadow-sm'
                                     }`}
-                            >
-                                {category.name}
-                            </button>
-                        ))}
+                                >
+                                    <div className="flex items-center gap-1.5 md:gap-2">
+                                        <span className="text-sm md:text-base">{category.icon}</span>
+                                        <span className="font-medium text-xs md:text-sm">{category.name}</span>
+                                    </div>
+                                    {activeCategory === category.id && (
+                                        // OPTIMIZED: Increased opacity for better visibility
+                                        <div className={`absolute inset-0 bg-gradient-to-r ${category.color} opacity-20 rounded-full`}></div>
+                                    )}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            )}
+            </div>
 
-            {/* Desktop: Sidebar */}
-            {!isMobile && (
-                <aside className="w-64 min-h-screen bg-[#E8D5B5] p-6 space-y-4 sticky top-0 self-start">
-                    <h2 className="text-xl font-bold text-[#3E2723] mb-4">Category</h2>
-                    {categories.map((category) => (
-                        <button
-                            key={category.id}
-                            onClick={() => setActiveCategory(category.id)}
-                            className={`w-full text-left px-4 py-3 rounded-lg transition-all duration-300 ${activeCategory === category.id
-                                ? 'bg-[#5D4037] text-white shadow-md'
-                                : 'text-[#5D4037] hover:bg-[#D7CCC8] hover:text-[#3E2723]'
-                                }`}
-                        >
-                            {category.name}
-                        </button>
-                    ))}
-                </aside>
-            )}
-
-            {/* Main Content */}
-            <main
-                ref={mainRef}
-                className={`flex-1 bg-[#F5F0E9] overflow-auto ${isMobile ? 'pt-0' : ''}`}
-                style={{ maxHeight: '100vh' }}
-            >
-                <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
-                    <div className="text-center mb-6 md:mb-10">
-                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-[#3E2723] mb-2 md:mb-3">
-                            Our <span className="text-[#5D4037]">Menu</span>
-                        </h1>
-                        <div className="w-24 md:w-32 h-1 bg-gradient-to-r from-[#A1887F] to-[#5D4037] mx-auto mb-4 md:mb-5 rounded-full"></div>
-                        <p className="text-[#5D4037] text-base md:text-lg max-w-2xl mx-auto">
-                            Discover delicious drinks carefully crafted from premium ingredients
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                        {filteredProducts.map((product) => (
+            {/* Products Grid */}
+            <div className="max-w-7xl mx-auto px-4 py-8 md:py-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6">
+                    {filteredProducts.map((product) => {
+                        const currentProductSelections = selectedOptions[product.id.toString()] || {};
+                        return (
                             <div
                                 key={product.id}
-                                className="bg-white rounded-xl shadow-md md:shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 border border-[#E8D5B5] flex flex-col h-full"
+                                className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden border border-[#E8D5B5]/40 flex flex-col"
                             >
-                                <div
-                                    className="relative h-40 sm:h-48 cursor-pointer group"
+                                <div 
+                                    className="relative h-52 sm:h-56 overflow-hidden cursor-pointer"
                                     onClick={() => router.push(`/detail/${product.id}`)}
                                 >
                                     <Image
                                         src={product.image}
                                         alt={product.title}
                                         fill
+                                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                                         className="object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    
                                     {saleProducts.includes(product.id.toString()) && (
-                                        <div className="absolute top-2 right-2 bg-[#D32F2F] text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
-                                            SALE 25% OFF for M Size
+                                        <div className="absolute top-2.5 right-2.5 bg-gradient-to-r from-red-500 to-pink-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-md">
+                                            SALE 25%
                                         </div>
                                     )}
+
+                                    <div className="absolute top-2.5 left-2.5 bg-white/80 backdrop-blur-sm text-[#5D4037] text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                        <span>⭐</span>
+                                        <span>{product.rating}</span>
+                                    </div>
                                 </div>
 
-                                <div className="p-4 md:p-6 flex flex-col flex-grow">
-                                    <div className="flex justify-between items-start">
+                                <div className="p-5 flex flex-col flex-grow">
+                                    <h3 className="text-lg font-bold text-[#3E2723] mb-1.5 group-hover:text-[#5D4037] transition-colors truncate">
+                                        {product.title}
+                                    </h3>
+                                    <p className="text-[#795548] text-xs mb-3 line-clamp-2 leading-relaxed">
+                                        {product.description}
+                                    </p>
+
+                                    <div className="space-y-2.5 mb-3 flex-grow">
+                                        {product.sizes && product.sizes.length > 0 && (
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-[#5D4037] mb-1 uppercase tracking-wider">Size</label>
+                                                <div className="flex gap-1.5">
+                                                    {product.sizes.map((size) => (
+                                                        <button
+                                                            key={size}
+                                                            onClick={() => handleOptionChange(product.id.toString(), "size", size)}
+                                                            className={`flex-1 py-1.5 px-2 rounded-md text-xs font-medium transition-all duration-200 focus:outline-none ${
+                                                                currentProductSelections.size === size
+                                                                    ? 'bg-[#5D4037] text-white shadow-sm ring-1 ring-[#5D4037]'
+                                                                    : 'bg-[#F5F0E9] text-[#5D4037] hover:bg-[#E8D5B5]'
+                                                            }`}
+                                                        >
+                                                            {size}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {(product.milkOptions.length > 0 && product.milkOptions[0] !== "None" || product.drinkOptions.length > 0) && (
+                                            <div className={`grid ${product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && product.drinkOptions.length > 0 ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
+                                                {product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && (
+                                                    <div>
+                                                        <label className="block text-[11px] font-semibold text-[#5D4037] mb-1 uppercase tracking-wider">Milk</label>
+                                                        <select
+                                                            className="w-full p-1.5 rounded-md border border-[#E8D5B5] text-xs text-[#5D4037] bg-white focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors"
+                                                            value={currentProductSelections.milk || ""}
+                                                            onChange={(e) => handleOptionChange(product.id.toString(), "milk", e.target.value)}
+                                                        >
+                                                            <option value="" disabled>Select</option>
+                                                            {product.milkOptions.map((milk) => (
+                                                                <option key={milk} value={milk}>{milk}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
+
+                                                {product.drinkOptions.length > 0 && (
+                                                    <div>
+                                                        <label className="block text-[11px] font-semibold text-[#5D4037] mb-1 uppercase tracking-wider">Type</label>
+                                                        <select
+                                                            className="w-full p-1.5 rounded-md border border-[#E8D5B5] text-xs text-[#5D4037] bg-white focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors"
+                                                            value={currentProductSelections.drink || ""}
+                                                            onChange={(e) => handleOptionChange(product.id.toString(), "drink", e.target.value)}
+                                                        >
+                                                            <option value="" disabled>Select</option>
+                                                            {product.drinkOptions.map((drink) => (
+                                                                <option key={drink} value={drink}>{drink}</option>
+                                                            ))}
+                                                        </select>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-3 border-t border-[#E8D5B5]/70 mt-auto">
                                         <div>
-                                            <h3 className="text-lg md:text-xl font-bold text-[#3E2723] hover:text-[#5D4037] transition-colors">
-                                                {product.title}
-                                            </h3>
-                                            <p className="text-[#795548] text-xs md:text-sm mt-1">
-                                                {product.rating} ★ ({product.reviews} reviews)
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <p className="text-[#5D4037] text-xs md:text-sm line-clamp-2 mt-2">{product.description}</p>
-
-                                    <div className="space-y-3 mt-4 flex-grow">
-                                        <div className="flex flex-col md:flex-row md:items-center gap-2">
-                                            <span className="font-medium text-[#5D4037] w-16">Size</span>
-                                            <select
-                                                className="flex-1 p-2 rounded-lg border border-[#D7CCC8] text-[#3E2723] bg-white hover:border-[#8D6E63] focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors text-sm md:text-base"
-                                                value={selectedOptions[product.id]?.size || ""}
-                                                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleOptionChange(product.id.toString(), "size", e.target.value)}
-                                            >
-                                                <option value="" disabled>Select size</option>
-                                                {product.sizes.map((size) => (
-                                                    <option key={size} value={size}>{size}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-
-                                        {product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && (
-                                            <div className="flex flex-col md:flex-row md:items-center gap-2">
-                                                <span className="font-medium text-[#5D4037] w-16">Milk</span>
-                                                <select
-                                                    className="flex-1 p-2 rounded-lg border border-[#D7CCC8] text-[#3E2723] bg-white hover:border-[#8D6E63] focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors text-sm md:text-base"
-                                                    value={selectedOptions[product.id]?.milk || ""}
-                                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleOptionChange(product.id.toString(), "milk", e.target.value)}
-                                                >
-                                                    <option value="" disabled>Choose milk</option>
-                                                    {product.milkOptions.map((milk) => (
-                                                        <option key={milk} value={milk}>{milk}</option>
-                                                    ))}
-                                                </select>
+                                            <div className="text-xl font-bold text-[#3E2723]">
+                                                ${calculatePrice(product.id).toFixed(2)}
                                             </div>
-                                        )}
-
-                                        {product.drinkOptions.length > 0 && (
-                                            <div className="flex flex-col md:flex-row md:items-center gap-2">
-                                                <span className="font-medium text-[#5D4037] w-16">Type</span>
-                                                <select
-                                                    className="flex-1 p-2 rounded-lg border border-[#D7CCC8] text-[#3E2723] bg-white hover:border-[#8D6E63] focus:border-[#5D4037] focus:ring-1 focus:ring-[#5D4037] transition-colors text-sm md:text-base"
-                                                    value={selectedOptions[product.id]?.drink || ""}
-                                                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => handleOptionChange(product.id.toString(), "drink", e.target.value)}
-                                                >
-                                                    <option value="" disabled>Select type</option>
-                                                    {product.drinkOptions.map((drink) => (
-                                                        <option key={drink} value={drink}>{drink}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col sm:flex-row items-center justify-between pt-4 gap-3 mt-auto">
-                                        <div className="flex flex-col">
-                                            <div className="text-xl md:text-2xl font-bold text-[#3E2723]">
-                                                Total: ${calculatePrice(product.id).toFixed(2)}
-                                            </div>
-                                            {selectedOptions[product.id]?.size === 'M' && saleProducts.includes(product.id.toString()) && (
-                                                <div className="text-sm text-[#D32F2F] line-through">
-                                                    ${(calculatePrice(product.id) * 1.15).toFixed(2)}
+                                            {currentProductSelections.size === 'M' && saleProducts.includes(product.id.toString()) && (
+                                                <div className="text-xs text-red-500 line-through">
+                                                    ${(calculatePrice(product.id) / 0.75).toFixed(2)}
                                                 </div>
                                             )}
                                         </div>
+                                        
                                         <button
-                                            onClick={() => {
-                                                const options = selectedOptions[product.id];
-                                                if (!options?.size ||
-                                                    (product.drinkOptions.length > 0 && !options?.drink) ||
-                                                    (product.milkOptions.length > 0 && product.milkOptions[0] !== "None" && !options?.milk)) {
-                                                    alert("Please select all required options");
-                                                    return;
-                                                }
-
-                                                const price = calculatePrice(product.id);
-                                                const finalPrice = price;
-
-                                                addToCart({
-                                                    id: product.id.toString(),
-                                                    title: product.title,
-                                                    price: Number(finalPrice.toFixed(2)),
-                                                    quantity: 1,
-                                                    size: options.size,
-                                                    milk: options.milk,
-                                                    drink: options.drink,
-                                                    image: product.image
-                                                });
-                                            }}
-                                            className="flex-1 px-4 py-2 rounded-lg bg-[#5D4037] text-white font-semibold transition-all duration-300 hover:bg-[#795548] flex items-center justify-center gap-2"
+                                            onClick={() => handleAddToCartClick(product)}
+                                            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-semibold transition-all duration-200 text-xs focus:outline-none ${
+                                                clickedButton === product.id.toString()
+                                                    ? 'bg-[#4A2C20] scale-95 shadow-inner text-white'
+                                                    : 'bg-gradient-to-r from-[#5D4037] to-[#6D4C41] hover:from-[#6D4C41] hover:to-[#795548] text-white shadow-md hover:shadow-lg hover:scale-105'
+                                            }`}
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h18M3 9h18M3 15h18M3 21h18" />
+                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                             </svg>
-                                            Add to Cart
+                                            <span>Add</span>
                                         </button>
                                     </div>
                                 </div>
                             </div>
-                        ))}
-                    </div>
+                        )
+                    })}
                 </div>
-            </main>
+
+                {filteredProducts.length === 0 && (
+                    <div className="text-center py-12 md:py-16">
+                        <div className="text-5xl md:text-6xl mb-3 opacity-70">☕️</div>
+                        <h3 className="text-xl md:text-2xl font-semibold text-[#5D4037] mb-1.5">No drinks found in this category</h3>
+                        <p className="text-[#795548] text-sm md:text-base">Try exploring other delightful options!</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

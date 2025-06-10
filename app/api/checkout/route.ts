@@ -172,7 +172,6 @@ export async function POST(request: Request) {
                     items: {
                         create: items.map(item => ({
                             productId: item.id,
-                            title: item.title,
                             quantity: item.quantity,
                             price: item.price,
                             size: item.size || null,

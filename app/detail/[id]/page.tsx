@@ -103,7 +103,7 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     addToCart({
       id: id as string,
-      name: product.title,
+      title: product.title,
       price: totalPrice,
       quantity: 1,
       size: selectedSize,

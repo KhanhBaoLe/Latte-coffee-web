@@ -1,61 +1,31 @@
 import { CartProvider } from "@/app/components/CartContext";
-import ConditionalHeader from '@/app/components/ConditionalHeader';
-import DashboardSkeleton from "@/app/components/DashboardSkeleton";
-import Footer from "@/app/components/footer";
+import Header from "@/app/components/header";
+import ToastWrapper from "@/app/components/ToastWrapper";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
-import { Suspense } from "react";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Latte Coffee - Premium Coffee Experience",
-  description:
-    "Discover our handcrafted selection of premium coffees, expertly prepared to delight your senses",
+  title: "Latte Coffee",
+  description: "Order your favorite coffee drinks online",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
-      >
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-LMF9N93D5D"
-          strategy="afterInteractive"
-        />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-LMF9N93D5D');
-          `}
-        </Script>
+    <html lang="en">
+      <body className={inter.className}>
         <CartProvider>
-          <div className="flex flex-col min-h-screen">
-            <ConditionalHeader />
-            <Suspense fallback={<DashboardSkeleton />}>
-              <main className="flex-grow">{children}</main>
-            </Suspense>
-            <Footer />
-          </div>
+          <Header />
+          <main className="min-h-screen bg-gradient-to-br from-[#F9F6F1] to-[#F0EBE3]">
+            {children}
+          </main>
+          <ToastWrapper />
         </CartProvider>
       </body>
     </html>

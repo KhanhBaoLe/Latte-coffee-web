@@ -26,6 +26,12 @@ type OrderData = {
   mode: 'qr' | 'web';
 };
 
+type CheckoutApiResponse = {
+  success: boolean;
+  message?: string;
+  orderId?: string;
+};
+
 export default function ConfirmOrder() {
   const router = useRouter();
   const [orderData, setOrderData] = useState<OrderData | null>(null);
@@ -55,6 +61,7 @@ export default function ConfirmOrder() {
   }, [router]);
 
   const handleConfirmOrder = async () => {
+    let result: CheckoutApiResponse;
     if (!orderData) {
       alert('No order data found. Please try again.');
       return;
@@ -91,6 +98,7 @@ export default function ConfirmOrder() {
           : undefined,
         items: orderData.cartItems.map(item => ({
           id: item.id,
+          title: item.title,
           quantity: item.quantity,
           price: item.price,
           size: item.size,
@@ -113,6 +121,7 @@ export default function ConfirmOrder() {
         mode: orderData.mode,
       };
 
+      console.log('Sending checkout data to API:', checkoutData);
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -121,10 +130,12 @@ export default function ConfirmOrder() {
         body: JSON.stringify(checkoutData)
       });
 
-      const result = await response.json();
+      result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.message || 'Failed to process order');
+        alert(result.message || 'Có lỗi xảy ra khi xử lý đơn hàng của bạn. Vui lòng thử lại.');
+        setIsProcessing(false);
+        return;
       }
 
       // Store order details for confirmation page
@@ -146,7 +157,7 @@ export default function ConfirmOrder() {
       router.push('/confirm');
     } catch (error) {
       console.error('Error processing order:', error);
-      alert(error instanceof Error ? error.message : 'There was an error processing your order. Please try again.');
+      alert('Đã xảy ra lỗi mạng. Vui lòng kiểm tra kết nối internet của bạn và thử lại.');
     } finally {
       setIsProcessing(false);
     }
@@ -297,8 +308,8 @@ export default function ConfirmOrder() {
                   className="flex items-start py-4 border-b border-[#E8D5B5] last:border-0">
                   <div className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#D7CCC8] mr-4">
                     <Image
-                      src={item.image || '/images/matchalate.webp'}
-                      alt={item.name}
+                      src={item.image || '/matchalatte-images/matchalate.webp'}
+                      alt={item.title || "Product Image"}
                       fill
                       className="object-cover"
                     />

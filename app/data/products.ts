@@ -758,7 +758,7 @@ export const products = [
     },
     "rating": 4.6,
     "reviews": 201,
-    "image": "/fruit-tea-images/Mango-Tea.png"
+    "image": "/fruit-tea-images/cup.png"
   },
   {
     "id": "27",

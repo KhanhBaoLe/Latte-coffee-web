@@ -186,7 +186,7 @@ export default function TablePage() {
                                         <div className="flex-shrink-0">
                                             <Image
                                                 src={item.image || '/images/cup.png'}
-                                                alt={item.title}
+                                                alt={item.title || "Product image"}
                                                 width={40}
                                                 height={40}
                                                 className="w-10 h-10 rounded-full border-2 border-[#D7CCC8]"
@@ -281,7 +281,7 @@ export default function TablePage() {
                                     <div className="flex-shrink-0">
                                         <Image
                                         src={item.image || '/images/cup.png'}
-                                        alt={item.title}
+                                        alt={item.title || "Product image"}
                                         width={40}
                                         height={40}
                                         className="w-10 h-10 rounded-full border-2 border-[#D7CCC8]"
@@ -414,7 +414,7 @@ export default function TablePage() {
                                     <div className="flex-shrink-0 w-32 h-32 relative rounded-xl overflow-hidden shadow-md sm:w-24 sm:h-24">
                                         <Image
                                             src={product.image || '/images/cup.png'}
-                                            alt={product.title}
+                                            alt={product.title || "Product image"}
                                             layout="fill"
                                             objectFit="contain"
                                             className="rounded-xl border-2 border-[#D7CCC8]"
@@ -504,7 +504,7 @@ export default function TablePage() {
                                                 <button
                                                     onClick={() => addToCart({
                                                         id: product.id,
-                                                        title: product.title,
+                                                        title: product.title || 'Unknown Product',
                                                         price: calculatePrice(product, selectedOptions[product.id]),
                                                         quantity: 1,
                                                         image: product.image,

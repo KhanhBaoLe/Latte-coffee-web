@@ -40,12 +40,18 @@ type CartContextType = {
   updateQuantity: (uniqueId: string, quantity: number) => void; // Sử dụng uniqueId
   totalItems: number;
   totalPrice: number;
+  showToast: boolean;
+  setShowToast: (show: boolean) => void;
+  toastMessage: string;
+  setToastMessage: (message: string) => void;
 };
 
 export const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   // Đọc từ localStorage khi load (với migration)
   useEffect(() => {
@@ -89,6 +95,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         return [...prevItems, { ...item, uniqueId, quantity: item.quantity || 1 }];
       }
     });
+    setToastMessage(`${item.title} added to cart!`);
+    setShowToast(true);
   };
 
   const decreaseQuantity = (uniqueId: string) => {
@@ -136,7 +144,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
         removeFromCart,
         clearCart,
         totalItems,
-        totalPrice
+        totalPrice,
+        showToast,
+        setShowToast,
+        toastMessage,
+        setToastMessage
       }}
     >
       {children}

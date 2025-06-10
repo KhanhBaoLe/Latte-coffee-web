@@ -15,6 +15,8 @@ export interface Product {
   category?: string;
   rating: number;
   reviews: number;
+  prepTime?: string;
+  toppings?: string[];
 }
 
 export interface CartItem {

@@ -492,7 +492,7 @@ export default function TablePage() {
                                             </div>
                                             <div className="flex flex-wrap gap-2 justify-center xs:justify-end w-full xs:w-auto">
                                                 <button
-                                                    onClick={() => router.push(`/detail/${product.id}`)}
+                                                    onClick={() => router.push(`/table/${tableId}/detail/${product.id}`)}
                                                     className="bg-[#A1887F] hover:bg-[#8D6E63] text-white px-3 py-1.5 rounded-lg font-semibold shadow-md transition-colors duration-200 text-xs flex-shrink-0 flex items-center"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 mr-1">

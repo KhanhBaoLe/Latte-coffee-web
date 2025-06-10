@@ -16,6 +16,18 @@ type CustomerInfo = {
     address: string;
 };
 
+interface CartItem {
+    id: string;
+    title: string;
+    quantity: number;
+    price: number;
+    size?: string;
+    milk?: string;
+    drink?: string;
+    toppings?: string[];
+    image?: string;
+}
+
 export default function CheckoutPage() {
     const { cartItems, totalPrice, updateQuantity, removeFromCart } = useCart();
     const router = useRouter();
@@ -174,10 +186,28 @@ export default function CheckoutPage() {
         { id: 3, name: 'Complete Order', status: 'upcoming' },
     ];
 
-    const handleQuantityChange = (id: string, newQuantity: number) => {
+    const handleQuantityChange = (item: CartItem, newQuantity: number) => {
         if (newQuantity >= 1) {
-            updateQuantity(id, newQuantity);
+            const uniqueId = [
+                item.id,
+                item.size,
+                item.milk,
+                item.drink,
+                Array.isArray(item.toppings) ? item.toppings.join('-') : ''
+            ].join('-');
+            updateQuantity(uniqueId, newQuantity);
         }
+    };
+
+    const handleRemoveItem = (item: CartItem) => {
+        const uniqueId = [
+            item.id,
+            item.size,
+            item.milk,
+            item.drink,
+            Array.isArray(item.toppings) ? item.toppings.join('-') : ''
+        ].join('-');
+        removeFromCart(uniqueId);
     };
 
     return (
@@ -211,7 +241,7 @@ export default function CheckoutPage() {
                                 >
                                     {step.status === 'complete' ? '✓' : step.id}
                                 </div>
-                                <span className="text-xs mt-1 text-center max-w-[60px] leading-tight">
+                                <span className="text-xs mt-1 text-center max-w-[60px] leading-tight font-bold text-gray-300">
                                     {step.name.split(' ').map((word, i) => (
                                         <div key={i}>{word}</div>
                                     ))}
@@ -276,7 +306,7 @@ export default function CheckoutPage() {
         <div className="max-w-6xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                 {/* Order Summary - Mobile First Design */}
-                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 h-fit max-h-[calc(100vh-200px)] flex flex-col order-2 lg:order-1">
+                <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 h-fit max-h-[calc(100vh-200px)] flex flex-col order-1">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Order Overview</h2>
                         {mode === 'qr' && (
@@ -325,7 +355,7 @@ export default function CheckoutPage() {
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center border rounded-md">
                                                 <button
-                                                    onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                                                    onClick={() => handleQuantityChange(item, item.quantity - 1)}
                                                     disabled={item.quantity <= 1}
                                                     className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-l-md"
                                                 >
@@ -337,7 +367,7 @@ export default function CheckoutPage() {
                                                 </span>
 
                                                 <button
-                                                    onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                                    onClick={() => handleQuantityChange(item, item.quantity + 1)}
                                                     className="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center bg-green-50 hover:bg-green-100 text-green-600 rounded-r-md"
                                                 >
                                                     <span className="text-sm font-bold">+</span>
@@ -353,7 +383,7 @@ export default function CheckoutPage() {
                                                 </div>
                                                 
                                                 <button
-                                                    onClick={() => removeFromCart(item.id)}
+                                                    onClick={() => handleRemoveItem(item)}
                                                     className="text-red-500 hover:text-red-700 p-1 hover:bg-red-50 rounded"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -386,7 +416,7 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Customer Information Form */}
-                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-[#D7CCC8] order-1 lg:order-2">
+                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-[#D7CCC8] order-2">
                     <h2 className="text-lg sm:text-xl font-semibold text-[#3E2723] mb-4">Customer Information</h2>
                     <form onSubmit={handleSubmit} id="checkout-form" className="space-y-4"> {/* Thêm ID form */}
                         {/* Delivery Method */}

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '.prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 import { categoryIds } from '../app/data/categories'
 import { products } from '../app/data/products'
@@ -8,7 +8,7 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('Cleaning up old data...')
   try {    await prisma.payment.deleteMany({})
-    await prisma.orderItem.deleteMany({})
+    await prisma.order_item.deleteMany({})
     await prisma.order.deleteMany({})
     await prisma.product.deleteMany({})
     await prisma.category.deleteMany({})
@@ -19,7 +19,7 @@ async function main() {
   console.log('Creating tables...')
   try {
     for (let i = 1; i <= 8; i++) {
-      await prisma.managerTable.create({
+      await prisma.manager_table.create({
         data: {
           id: `table${i}`,
           tableId: i,

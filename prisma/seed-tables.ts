@@ -7,12 +7,12 @@ async function main() {
   console.log('Start seeding tables...');
   
   // Xóa tất cả bàn cũ (nếu có)
-  await prisma.managerTable.deleteMany({});
+  await prisma.manager_table.deleteMany({});
 
   // Thêm bàn mới từ data
   for (let i = 0; i < table.length; i++) {
     const tableNumber = i + 1;
-    await prisma.managerTable.create({
+    await prisma.manager_table.create({
       data: {
         id: table[i].id_table,
         tableId: tableNumber

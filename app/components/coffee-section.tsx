@@ -256,6 +256,10 @@ const CoffeeSection = () => {
                                                 layout="fill"
                                                 objectFit="contain"
                                                 className="transition-transform duration-300 hover:scale-105"
+                                                onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                                                    const target = e.target as HTMLImageElement;
+                                                    target.src = '/images/cup.png';
+                                                }}
                                             />
                                         </div>
                                     </div>

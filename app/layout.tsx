@@ -1,8 +1,8 @@
-import { CartProvider } from "@/app/components/CartContext";
-import Header from "@/app/components/header";
-import ToastWrapper from "@/app/components/ToastWrapper";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { CartProvider } from "./components/CartContext";
+import Header from "./components/header";
+import ToastWrapper from "./components/ToastWrapper";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });

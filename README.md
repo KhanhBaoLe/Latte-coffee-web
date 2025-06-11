@@ -1,8 +1,8 @@
 <h1>Latte Coffee Web </h1> 
 <h2>
   Our Link Production: 
-  <a href="https://latte-coffee-web-git-main-khanhbaoles-projects.vercel.app/" target="_blank" rel="noopener noreferrer">
-    https://latte-coffee-web-git-main-khanhbaoles-projects.vercel.app/
+  <a href="https://latte-coffee-web.vercel.app/" target="_blank" rel="noopener noreferrer">
+    https://latte-coffee-web.vercel.app/
   </a>
 </h2>
 
@@ -12,7 +12,6 @@
 
 <h2>Overview</h2>
 "Latte Coffee" is a modern web app for coffee shops that enables customers to order drinks digitally at their tables. It features a user-friendly interface, customizable beverage options (size, milk, temperature, toppings), and a smart cart for real-time order tracking and adjustments. With a minimalist design, smooth animations, and optimized UX, Latte Coffee offers a seamless and efficient order management solution for contemporary cafés.
-
 
 <h2>Main Feature</h2>
   <ul>

@@ -8,9 +8,10 @@ type OrderDetails = {
   customerName: string;
   customerEmail: string;
   total: number;
-  deliveryMethod: string;
+  deliveryMethod?: string; // Optional for QR orders
   tableNumber?: string;
   timestamp: string;
+  mode?: 'qr' | 'web'; // Add mode field
 };
 
 export default function OrderConfirmation() {
@@ -27,9 +28,7 @@ export default function OrderConfirmation() {
       router.push('/');
     }
     setLoading(false);
-  }, [router]);
-
-  const formatOrderTime = (timestamp: string) => {
+  }, [router]);  const formatOrderTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleString('en-US', {
       year: 'numeric',
@@ -38,6 +37,16 @@ export default function OrderConfirmation() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleContinueShopping = () => {
+    if (orderDetails?.mode === 'qr' && orderDetails?.tableNumber) {
+      // For QR mode, go back to the specific table
+      router.push(`/table/${orderDetails.tableNumber}`);
+    } else {
+      // For web mode or when no table number, go to home
+      router.push('/');
+    }
   };
 
   if (loading) {
@@ -126,27 +135,38 @@ export default function OrderConfirmation() {
                 #{orderDetails.orderId}
               </p>
             </div>
-          </div>
-
-          {/* Order Info Grid */}
+          </div>          {/* Order Info Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             <div className="space-y-4">
-              <div className="bg-[#F5F0E9] rounded-xl p-4">
-                <div className="flex items-center mb-2">
-                  <svg className="w-5 h-5 text-[#5D4037] mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                  </svg>
-                  <p className="text-[#8D6E63] text-sm font-medium">DELIVERY METHOD</p>
+              {/* Delivery Method - Only show for Web mode */}
+              {orderDetails.mode === 'web' && orderDetails.deliveryMethod && (
+                <div className="bg-[#F5F0E9] rounded-xl p-4">
+                  <div className="flex items-center mb-2">
+                    <svg className="w-5 h-5 text-[#5D4037] mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                    </svg>
+                    <p className="text-[#8D6E63] text-sm font-medium">DELIVERY METHOD</p>
+                  </div>
+                  <p className="text-[#3E2723] font-semibold capitalize text-lg">
+                    {orderDetails.deliveryMethod}
+                  </p>
                 </div>
-                <p className="text-[#3E2723] font-semibold capitalize text-lg">
-                  {orderDetails.deliveryMethod}
-                  {orderDetails.deliveryMethod === 'pickup' && orderDetails.tableNumber && (
-                    <span className="text-base text-[#5D4037] ml-2">
-                      • Table {orderDetails.tableNumber}
-                    </span>
-                  )}
-                </p>
-              </div>
+              )}
+
+              {/* Table Number - Show for QR mode or when tableNumber exists */}
+              {(orderDetails.mode === 'qr' || orderDetails.tableNumber) && (
+                <div className="bg-[#F5F0E9] rounded-xl p-4">
+                  <div className="flex items-center mb-2">
+                    <svg className="w-5 h-5 text-[#5D4037] mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
+                    </svg>
+                    <p className="text-[#8D6E63] text-sm font-medium">TABLE NUMBER</p>
+                  </div>
+                  <p className="text-[#3E2723] font-semibold text-lg">
+                    Table {orderDetails.tableNumber}
+                  </p>
+                </div>
+              )}
               
               <div className="bg-[#F5F0E9] rounded-xl p-4">
                 <div className="flex items-center mb-2">
@@ -221,9 +241,8 @@ export default function OrderConfirmation() {
                   <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                </div>
-                <span className="text-xs text-gray-400 font-medium text-center">
-                  {orderDetails.deliveryMethod === 'pickup' ? 'Ready' : 'Delivered'}
+                </div>                <span className="text-xs text-gray-400 font-medium text-center">
+                  {(orderDetails.mode === 'qr' || orderDetails.deliveryMethod === 'pickup') ? 'Ready' : 'Delivered'}
                 </span>
               </div>
             </div>
@@ -236,24 +255,21 @@ export default function OrderConfirmation() {
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd"/>
               </svg>
               <span className="text-[#4CAF50] font-semibold">Estimated Time</span>
-            </div>
-            <p className="text-[#2E7D32] text-lg font-bold">
-              {orderDetails.deliveryMethod === 'pickup' ? '15-20 minutes' : '25-35 minutes'}
+            </div>            <p className="text-[#2E7D32] text-lg font-bold">
+              {(orderDetails.mode === 'qr' || orderDetails.deliveryMethod === 'pickup') ? '15-20 minutes' : '25-35 minutes'}
             </p>
           </div>
-        </div>
-
-        {/* Action Buttons */}
+        </div>        {/* Action Buttons */}
         <div className="space-y-4">
-          <Link
-            href="/"
+          <button
+            onClick={handleContinueShopping}
             className="w-full bg-gradient-to-r from-[#5D4037] to-[#4E342E] hover:from-[#4E342E] hover:to-[#3E2723] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center justify-center group"
           >
             <svg className="w-5 h-5 mr-2 group-hover:animate-bounce" fill="currentColor" viewBox="0 0 20 20">
               <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
             </svg>
-            CONTINUE SHOPPING
-          </Link>
+            {orderDetails?.mode === 'qr' ? 'BACK TO TABLE' : 'CONTINUE SHOPPING'}
+          </button>
           
           <button
             onClick={() => window.print()}

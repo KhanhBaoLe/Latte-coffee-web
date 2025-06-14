@@ -143,9 +143,12 @@ export default function TablePage() {
 
     const tableId = params.id ? Number(params.id) : null;
     const foundTable = tableList.find(t => t.tableId === tableId);
-    const tableNumber = foundTable ? foundTable.tableId : 'Unknown';
-
-    const handleOrder = () => {
+    const tableNumber = foundTable ? foundTable.tableId : 'Unknown';    const handleOrder = () => {
+        // Save current table number to localStorage for checkout page
+        if (tableId) {
+            localStorage.setItem('currentTableNumber', tableId.toString());
+            console.log('Saved table number to localStorage:', tableId);
+        }
         router.push('/table/checkout');
     };
 

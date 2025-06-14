@@ -71,15 +71,14 @@ export default function ConfirmOrder() {
     if (!orderData.customerInfo.name || !orderData.customerInfo.email || !orderData.customerInfo.phone) {
       alert('Please provide all required customer information.');
       return;
-    }
-
-    // Only validate table number if in QR mode and pickup delivery
-    if (orderData.mode === 'qr' && orderData.customerInfo.deliveryMethod === 'pickup' && !orderData.customerInfo.tableNumber) {
-      alert('Please select a table number for pickup orders.');
+    }    // Only validate table number if in QR mode
+    if (orderData.mode === 'qr' && !orderData.customerInfo.tableNumber) {
+      alert('Table number is required for QR orders.');
       return;
     }
 
-    if (orderData.customerInfo.deliveryMethod === 'delivery' && !orderData.customerInfo.address) {
+    // Only validate delivery address if in web mode with delivery
+    if (orderData.mode === 'web' && orderData.customerInfo.deliveryMethod === 'delivery' && !orderData.customerInfo.address) {
       alert('Please provide a delivery address.');
       return;
     }
@@ -91,10 +90,9 @@ export default function ConfirmOrder() {
 
     setIsProcessing(true);
 
-    try {
-      const checkoutData = {
-        tableId: orderData.customerInfo.deliveryMethod === 'pickup'
-          ? `table${orderData.customerInfo.tableNumber}`
+    try {      const checkoutData = {
+        tableId: orderData.mode === 'qr'
+          ? orderData.customerInfo.tableNumber // Send just the table number for QR mode
           : undefined,
         items: orderData.cartItems.map(item => ({
           id: item.id,
@@ -108,7 +106,7 @@ export default function ConfirmOrder() {
         })),
         total: orderData.total,
         paymentMethod: 'CASH',
-        deliveryMethod: orderData.customerInfo.deliveryMethod.toUpperCase(),
+        deliveryMethod: orderData.mode === 'web' ? orderData.customerInfo.deliveryMethod.toUpperCase() : undefined, // Only for web mode
         address: orderData.customerInfo.deliveryMethod === 'delivery' 
           ? orderData.customerInfo.address 
           : undefined,
@@ -136,17 +134,18 @@ export default function ConfirmOrder() {
         alert(result.message || 'Có lỗi xảy ra khi xử lý đơn hàng của bạn. Vui lòng thử lại.');
         setIsProcessing(false);
         return;
-      }
-
-      // Store order details for confirmation page
+      }      // Store order details for confirmation page
       const orderDetails = {
         orderId: result.orderId || `DH${Date.now()}`,
         customerName: orderData.customerInfo.name,
         customerEmail: orderData.customerInfo.email,
         total: orderData.total,
-        deliveryMethod: orderData.customerInfo.deliveryMethod,
-        tableNumber: orderData.customerInfo.tableNumber,
-        timestamp: new Date().toISOString()
+        deliveryMethod: orderData.mode === 'web' ? orderData.customerInfo.deliveryMethod : undefined, // Only for web mode
+        tableNumber: orderData.mode === 'qr' 
+          ? (orderData.customerInfo.tableNumber || localStorage.getItem('currentTableNumber')) 
+          : orderData.customerInfo.tableNumber,
+        timestamp: new Date().toISOString(),
+        mode: orderData.mode // Add mode to distinguish QR vs Web
       };
       
       sessionStorage.setItem('orderConfirmation', JSON.stringify(orderDetails));
@@ -360,29 +359,39 @@ export default function ConfirmOrder() {
             <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200 lg:order-2 h-fit">
               <h2 className="text-xl font-bold text-[#3E2723] mb-4 pb-2 border-b border-[#D7CCC8]">
                 Customer Information
-              </h2>
+              </h2>              <div className="space-y-4">
+                {/* Only show delivery method for Web mode */}
+                {mode === 'web' && (
+                  <div>
+                    <p className="text-sm text-[#8D6E63]">Delivery Method</p>
+                    <p className="font-medium text-[#3E2723] capitalize">
+                      {customerInfo.deliveryMethod}
+                    </p>
+                  </div>
+                )}
 
-              <div className="space-y-4">
-                <div>
-                  <p className="text-sm text-[#8D6E63]">Delivery Method</p>
-                  <p className="font-medium text-[#3E2723] capitalize">
-                    {customerInfo.deliveryMethod}
-                    {customerInfo.deliveryMethod === 'pickup' && mode === 'qr' && customerInfo.tableNumber && (
-                      <span className="text-base text-[#5D4037] ml-2">
-                        • Table {customerInfo.tableNumber}
-                      </span>
-                    )}
-                  </p>
-                </div>
+                {/* Show table number for QR mode */}
+                {mode === 'qr' && customerInfo.tableNumber && (
+                  <div>
+                    <p className="text-sm text-[#8D6E63]">Table Number</p>
+                    <p className="font-medium text-[#3E2723]">
+                      {customerInfo.tableNumber}
+                    </p>
+                  </div>
+                )}
 
-                {customerInfo.deliveryMethod === 'pickup' ? (
+                {/* Show table number for web pickup mode */}
+                {mode === 'web' && customerInfo.deliveryMethod === 'pickup' && (
                   <div>
                     <p className="text-sm text-[#8D6E63]">Table Number</p>
                     <p className="font-medium text-[#3E2723]">
                       {customerInfo.tableNumber || 'Not specified'}
                     </p>
                   </div>
-                ) : (
+                )}
+
+                {/* Show delivery address for web delivery mode */}
+                {mode === 'web' && customerInfo.deliveryMethod === 'delivery' && (
                   <div>
                     <p className="text-sm text-[#8D6E63]">Delivery Address</p>
                     <p className="font-medium text-[#3E2723]">
@@ -414,11 +423,11 @@ export default function ConfirmOrder() {
                       {customerInfo.note}
                     </p>
                   </div>
-                )}
-
-                <div>
+                )}                <div>
                   <p className="text-sm text-[#8D6E63]">Payment Method</p>
-                  <p className="font-medium text-[#3E2723]">Cash on Delivery</p>
+                  <p className="font-medium text-[#3E2723]">
+                    {mode === 'qr' ? 'Cash Payment' : 'Cash on Delivery'}
+                  </p>
                 </div>
               </div>
             </div>

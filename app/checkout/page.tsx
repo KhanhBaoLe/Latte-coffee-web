@@ -41,34 +41,47 @@ export default function CheckoutPage() {
         address: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [mode, setMode] = useState<'qr' | 'web'>('web');
-
-    useEffect(() => {
-        // Detect mode based on pathname
-        const detectMode = () => {
+    const [mode, setMode] = useState<'qr' | 'web'>('web');    useEffect(() => {        // Detect mode and extract table number from pathname or localStorage
+        const detectModeAndTable = () => {
             const pathname = window.location.pathname;
-
             console.log('Detection Info:', { pathname });
 
-            // Prioritize pathname for mode detection
-            if (pathname.startsWith('/table/')) {
+            // Check if it's table mode
+            if (pathname.includes('/table/')) {
                 console.log('Detected QR mode via pathname:', pathname);
-                return 'qr';
+                
+                // First try to extract table number from URL
+                const tableMatch = pathname.match(/\/table\/(\d+)/);
+                let tableNumber = tableMatch ? tableMatch[1] : '';
+                
+                // If not found in URL, check localStorage
+                if (!tableNumber) {
+                    tableNumber = localStorage.getItem('currentTableNumber') || '';
+                    console.log('Got table number from localStorage:', tableNumber);
+                }
+                
+                console.log('Final table number:', tableNumber);
+                
+                return { mode: 'qr', tableNumber };
             }
 
             // Default to web mode for other paths
             console.log('Defaulting to web mode via pathname:', pathname);
-            return 'web';
-        };
+            return { mode: 'web', tableNumber: '' };
+        };        const { mode: detectedMode, tableNumber } = detectModeAndTable();
+        console.log('Detected mode:', detectedMode, 'Table number:', tableNumber);
+        
+        setMode(detectedMode as 'qr' | 'web');
 
-        const detectedMode = detectMode();
-        setMode(detectedMode);
-
-        // Set initial delivery method based on detected mode
-        setCustomerInfo(prev => ({
-            ...prev,
-            deliveryMethod: detectedMode === 'web' ? 'delivery' : 'pickup'
-        }));
+        // Set initial delivery method and table number based on detected mode
+        setCustomerInfo(prev => {
+            console.log('Setting customer info with table number:', tableNumber);
+            return {
+                ...prev,
+                deliveryMethod: detectedMode === 'web' ? 'delivery' : 'pickup', // For QR mode, this won't be used
+                tableNumber: tableNumber // Auto-fill table number for QR mode
+            };
+        });
 
         // Store mode in localStorage for future reference
         localStorage.setItem('appMode', detectedMode);
@@ -82,13 +95,14 @@ export default function CheckoutPage() {
                 setCustomerInfo(prev => ({
                     ...prev,
                     ...orderData.customerInfo,
-                    tableNumber: orderData.customerInfo.tableNumber || ''
+                    // Keep auto-filled table number for QR mode, don't override
+                    tableNumber: detectedMode === 'qr' ? tableNumber : (orderData.customerInfo.tableNumber || '')
                 }));
-            }
-            // IMPORTANT: If mode is web, force deliveryMethod to 'delivery' after loading stored data
+            }            // IMPORTANT: If mode is web, force deliveryMethod to 'delivery' after loading stored data
             if (detectedMode === 'web') {
                 setCustomerInfo(prev => ({ ...prev, deliveryMethod: 'delivery' }));
             }
+            // For QR mode, deliveryMethod is not needed
         }
     }, []);
 
@@ -96,10 +110,15 @@ export default function CheckoutPage() {
         if (cartItems.length === 0 && !isSubmitting) {
             router.push('/cart');
         }
-    }, [cartItems.length, isSubmitting, router]);
-
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    }, [cartItems.length, isSubmitting, router]);    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        
+        // Prevent changing table number in QR mode
+        if (mode === 'qr' && name === 'tableNumber') {
+            console.log('Table number change blocked in QR mode');
+            return;
+        }
+        
         console.log('Input Change:', { name, value });
         setCustomerInfo(prev => {
             const newState = {
@@ -121,15 +140,14 @@ export default function CheckoutPage() {
     
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        // Validation for QR mode - table number is required for pickup
-        if (mode === 'qr' && customerInfo.deliveryMethod === 'pickup' && !customerInfo.tableNumber) {
-            alert('Please enter your table number for pickup');
+        e.preventDefault();        // Validation for QR mode - table number should be auto-filled
+        if (mode === 'qr' && !customerInfo.tableNumber) {
+            alert('Table number could not be detected. Please try again from the table QR code.');
             return;
         }
 
-        if (customerInfo.deliveryMethod === 'delivery' && !customerInfo.address) {
+        // Validation for web mode - delivery address required for delivery
+        if (mode === 'web' && customerInfo.deliveryMethod === 'delivery' && !customerInfo.address) {
             alert('Please enter your delivery address');
             return;
         }
@@ -418,28 +436,10 @@ export default function CheckoutPage() {
                 {/* Customer Information Form */}
                 <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-[#D7CCC8] order-2">
                     <h2 className="text-lg sm:text-xl font-semibold text-[#3E2723] mb-4">Customer Information</h2>
-                    <form onSubmit={handleSubmit} id="checkout-form" className="space-y-4"> {/* Thêm ID form */}
-                        {/* Delivery Method */}
-                        <div>
-                            <label className="block text-[#5D4037] mb-3 text-sm sm:text-base">Delivery Method *</label>
-                            {mode === 'qr' ? (
-                                <div className="grid grid-cols-1 gap-3 sm:gap-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => handleDeliveryMethodChange('pickup')}
-                                        className={`py-3 px-4 rounded-lg border-2 flex items-center justify-center transition-colors text-sm sm:text-base
-                                            ${customerInfo.deliveryMethod === 'pickup'
-                                                ? 'border-[#5D4037] bg-[#EFEBE9] text-[#3E2723] font-semibold'
-                                                : 'border-[#D7CCC8] text-[#8D6E63] hover:bg-[#F5F0E9]'}`}
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 sm:h-5 sm:w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
-                                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h4.05a2.5 2.5 0 014.9 0H20a1 1 0 001-1v-7a1 1 0 00-.293-.707l-4-4A1 1 0 0016 3H3z" />
-                                        </svg>
-                                        Pickup at Store
-                                    </button>
-                                </div>
-                            ) : (
+                    <form onSubmit={handleSubmit} id="checkout-form" className="space-y-4"> {/* Thêm ID form */}                        {/* Delivery Method - Only show for Web mode */}
+                        {mode === 'web' && (
+                            <div>
+                                <label className="block text-[#5D4037] mb-3 text-sm sm:text-base">Delivery Method *</label>
                                 <div className="grid grid-cols-1 gap-3">
                                     <button
                                         type="button"
@@ -457,16 +457,13 @@ export default function CheckoutPage() {
                                         Home Delivery
                                     </button>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Table Number - Show only in QR mode AND when pickup is selected */}
-                        {mode === 'qr' && customerInfo.deliveryMethod === 'pickup' && (
+                            </div>
+                        )}                        {/* Table Number - Show only in QR mode */}
+                        {mode === 'qr' && (
                             <div>
                                 <label htmlFor="tableNumber" className="block text-[#5D4037] mb-1 text-sm sm:text-base">
                                     Table Number *
-                                </label>
-                                <input
+                                </label>                                <input
                                     type="number"
                                     id="tableNumber"
                                     name="tableNumber"
@@ -474,10 +471,11 @@ export default function CheckoutPage() {
                                     min="1"
                                     max="8"
                                     value={customerInfo.tableNumber}
-                                    onChange={handleInputChange}
-                                    className={`w-full px-4 py-2 rounded-lg border border-[#D7CCC8] focus:outline-none focus:ring-2 focus:ring-[#5D4037] transition-colors placeholder:text-gray-600 text-sm sm:text-base ${customerInfo.tableNumber ? 'font-medium text-black' : 'font-normal text-gray-600'}`}
-                                    placeholder="Enter your table number (1-8)"
+                                    readOnly={true}
+                                    className={`w-full px-4 py-2 rounded-lg border border-[#D7CCC8] bg-gray-100 text-gray-700 font-medium text-sm sm:text-base cursor-not-allowed ${customerInfo.tableNumber ? 'text-black' : 'text-gray-600'}`}
+                                    placeholder="Table number will be auto-filled"
                                 />
+                                <p className="text-xs text-gray-500 mt-1">Table number is automatically detected and cannot be changed</p>
                             </div>
                         )}
 
@@ -548,9 +546,7 @@ export default function CheckoutPage() {
                                 placeholder="Any special instructions for your order?"
                                 rows={3}
                             />
-                        </div>
-
-                        {/* Payment Method Section */}
+                        </div>                        {/* Payment Method Section */}
                         <div className="border-t border-[#D7CCC8] pt-4 mt-6">
                             <h3 className="text-base sm:text-lg font-semibold text-[#3E2723] mb-4">Payment Method</h3>
                             <div className="space-y-2">
@@ -562,7 +558,9 @@ export default function CheckoutPage() {
                                         defaultChecked
                                         className="mr-3"
                                     />
-                                    <span className="text-[#3E2723] text-sm sm:text-base">Cash on Delivery (COD)</span>
+                                    <span className="text-[#3E2723] text-sm sm:text-base">
+                                        {mode === 'qr' ? 'Cash Payment' : 'Cash on Delivery (COD)'}
+                                    </span>
                                 </label>
                                 <label className="flex items-center p-3 border border-[#D7CCC8] rounded-lg cursor-pointer hover:bg-[#F5F0E9] transition-colors opacity-50">
                                     <input

@@ -25,7 +25,7 @@ interface CheckoutData {
     items: OrderItem[];
     total: number;
     paymentMethod: payment_method;
-    deliveryMethod: delivery_method;
+    deliveryMethod?: delivery_method; // Optional for QR orders
     address?: string;
     customer: {
         name: string;
@@ -51,8 +51,9 @@ export async function POST(request: Request) {
             throw new Error('Invalid order total');
         }
 
-        if (!body.deliveryMethod) {
-            throw new Error('Delivery method is required');
+        // Only require delivery method for Web orders, not for QR orders
+        if (body.mode === 'web' && !body.deliveryMethod) {
+            throw new Error('Delivery method is required for web orders');
         }
 
         if (body.deliveryMethod === delivery_method.DELIVERY && !body.address) {
@@ -75,37 +76,36 @@ export async function POST(request: Request) {
         
         // Handle QR orders
         if (mode === 'qr') {
-            if (deliveryMethod === delivery_method.PICKUP) {
-                if (!tableId) {
-                    return NextResponse.json({
-                        success: false,
-                        message: 'Table number is required for pickup orders in QR mode'
-                    }, { status: 400 });
-                }
-                
-                console.log('Table ID:', tableId);
-                
-                tableData = await prisma.manager_table.findFirst({
-                    where: { id: tableId }
-                });
-                
-                console.log('Found table data:', tableData);
-                if (!tableData) {
-                    return NextResponse.json({
-                        success: false,
-                        message: `Table with ID ${tableId} not found`
-                    }, { status: 400 });
-                }
+            // For QR orders, table is required but delivery method is not needed
+            if (!tableId) {
+                return NextResponse.json({
+                    success: false,
+                    message: 'Table number is required for QR orders'
+                }, { status: 400 });
+            }
+            
+            console.log('Table Number:', tableId);
+            
+            // Find table by tableId (table number) instead of ID
+            tableData = await prisma.manager_table.findFirst({
+                where: { tableId: parseInt(tableId) }
+            });
+            
+            console.log('Found table data:', tableData);
+            if (!tableData) {
+                return NextResponse.json({
+                    success: false,
+                    message: `Table number ${tableId} not found`
+                }, { status: 400 });
             }
 
-            // Create QR order
+            // Create QR order without delivery method
             const order = await prisma.order.create({
                 data: {
-                    table: tableData ? { connect: { id: tableData.id } } : undefined,
+                    table: { connect: { id: tableData.id } },
                     total: total,
                     status: order_status.PENDING,
-                    deliveryMethod: deliveryMethod,
-                    deliveryAddress: address,
+                    // No deliveryMethod for QR orders since customers are dining in
                     customerName: customer.name,
                     customerEmail: customer.email,
                     customerPhone: customer.phone,
@@ -141,12 +141,11 @@ export async function POST(request: Request) {
                 }
             });
 
-            if (deliveryMethod === delivery_method.PICKUP && tableData) {
-                await prisma.manager_table.update({
-                    where: { id: tableData.id },
-                    data: { status: 'reserved' }
-                });
-            }
+            // Mark table as reserved for QR orders
+            await prisma.manager_table.update({
+                where: { id: tableData.id },
+                data: { status: 'reserved' }
+            });
 
             return NextResponse.json({
                 success: true,

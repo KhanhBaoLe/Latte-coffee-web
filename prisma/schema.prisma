@@ -55,8 +55,6 @@ model order {
   items           order_item[]
   total           Float
   status          order_status    @default(PENDING)
-  deliveryMethod  delivery_method @default(PICKUP)
-  deliveryAddress String?
   customerName    String
   customerEmail   String
   customerPhone   String

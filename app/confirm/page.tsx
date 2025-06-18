@@ -18,17 +18,58 @@ export default function OrderConfirmation() {
   const router = useRouter();
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const storedOrder = sessionStorage.getItem('orderConfirmation');
+    
     if (storedOrder) {
-      setOrderDetails(JSON.parse(storedOrder));
+      try {
+        setOrderDetails(JSON.parse(storedOrder));
+      } catch (e) {
+        console.error('Failed to parse stored order:', e);
+        // Try to get from URL params as fallback
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+        const total = urlParams.get('total');
+        const mode = urlParams.get('mode');
+        
+        if (orderId && total) {
+          const fallbackOrder: OrderDetails = {
+            orderId,
+            customerName: 'Customer', // Default fallback
+            customerEmail: '',
+            total: parseFloat(total),
+            timestamp: new Date().toISOString(),
+            mode: (mode as 'qr' | 'web') || 'web'
+          };
+          setOrderDetails(fallbackOrder);
+        } else {
+          router.push('/');
+        }
+      }
     } else {
-      // If no order details, redirect to home
-      router.push('/');
+      // Try to get from URL params as fallback
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('orderId');
+      const total = urlParams.get('total');
+      const mode = urlParams.get('mode');
+      
+      if (orderId && total) {
+        const fallbackOrder: OrderDetails = {
+          orderId,
+          customerName: 'Customer', // Default fallback
+          customerEmail: '',
+          total: parseFloat(total),
+          timestamp: new Date().toISOString(),
+          mode: (mode as 'qr' | 'web') || 'web'
+        };
+        setOrderDetails(fallbackOrder);
+      } else {
+        // If no order details anywhere, redirect to home
+        router.push('/');
+      }
     }
     setLoading(false);
-  }, [router]);  const formatOrderTime = (timestamp: string) => {
+  }, [router]);const formatOrderTime = (timestamp: string) => {
     const date = new Date(timestamp);
     return date.toLocaleString('en-US', {
       year: 'numeric',

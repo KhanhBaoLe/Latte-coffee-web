@@ -30,6 +30,7 @@ type CheckoutApiResponse = {
   success: boolean;
   message?: string;
   orderId?: string;
+  order?: { id: string }; // Add this to handle API response structure
 };
 
 export default function ConfirmOrder() {
@@ -88,9 +89,7 @@ export default function ConfirmOrder() {
       return;
     }
 
-    setIsProcessing(true);
-
-    try {      const checkoutData = {
+    setIsProcessing(true);    try {      const checkoutData = {
         tableId: orderData.mode === 'qr'
           ? orderData.customerInfo.tableNumber // Send just the table number for QR mode
           : undefined,
@@ -120,23 +119,36 @@ export default function ConfirmOrder() {
       };
 
       console.log('Sending checkout data to API:', checkoutData);
+      
+      // Add timeout for API call to handle slow database responses
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(checkoutData)
+        body: JSON.stringify(checkoutData),
+        signal: controller.signal
       });
 
+      clearTimeout(timeoutId);
       result = await response.json();
-
-      if (!response.ok || !result.success) {
-        alert(result.message || 'Có lỗi xảy ra khi xử lý đơn hàng của bạn. Vui lòng thử lại.');
+      
+      console.log('API Response:', result);      if (!response.ok || !result.success) {
+        console.error('Order submission failed:', result);
+        const errorMessage = result.message || 'Có lỗi xảy ra khi xử lý đơn hàng của bạn. Vui lòng thử lại.';
+        alert(errorMessage);
         setIsProcessing(false);
         return;
-      }      // Store order details for confirmation page
+      }
+
+      console.log('Order created successfully:', result);
+
+      // Store order details for confirmation page with more robust error handling
       const orderDetails = {
-        orderId: result.orderId || `DH${Date.now()}`,
+        orderId: result.orderId || result.order?.id || `DH${Date.now()}`,
         customerName: orderData.customerInfo.name,
         customerEmail: orderData.customerInfo.email,
         total: orderData.total,
@@ -148,15 +160,66 @@ export default function ConfirmOrder() {
         mode: orderData.mode // Add mode to distinguish QR vs Web
       };
       
-      sessionStorage.setItem('orderConfirmation', JSON.stringify(orderDetails));
+      console.log('Storing order confirmation:', orderDetails);
+      
+      try {
+        sessionStorage.setItem('orderConfirmation', JSON.stringify(orderDetails));
+        console.log('Order confirmation stored successfully');
+      } catch (storageError) {
+        console.error('Failed to store order confirmation:', storageError);
+        // Fallback: store minimal data in URL params
+        const params = new URLSearchParams({
+          orderId: orderDetails.orderId,
+          total: orderDetails.total.toString(),
+          mode: orderDetails.mode
+        });
+        router.push(`/confirm?${params.toString()}`);
+        return;
+      }
+
       clearCart();
-      sessionStorage.removeItem('currentOrder');
-      sessionStorage.removeItem('qrTable');
+      
+      // Clean up session storage
+      try {
+        sessionStorage.removeItem('currentOrder');
+        sessionStorage.removeItem('qrTable');
+      } catch (e) {
+        console.warn('Failed to clean up session storage:', e);
+      }
+      
       setIsConfirmed(true);
-      router.push('/confirm');
-    } catch (error) {
+      
+      // Add small delay to ensure state updates are processed
+      setTimeout(() => {
+        router.push('/confirm');
+      }, 100);    } catch (error) {
       console.error('Error processing order:', error);
-      alert('Đã xảy ra lỗi mạng. Vui lòng kiểm tra kết nối internet của bạn và thử lại.');
+      
+      let errorMessage = 'Đã xảy ra lỗi khi xử lý đơn hàng.';
+      
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Kết nối quá chậm. Database có thể đang quá tải. Vui lòng thử lại sau vài phút.';
+        } else if (error.message.includes('fetch')) {
+          errorMessage = 'Lỗi kết nối mạng. Vui lòng kiểm tra internet và thử lại.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Kết nối hết thời gian chờ. Database có thể đang chậm. Vui lòng thử lại.';
+        }
+      }
+      
+      alert(errorMessage);
+      
+      // If it's a timeout or network error, suggest retrying
+      if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('timeout'))) {
+        const retry = confirm('Bạn có muốn thử lại không? (Đơn hàng có thể đã được tạo, vui lòng kiểm tra lại)');
+        if (retry) {
+          // Wait a bit before retrying
+          setTimeout(() => {
+            setIsProcessing(false);
+          }, 2000);
+          return;
+        }
+      }
     } finally {
       setIsProcessing(false);
     }

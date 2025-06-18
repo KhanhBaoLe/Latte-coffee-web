@@ -18,7 +18,7 @@ model category {
 }
 
 model product {
-  id            String         @id
+  id            String           @id
   title         String
   description   String
   price         Float
@@ -32,10 +32,10 @@ model product {
   drinkOptions  Json
   toppings      Json
   basePrices    Json
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   orderItems    order_item[]
-  category      category       @relation(fields: [categoryId], references: [id])
+  category      category         @relation(fields: [categoryId], references: [id])
   webOrderItems web_order_item[]
 }
 
@@ -46,45 +46,49 @@ model manager_table {
   updatedAt DateTime @updatedAt
   status    String   @default("available")
   orders    order[]
+
+  @@index([status])
+  @@index([tableId], map: "manager_table_tableid_idx")
 }
 
 model order {
-  id              String         @id @default(cuid())
-  table           manager_table?  @relation(fields: [tableId], references: [id])
-  tableId         String?
-  items           order_item[]
-  total           Float
-  status          order_status    @default(PENDING)
-  customerName    String
-  customerEmail   String
-  customerPhone   String
-  note            String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  payment         payment?
+  id            String         @id @default(cuid())
+  tableId       String?
+  total         Float
+  status        order_status   @default(PENDING)
+  customerName  String
+  customerEmail String
+  customerPhone String
+  note          String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  table         manager_table? @relation(fields: [tableId], references: [id])
+  items         order_item[]
+  payment       payment?
+
+  @@index([status])
+  @@index([tableId], map: "order_tableid_idx")
 }
 
 model web_order {
-  id              String         @id @default(cuid())
-  items           web_order_item[]
+  id              String           @id @default(cuid())
   total           Float
-  status          order_status    @default(PENDING)
-  deliveryMethod  delivery_method @default(PICKUP)
+  status          order_status     @default(PENDING)
+  deliveryMethod  delivery_method  @default(PICKUP)
   deliveryAddress String?
   customerName    String
   customerEmail   String
   customerPhone   String
   note            String?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   payment         payment?
+  items           web_order_item[]
 }
 
 model web_order_item {
-  id        String   @id @default(cuid())
-  order     web_order @relation(fields: [orderId], references: [id])
+  id        String    @id @default(cuid())
   orderId   String
-  product   product  @relation(fields: [productId], references: [id])
   productId String
   quantity  Int
   price     Float
@@ -92,8 +96,10 @@ model web_order_item {
   milk      String?
   drink     String?
   toppings  String[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  order     web_order @relation(fields: [orderId], references: [id])
+  product   product   @relation(fields: [productId], references: [id])
 }
 
 model order_item {
@@ -111,19 +117,21 @@ model order_item {
   updatedAt DateTime @updatedAt
   order     order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([orderId], map: "order_item_orderid_idx")
 }
 
 model payment {
-  id            String        @id @default(cuid())
-  order         order?        @relation(fields: [orderId], references: [id])
-  orderId       String?       @unique
-  webOrder      web_order?     @relation(fields: [webOrderId], references: [id])
-  webOrderId    String?       @unique
+  id            String         @id @default(cuid())
+  orderId       String?        @unique
+  webOrderId    String?        @unique
   amount        Float
   paymentMethod payment_method
   status        payment_status @default(PENDING)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  order         order?         @relation(fields: [orderId], references: [id])
+  webOrder      web_order?     @relation(fields: [webOrderId], references: [id])
 }
 
 enum order_status {
@@ -154,4 +162,9 @@ enum delivery_method {
   DELIVERY
   DINE_IN
   WEB_DELIVERY
+}
+
+enum table_status {
+  available
+  reserved
 }

@@ -141,15 +141,18 @@ export async function POST(request: Request) {
                 }
             });
 
-            // Mark table as reserved for QR orders
-            await prisma.manager_table.update({
-                where: { id: tableData.id },
-                data: { status: 'reserved' }
-            });
+            // Mark table as reserved for QR orders - temporarily commented out due to schema issue
+            // await prisma.manager_table.update({
+            //     where: { id: tableData.id },
+            //     data: { status: 'reserved' }
+            // });
+
+            console.log('QR Order created successfully:', order.id);
 
             return NextResponse.json({
                 success: true,
                 message: 'Order created successfully',
+                orderId: order.id, // Make sure we return the order ID
                 order: order,
                 tableCode: tableData?.tableId
             });
@@ -197,9 +200,12 @@ export async function POST(request: Request) {
                 }
             });
 
+            console.log('Web Order created successfully:', webOrder.id);
+
             return NextResponse.json({
                 success: true,
                 message: 'Web order created successfully',
+                orderId: webOrder.id, // Make sure we return the order ID
                 order: webOrder
             });
         }
